@@ -32,7 +32,7 @@ export default async function HomePage() {
   // Fetch latest articles for the teaser (also fail quietly).
   let articles = []
   try {
-    articles = (await getArticles()).slice(0, 2)
+    articles = (await getArticles()).slice(0, 8)
   } catch (err) {
     console.error('Homepage articles error:', err)
   }
