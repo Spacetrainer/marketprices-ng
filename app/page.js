@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getPrices } from '@/lib/prices'
 import { getArticles } from '@/lib/notion'
+import { getVideos } from "@/lib/youtube";
 import Ticker from './Ticker'
 
 export const dynamic = 'force-dynamic'
@@ -35,6 +36,14 @@ export default async function HomePage() {
     articles = (await getArticles()).slice(0, 8)
   } catch (err) {
     console.error('Homepage articles error:', err)
+  }
+
+  // Fetch latest videos for the homepage row (also fail quietly).
+  let videos = [];
+  try {
+    videos = (await getVideos(8)).slice(0, 4);
+  } catch (err) {
+    console.error("Homepage videos error:", err);
   }
 
   return (
@@ -90,6 +99,47 @@ export default async function HomePage() {
             </Link>
           </div>
         </section>
+
+        {videos.length > 0 && (
+          <section className="max-w-5xl mx-auto px-6 pb-20">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-medium text-gray-900">Latest videos</h2>
+              <Link href="/videos" className="text-sm text-green-700 no-underline hover:text-green-800">
+                View all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+              {videos.map((video) => (
+                <Link
+                  key={video.id}
+                  href="/videos"
+                  className="group block no-underline"
+                >
+                  <div className="relative w-full overflow-hidden rounded-lg bg-gray-100" style={{ paddingBottom: "56.25%" }}>
+                    {video.thumbnail ? (
+                      <img
+                        src={video.thumbnail}
+                        alt={video.title}
+                        className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="absolute top-0 left-0 w-full h-full bg-gray-200" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-black/60">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  <h3 className="text-sm font-medium text-gray-900 mt-2 group-hover:text-green-700">{video.title}</h3>
+                  <p className="text-xs text-gray-500 mt-1">{formatDate(video.publishedAt)}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* LATEST ARTICLES TEASER */}
         {articles.length > 0 ? (

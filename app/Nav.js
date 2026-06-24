@@ -11,6 +11,7 @@ export default function Nav() {
     { href: "/food-and-drinks", label: "Food & Drinks" },
     { href: "/experience", label: "Experience" },
     { href: "/learn", label: "Learn" },
+    { href: "/videos", label: "Videos" },
   ];
 
   return (
