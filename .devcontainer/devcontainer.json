@@ -1,0 +1,27 @@
+{
+  "name": "MarketPrices",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "mounts": [
+    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
+  ],
+  "forwardPorts": [3000, 54323],
+  "portsAttributes": {
+    "3000": { "label": "Next.js", "onAutoForward": "notify" }
+  },
+  "postCreateCommand": "bash scripts/postCreate.sh",
+  "remoteUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "supabase.postgrestools"
+      ]
+    }
+  }
+}
