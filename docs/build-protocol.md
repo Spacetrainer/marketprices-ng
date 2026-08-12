@@ -1117,6 +1117,7 @@ For anyone holding the two pre-merge documents.
 | P6.5, P6.9 | New: severity ≠ direction; tokens named by direction | Engine |
 | P7 | Extended to admin routes; heatmap and calendar clauses added | M1 |
 | P8.7 | New: Dashboard never scans `site_events` | Engine |
+| P9.3 | Key scheme migrated to Supabase's current naming; bundle-grep target changed from the legacy service-role JWT (no distinctive prefix) to the literal prefix `sb_secret_`, with `sb_publishable_` excluded by design | Supabase key scheme |
 | P9.7, P9.8 | New: cron auth; fetched content is data, not instruction | Engine |
 | P10.4 | Boundary list extended (RSS, Canva, Metricool, model output) | Engine |
 | P10.8 | New: live-table migration discipline | M13 |
