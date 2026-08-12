@@ -549,9 +549,13 @@ public query and from the generated public view. A price row's attribution uses 
 leaked list of field collectors' phone numbers is a safety problem for them, not an
 embarrassment for you.
 
-**P9.3 — `SUPABASE_SERVICE_ROLE_KEY` never enters a client bundle.** A CI step greps the built
-`.next/static` output for the key's prefix and fails on a match. This check has caught this
-mistake on more projects than any other single check.
+**P9.3 — `SUPABASE_SECRET_KEY` never enters a client bundle. [M — key scheme]** A CI step greps
+the built `.next/static` output for the literal prefix `sb_secret_` and fails on a match. Grep
+for `sb_secret_` and nothing else: the publishable key (`sb_publishable_`) is public by design,
+ships in the client bundle by intent, and adding it to the pattern makes the check fail on every
+correct build — at which point someone deletes the check. Legacy service-role keys were JWTs
+with no distinctive prefix, which is why this check used to be approximate; `sb_secret_` makes it
+exact. This check has caught this mistake on more projects than any other single check.
 
 **P9.4 — `/admin` is `noindex, nofollow`, rate-limited on login, 2FA-mandatory for Admin and
 Editor, and linked only from the footer legal row.**
@@ -920,7 +924,7 @@ above is its explanation.
 | Lighthouse CI as a failing check | P8.1, P6.8 |
 | No-iframe Playwright test | P8.2 |
 | Rollup-only Dashboard queries + query plan review | P8.7 |
-| Bundle grep for service-role key | P9.3 |
+| Bundle grep for `sb_secret_` in `.next/static` | P9.3 |
 | `CRON_SECRET` middleware on `/api/cron/*` | P9.7 |
 | Delimited untrusted-content wrapper in every ingest prompt | P9.8 |
 | Type-generation diff check | P10.2 |

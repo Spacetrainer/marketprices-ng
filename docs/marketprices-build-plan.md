@@ -128,7 +128,7 @@ Every one of them verifies `CRON_SECRET` before doing anything (P9.7).
 
 | Service | Used for | Credential |
 |---|---|---|
-| Supabase | DB, auth, storage | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
+| Supabase | DB, auth, storage | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` |
 | Vercel | Hosting, cron, analytics | `VERCEL_TOKEN` (CI only) |
 | Anthropic API | The production chains | `ANTHROPIC_API_KEY` |
 | **Canva** | Header and video rendering via MCP | `CANVA_*` per the connector |
@@ -337,8 +337,10 @@ Set under **GitHub → Settings → Codespaces → Secrets**, never in a committ
 ```
 CLAUDE_CODE_OAUTH_TOKEN     # generate on your laptop: claude setup-token
 NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+SUPABASE_SECRET_KEY
+SUPABASE_PROJECT_ID         # used by `pnpm db:types`
+DATABASE_URL                # used by `pnpm db:seed` — embeds the database password
 ANTHROPIC_API_KEY
 YOUTUBE_API_KEY
 YOUTUBE_CHANNEL_ID
@@ -351,6 +353,12 @@ FX_API_KEY
 
 Commit a `.env.example` listing every key with empty values, and put `.env*.local` in
 `.gitignore` in the first commit.
+
+These are Supabase's current key names. `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (prefix
+`sb_publishable_`) is public by design and ships in the client bundle. `SUPABASE_SECRET_KEY`
+(prefix `sb_secret_`) is server-only and is what P9.3's bundle grep hunts for. `DATABASE_URL`
+embeds the database password, so it is a Codespaces secret like the rest and never a committed
+value.
 
 ### 3.5 `CLAUDE.md` — the highest-leverage file in this build
 
@@ -1523,7 +1531,7 @@ then leave it alone for two months before you act on it.
 | Performance | Lighthouse CI wired to the §11.3 budget as a **failing** PR check. Self-host fonts, preload the two above-fold weights, verify `₦` renders at 13/18/30px in every weight |
 | Accessibility | `@axe-core/playwright` across every route, public and admin. Manual keyboard pass including calendar reschedule. Greyscale review of `/prices` and the radar |
 | Testing | Playwright smoke test per route, visual regression on the homepage, `/prices`, the radar heatmap and a gapped sparkline |
-| Security | RLS re-review, rate limits on `/api/ingest` and login, `CRON_SECRET` on every job, `noindex` on `/admin`, **the P12.5 public-boundary tests**, secret rotation, service-role bundle grep |
+| Security | RLS re-review, rate limits on `/api/ingest` and login, `CRON_SECRET` on every job, `noindex` on `/admin`, **the P12.5 public-boundary tests**, secret rotation, `sb_secret_` bundle grep |
 | Protocol | A full P19 enforcement-table sweep — every row verified as actually wired, not just intended |
 | Content | Methodology and AI disclosure pages reviewed and live |
 
