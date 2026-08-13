@@ -112,3 +112,15 @@
    * utility form — a deferral, not an oversight.
    */
 }
+
+/* PriceTicker's marquee (§4.1). Referenced via Tailwind's arbitrary animate-[marquee_...]
+   utility; tokens.css's global reduced-motion rule (animation-duration: 0.01ms) already
+   freezes this, motion-reduce:animate-none below is the belt-and-braces layout-correct one. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

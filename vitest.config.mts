@@ -6,4 +6,9 @@ import { defineConfig } from "vitest/config";
 // this plugin — confirmed by testing the esbuild-only config first (it wasn't enough).
 export default defineConfig({
   plugins: [react()],
+  test: {
+    // tests/e2e is Playwright's — its .spec.ts files use @playwright/test's own test()
+    // and must not be picked up by Vitest's default glob.
+    exclude: ["**/node_modules/**", "tests/e2e/**"],
+  },
 });

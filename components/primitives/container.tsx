@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 export interface ContainerProps extends HTMLAttributes<HTMLDivElement> {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 // --container and --gutter are deliberately not mapped into @theme yet (see globals.css),
