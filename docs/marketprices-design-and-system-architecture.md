@@ -275,6 +275,7 @@ together. Do not fork this decision per surface.
 | `--ink-500` | `#6B7280` | Body, excerpts |
 | `--ink-400` | `#5A6474` | Meta, timestamps — darkened from the reference for AA |
 | `--line-200` | `#E5E8EE` | Borders, hairlines, dividers |
+| `--line-300` | `#D9DEE7` | Outline chip and secondary-button borders — a stronger hairline than `--line-200` |
 | `--surface-0` | `#FFFFFF` | Page and cards |
 | `--surface-50` | `#F7F8FA` | Row hover, engine content background |
 | `--on-dark` | `#FFFFFF` | Text on navy |
@@ -301,7 +302,7 @@ Seven sections, seven pastels. No yellow (protects amber), no saturated green or
 
 All seven pairings clear 7:1. On photography, chips switch to `rgba(255,255,255,0.92)` fill
 with the same label colour. **Secondary chips** (country, commodity) use a neutral outline —
-`1px #D9DEE7`, transparent, label `--ink-500` — so a card never carries two filled chips.
+`1px --line-300`, transparent, label `--ink-500` — so a card never carries two filled chips.
 
 The engine's **format chips** reuse two of these pairings rather than introducing new colour:
 Article takes the Prices sky pairing, Video takes the Interviews rose pairing (§8.9).
@@ -765,7 +766,7 @@ Recognisably the same brand, unmistakably a different mode.
 | Density | Generous | Compact — 32px table rows, 40px where a row carries two lines |
 | Radius | 8/12px | 6px buttons, 8px cards, 4px chips |
 | Primary action | Amber | Amber, label `--navy-deep` 700 |
-| Secondary action | Outline | White, `1px #D9DEE7`, label `--ink-900` |
+| Secondary action | Outline | White, `1px --line-300`, label `--ink-900` |
 | Destructive | — | `--fall` |
 
 Reuse every token. Change only density and background. Numbers are `tabular-nums` everywhere
