@@ -1,0 +1,124 @@
+:root {
+  /* Chrome */
+  --navy-deep:     #0A1E42;
+  --navy-brand:    #123C74;
+
+  /* Action */
+  --amber-action:  #F59E0B;
+  --amber-hover:   #D97706;
+  --on-action:     #0A1E42;
+
+  /* Price semantics — named by DIRECTION, not sentiment. Both surfaces read these. */
+  --rise:          #15803D;
+  --rise-bg:       #DCFCE7;
+  --rise-bar:      #16A34A;
+  --fall:          #B91C1C;
+  --fall-bg:       #FEE2E2;
+  --fall-bar:      #DC2626;
+  --flat:          #6B7280;
+  --flat-bg:       #F1F3F6;
+
+  /* Ink */
+  --ink-900:       #16181D;
+  --ink-500:       #6B7280;
+  --ink-400:       #5A6474;
+  --line-200:      #E5E8EE;
+  --surface-0:     #FFFFFF;
+  --surface-50:    #F7F8FA;
+  --on-dark:       #FFFFFF;
+  --on-dark-muted: #B8C3D6;
+
+  /* Section chips */
+  --chip-prices-bg:     #D5EAFA; --chip-prices-fg:     #14456F;
+  --chip-production-bg: #F0E7D6; --chip-production-fg: #6B5533;
+  --chip-tech-bg:       #E4E2FB; --chip-tech-fg:       #3B357A;
+  --chip-markets-bg:    #D6EFEC; --chip-markets-fg:    #155E56;
+  --chip-govt-bg:       #E3E7EE; --chip-govt-fg:       #39445A;
+  --chip-interviews-bg: #FADCE6; --chip-interviews-fg: #7A2540;
+  --chip-africa-bg:     #FBDDCF; --chip-africa-fg:     #7A3A1C;
+
+  /* Engine surfaces (no new colour — reuses the above) */
+  --chip-article-bg:   var(--chip-prices-bg);     --chip-article-fg:   var(--chip-prices-fg);
+  --chip-video-bg:     var(--chip-interviews-bg); --chip-video-fg:     var(--chip-interviews-fg);
+  --sev-critical:      var(--navy-deep);
+  --sev-high:          var(--navy-brand);
+  --sev-moderate:      var(--navy-brand);
+  --sidebar-inactive:  #8A9AB6;
+
+  /* Type */
+  --font-ui:      'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Bakbak One', 'Archivo Expanded', sans-serif;
+  --font-mono:    ui-monospace, 'SFMono-Regular', monospace;  /* calendar chip times only */
+
+  --fs-display:  54px;  --fs-article:  36px;  --fs-h1:       30px;
+  --fs-h2:       28px;  --fs-h3:       26px;  --fs-price-lg: 20px;
+  --fs-h4:       19px;  --fs-body-lg:  17px;  --fs-card:     16px;
+  --fs-nav:      15px;  --fs-table:    14px;  --fs-body:     13px;
+  --fs-meta:     12px;  --fs-chip:     11px;
+  --fs-kpi:      24px;  --fs-queue:    28px;   /* engine dashboard figures */
+
+  /* Space (4px base) */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 20px;  --sp-6: 24px;  --sp-7: 28px;  --sp-8: 32px;
+  --sp-10: 40px; --sp-12: 48px; --sp-14: 56px; --sp-16: 64px;
+  --sp-18: 72px; --sp-20: 80px;
+
+  /* Shape */
+  --r-mosaic: 12px;  --r-card: 8px;  --r-btn: 6px;  --r-chip: 4px;  --r-pill: 999px;
+
+  --border:       1px solid var(--line-200);
+  --shadow-rest:  0 1px 2px rgba(16,24,40,0.04);
+  --shadow-hover: 0 6px 16px rgba(16,24,40,0.08);
+
+  /* Layout */
+  --container:  1280px;
+  --gutter:     24px;
+  --rail:       276px;
+  --ticker-h:   44px;
+  --nav-h:      72px;
+  --admin-side: 240px;
+  --row-dense:  32px;
+  --row-two-line: 40px;
+  --heat-w:     36px;
+  --heat-h:     28px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur:  180ms;
+}
+
+/* Every number in the product — public site and control room alike */
+.num, table, .price, .change, .kpi, .queue-count {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.scrim {
+  background: linear-gradient(180deg,
+    rgba(10,30,66,0) 0%,
+    rgba(10,30,66,0.10) 40%,
+    rgba(10,30,66,0.82) 100%);
+}
+
+.btn {
+  background: var(--amber-action);
+  color: var(--on-action);
+  font: 700 14px/1 var(--font-ui);
+  padding: 10px 24px;
+  border-radius: var(--r-btn);
+  transition: background var(--dur) var(--ease);
+}
+.btn:hover { background: var(--amber-hover); }
+
+/* A missing week is drawn, never filled */
+.heat-missing {
+  background: repeating-linear-gradient(45deg,
+    #E9ECF1 0 4px, #F7F8FA 4px 8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
