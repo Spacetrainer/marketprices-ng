@@ -1,0 +1,1 @@
+- [Stage 1] CLAUDE.md summary lists "grid 972px" but architecture §13 defines no --grid token (972 appears nowhere). tokens.css written faithful to §13. Reconcile before the first component that uses the main content grid: either add --grid:972px to §13 then tokens.css (per P6.2, doc first), or drop "grid 972px" from the CLAUDE.md summary. Decision pending.
