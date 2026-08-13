@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+@theme inline {
+  /* Colours */
+  --color-navy-deep: var(--navy-deep);
+  --color-navy-brand: var(--navy-brand);
+
+  --color-amber-action: var(--amber-action);
+  --color-amber-hover: var(--amber-hover);
+  --color-on-action: var(--on-action);
+
+  --color-rise: var(--rise);
+  --color-rise-bg: var(--rise-bg);
+  --color-rise-bar: var(--rise-bar);
+  --color-fall: var(--fall);
+  --color-fall-bg: var(--fall-bg);
+  --color-fall-bar: var(--fall-bar);
+  --color-flat: var(--flat);
+  --color-flat-bg: var(--flat-bg);
+
+  --color-ink-900: var(--ink-900);
+  --color-ink-500: var(--ink-500);
+  --color-ink-400: var(--ink-400);
+  --color-line-200: var(--line-200);
+  --color-surface-0: var(--surface-0);
+  --color-surface-50: var(--surface-50);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
+
+  --color-chip-prices-bg: var(--chip-prices-bg);
+  --color-chip-prices-fg: var(--chip-prices-fg);
+  --color-chip-production-bg: var(--chip-production-bg);
+  --color-chip-production-fg: var(--chip-production-fg);
+  --color-chip-tech-bg: var(--chip-tech-bg);
+  --color-chip-tech-fg: var(--chip-tech-fg);
+  --color-chip-markets-bg: var(--chip-markets-bg);
+  --color-chip-markets-fg: var(--chip-markets-fg);
+  --color-chip-govt-bg: var(--chip-govt-bg);
+  --color-chip-govt-fg: var(--chip-govt-fg);
+  --color-chip-interviews-bg: var(--chip-interviews-bg);
+  --color-chip-interviews-fg: var(--chip-interviews-fg);
+  --color-chip-africa-bg: var(--chip-africa-bg);
+  --color-chip-africa-fg: var(--chip-africa-fg);
+  --color-chip-article-bg: var(--chip-article-bg);
+  --color-chip-article-fg: var(--chip-article-fg);
+  --color-chip-video-bg: var(--chip-video-bg);
+  --color-chip-video-fg: var(--chip-video-fg);
+
+  --color-sev-critical: var(--sev-critical);
+  --color-sev-high: var(--sev-high);
+  --color-sev-moderate: var(--sev-moderate);
+  --color-sidebar-inactive: var(--sidebar-inactive);
+
+  /* Fonts */
+  --font-ui: var(--font-ui);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  /* Font sizes */
+  --text-fs-display: var(--fs-display);
+  --text-fs-article: var(--fs-article);
+  --text-fs-h1: var(--fs-h1);
+  --text-fs-h2: var(--fs-h2);
+  --text-fs-h3: var(--fs-h3);
+  --text-fs-price-lg: var(--fs-price-lg);
+  --text-fs-h4: var(--fs-h4);
+  --text-fs-body-lg: var(--fs-body-lg);
+  --text-fs-card: var(--fs-card);
+  --text-fs-nav: var(--fs-nav);
+  --text-fs-table: var(--fs-table);
+  --text-fs-body: var(--fs-body);
+  --text-fs-meta: var(--fs-meta);
+  --text-fs-chip: var(--fs-chip);
+  --text-fs-kpi: var(--fs-kpi);
+  --text-fs-queue: var(--fs-queue);
+
+  /* Spacing */
+  --spacing-sp-1: var(--sp-1);
+  --spacing-sp-2: var(--sp-2);
+  --spacing-sp-3: var(--sp-3);
+  --spacing-sp-4: var(--sp-4);
+  --spacing-sp-5: var(--sp-5);
+  --spacing-sp-6: var(--sp-6);
+  --spacing-sp-7: var(--sp-7);
+  --spacing-sp-8: var(--sp-8);
+  --spacing-sp-10: var(--sp-10);
+  --spacing-sp-12: var(--sp-12);
+  --spacing-sp-14: var(--sp-14);
+  --spacing-sp-16: var(--sp-16);
+  --spacing-sp-18: var(--sp-18);
+  --spacing-sp-20: var(--sp-20);
+
+  /* Radii */
+  --radius-r-mosaic: var(--r-mosaic);
+  --radius-r-card: var(--r-card);
+  --radius-r-btn: var(--r-btn);
+  --radius-r-chip: var(--r-chip);
+  --radius-r-pill: var(--r-pill);
+
+  /* Shadows */
+  --shadow-rest: var(--shadow-rest);
+  --shadow-hover: var(--shadow-hover);
+
+  /*
+   * Deliberately not mapped into @theme yet: layout dimensions (--container,
+   * --gutter, --rail, --ticker-h, --nav-h, --admin-side, --row-dense,
+   * --row-two-line, --heat-w, --heat-h), --border, and motion (--ease, --dur).
+   * These stay reachable as plain CSS variables (e.g. w-[var(--rail)]) and
+   * get a @theme entry the first time a component actually needs the
+   * utility form — a deferral, not an oversight.
+   */
+}
