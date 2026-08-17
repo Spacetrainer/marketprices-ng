@@ -14,6 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
+      collection_sites: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          is_active: boolean
+          lat: number | null
+          lng: number | null
+          name: string
+          state: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lat?: number | null
+          lng?: number | null
+          name: string
+          state: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          state?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collectors: {
+        Row: {
+          accuracy_score: number | null
+          created_at: string
+          id: string
+          is_active: boolean
+          is_trusted: boolean
+          name: string
+          phone: string
+          submission_count: number
+          updated_at: string
+        }
+        Insert: {
+          accuracy_score?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_trusted?: boolean
+          name: string
+          phone: string
+          submission_count?: number
+          updated_at?: string
+        }
+        Update: {
+          accuracy_score?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_trusted?: boolean
+          name?: string
+          phone?: string
+          submission_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      commodities: {
+        Row: {
+          aliases: string[]
+          canonical_name: string
+          category: string
+          commodity_group: string
+          created_at: string
+          default_unit_id: string
+          display_order: number
+          icon: string | null
+          id: string
+          is_active: boolean
+          is_tracked: boolean
+          seasonality_profile: Json | null
+          site_offset_pct: number | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          aliases?: string[]
+          canonical_name: string
+          category: string
+          commodity_group: string
+          created_at?: string
+          default_unit_id: string
+          display_order: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_tracked?: boolean
+          seasonality_profile?: Json | null
+          site_offset_pct?: number | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          aliases?: string[]
+          canonical_name?: string
+          category?: string
+          commodity_group?: string
+          created_at?: string
+          default_unit_id?: string
+          display_order?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_tracked?: boolean
+          seasonality_profile?: Json | null
+          site_offset_pct?: number | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodities_default_unit_id_fkey"
+            columns: ["default_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entitlements: {
         Row: {
           created_at: string
@@ -47,6 +184,45 @@ export type Database = {
           tier?: Database["public"]["Enums"]["entitlement_tier"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      media: {
+        Row: {
+          alt: string
+          caption: string | null
+          created_at: string
+          height: number
+          id: string
+          updated_at: string
+          uploaded_by: string | null
+          url: string
+          variants: Json
+          width: number
+        }
+        Insert: {
+          alt: string
+          caption?: string | null
+          created_at?: string
+          height: number
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          url: string
+          variants?: Json
+          width: number
+        }
+        Update: {
+          alt?: string
+          caption?: string | null
+          created_at?: string
+          height?: number
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          url?: string
+          variants?: Json
+          width?: number
         }
         Relationships: []
       }
@@ -128,12 +304,45 @@ export type Database = {
         }
         Relationships: []
       }
+      units: {
+        Row: {
+          abbreviation: string
+          base_multiplier: number
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          abbreviation: string
+          base_multiplier: number
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          abbreviation?: string
+          base_multiplier?: number
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_edit_media: {
+        Args: { uid: string; uploader: string }
+        Returns: boolean
+      }
       is_admin: { Args: { uid: string }; Returns: boolean }
+      is_admin_or_editor: { Args: { uid: string }; Returns: boolean }
+      is_staff: { Args: { uid: string }; Returns: boolean }
     }
     Enums: {
       entitlement_tier: "free" | "paid"
