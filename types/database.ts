@@ -226,6 +226,213 @@ export type Database = {
         }
         Relationships: []
       }
+      price_observations: {
+        Row: {
+          collected_at_site_id: string
+          collected_on: string
+          commodity_id: string
+          corrects_id: string | null
+          currency: string
+          fx_fetched_at: string | null
+          fx_rate: number | null
+          id: string
+          iso_week: number
+          iso_year: number
+          price: number
+          published_at: string
+          source: string
+          submission_id: string
+          superseded_at: string | null
+          tier: string
+          unit_id: string
+          week_start_date: string
+        }
+        Insert: {
+          collected_at_site_id: string
+          collected_on: string
+          commodity_id: string
+          corrects_id?: string | null
+          currency?: string
+          fx_fetched_at?: string | null
+          fx_rate?: number | null
+          id?: string
+          iso_week: number
+          iso_year: number
+          price: number
+          published_at?: string
+          source?: string
+          submission_id: string
+          superseded_at?: string | null
+          tier: string
+          unit_id: string
+          week_start_date: string
+        }
+        Update: {
+          collected_at_site_id?: string
+          collected_on?: string
+          commodity_id?: string
+          corrects_id?: string | null
+          currency?: string
+          fx_fetched_at?: string | null
+          fx_rate?: number | null
+          id?: string
+          iso_week?: number
+          iso_year?: number
+          price?: number
+          published_at?: string
+          source?: string
+          submission_id?: string
+          superseded_at?: string | null
+          tier?: string
+          unit_id?: string
+          week_start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_observations_collected_at_site_id_fkey"
+            columns: ["collected_at_site_id"]
+            isOneToOne: false
+            referencedRelation: "collection_sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_observations_commodity_id_fkey"
+            columns: ["commodity_id"]
+            isOneToOne: false
+            referencedRelation: "commodities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_observations_corrects_id_fkey"
+            columns: ["corrects_id"]
+            isOneToOne: true
+            referencedRelation: "price_observations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_observations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: true
+            referencedRelation: "price_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_observations_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_submissions: {
+        Row: {
+          collected_on: string
+          collection_site_id: string
+          collector_id: string
+          commodity_id: string
+          currency: string
+          flags: string[]
+          id: string
+          iso_week: number
+          iso_year: number
+          notes: string | null
+          photo_url: string | null
+          price: number
+          reject_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source: string
+          status: string
+          submitted_at: string
+          tier: string
+          unit_id: string
+          variety: string | null
+        }
+        Insert: {
+          collected_on: string
+          collection_site_id: string
+          collector_id: string
+          commodity_id: string
+          currency?: string
+          flags?: string[]
+          id?: string
+          iso_week: number
+          iso_year: number
+          notes?: string | null
+          photo_url?: string | null
+          price: number
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: string
+          status?: string
+          submitted_at?: string
+          tier: string
+          unit_id: string
+          variety?: string | null
+        }
+        Update: {
+          collected_on?: string
+          collection_site_id?: string
+          collector_id?: string
+          commodity_id?: string
+          currency?: string
+          flags?: string[]
+          id?: string
+          iso_week?: number
+          iso_year?: number
+          notes?: string | null
+          photo_url?: string | null
+          price?: number
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: string
+          status?: string
+          submitted_at?: string
+          tier?: string
+          unit_id?: string
+          variety?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_submissions_collection_site_id_fkey"
+            columns: ["collection_site_id"]
+            isOneToOne: false
+            referencedRelation: "collection_sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_submissions_collector_id_fkey"
+            columns: ["collector_id"]
+            isOneToOne: false
+            referencedRelation: "collectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_submissions_commodity_id_fkey"
+            columns: ["commodity_id"]
+            isOneToOne: false
+            referencedRelation: "commodities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_submissions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_submissions_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -343,6 +550,10 @@ export type Database = {
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_admin_or_editor: { Args: { uid: string }; Returns: boolean }
       is_staff: { Args: { uid: string }; Returns: boolean }
+      supersede_price_observation: {
+        Args: { observation_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       entitlement_tier: "free" | "paid"
