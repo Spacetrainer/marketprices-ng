@@ -226,6 +226,84 @@ export type Database = {
         }
         Relationships: []
       }
+      price_anomalies: {
+        Row: {
+          baseline_expected: number | null
+          commodity_id: string
+          comparison_window: string
+          detected_at: string
+          direction: string | null
+          dismiss_reason: string | null
+          dismissed_at: string | null
+          dismissed_by: string | null
+          gap_weeks: number
+          id: string
+          iso_week: number
+          iso_year: number
+          pct_change: number | null
+          severity: string
+          site_switch_flag: boolean
+          state: string
+          tier: string
+          z_score: number | null
+        }
+        Insert: {
+          baseline_expected?: number | null
+          commodity_id: string
+          comparison_window: string
+          detected_at?: string
+          direction?: string | null
+          dismiss_reason?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          gap_weeks?: number
+          id?: string
+          iso_week: number
+          iso_year: number
+          pct_change?: number | null
+          severity: string
+          site_switch_flag?: boolean
+          state?: string
+          tier: string
+          z_score?: number | null
+        }
+        Update: {
+          baseline_expected?: number | null
+          commodity_id?: string
+          comparison_window?: string
+          detected_at?: string
+          direction?: string | null
+          dismiss_reason?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          gap_weeks?: number
+          id?: string
+          iso_week?: number
+          iso_year?: number
+          pct_change?: number | null
+          severity?: string
+          site_switch_flag?: boolean
+          state?: string
+          tier?: string
+          z_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_anomalies_commodity_id_fkey"
+            columns: ["commodity_id"]
+            isOneToOne: false
+            referencedRelation: "commodities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_anomalies_dismissed_by_fkey"
+            columns: ["dismissed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       price_observations: {
         Row: {
           collected_at_site_id: string
@@ -547,9 +625,18 @@ export type Database = {
         Args: { uid: string; uploader: string }
         Returns: boolean
       }
+      can_promote: { Args: { uid: string }; Returns: boolean }
+      dismiss_price_anomaly: {
+        Args: { anomaly_id: string; reason: string }
+        Returns: undefined
+      }
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_admin_or_editor: { Args: { uid: string }; Returns: boolean }
       is_staff: { Args: { uid: string }; Returns: boolean }
+      promote_price_anomaly: {
+        Args: { anomaly_id: string }
+        Returns: undefined
+      }
       supersede_price_observation: {
         Args: { observation_id: string }
         Returns: undefined
