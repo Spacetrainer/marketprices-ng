@@ -14,6 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
+      articles: {
+        Row: {
+          agent_assisted: boolean
+          author_id: string
+          body: string
+          canonical_url: string | null
+          content_item_id: string | null
+          country: string
+          dek: string | null
+          header_alt: string
+          header_media_id: string
+          id: string
+          published_at: string | null
+          published_by: string | null
+          read_time: number | null
+          scheduled_for: string | null
+          section_id: string
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          view_count: number | null
+          youtube_id: string | null
+        }
+        Insert: {
+          agent_assisted: boolean
+          author_id: string
+          body: string
+          canonical_url?: string | null
+          content_item_id?: string | null
+          country?: string
+          dek?: string | null
+          header_alt: string
+          header_media_id: string
+          id?: string
+          published_at?: string | null
+          published_by?: string | null
+          read_time?: number | null
+          scheduled_for?: string | null
+          section_id: string
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status: string
+          title: string
+          type: string
+          updated_at?: string
+          view_count?: number | null
+          youtube_id?: string | null
+        }
+        Update: {
+          agent_assisted?: boolean
+          author_id?: string
+          body?: string
+          canonical_url?: string | null
+          content_item_id?: string | null
+          country?: string
+          dek?: string | null
+          header_alt?: string
+          header_media_id?: string
+          id?: string
+          published_at?: string | null
+          published_by?: string | null
+          read_time?: number | null
+          scheduled_for?: string | null
+          section_id?: string
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          view_count?: number | null
+          youtube_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_header_media_id_fkey"
+            columns: ["header_media_id"]
+            isOneToOne: false
+            referencedRelation: "media"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_published_by_fkey"
+            columns: ["published_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       basket_definition: {
         Row: {
           active_from: string
