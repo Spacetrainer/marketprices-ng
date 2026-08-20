@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      basket_definition: {
+        Row: {
+          active_from: string
+          base_iso_week: number
+          base_iso_year: number
+          commodity_id: string
+          created_at: string
+          id: string
+          quantity: number
+          sub_index: string
+          unit_id: string
+          version: number
+        }
+        Insert: {
+          active_from: string
+          base_iso_week: number
+          base_iso_year: number
+          commodity_id: string
+          created_at?: string
+          id?: string
+          quantity: number
+          sub_index: string
+          unit_id: string
+          version: number
+        }
+        Update: {
+          active_from?: string
+          base_iso_week?: number
+          base_iso_year?: number
+          commodity_id?: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          sub_index?: string
+          unit_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "basket_definition_commodity_id_fkey"
+            columns: ["commodity_id"]
+            isOneToOne: false
+            referencedRelation: "commodities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "basket_definition_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      basket_snapshots: {
+        Row: {
+          base_iso_week: number
+          base_iso_year: number
+          basket_cost_naira: number | null
+          basket_index: number | null
+          basket_version: number
+          computed_at: string
+          created_at: string
+          id: string
+          is_complete: boolean
+          iso_week: number
+          iso_year: number
+          missing_commodity_ids: string[]
+          sub_index_values: Json | null
+          wow_pct: number | null
+          yoy_pct: number | null
+        }
+        Insert: {
+          base_iso_week: number
+          base_iso_year: number
+          basket_cost_naira?: number | null
+          basket_index?: number | null
+          basket_version: number
+          computed_at?: string
+          created_at?: string
+          id?: string
+          is_complete?: boolean
+          iso_week: number
+          iso_year: number
+          missing_commodity_ids?: string[]
+          sub_index_values?: Json | null
+          wow_pct?: number | null
+          yoy_pct?: number | null
+        }
+        Update: {
+          base_iso_week?: number
+          base_iso_year?: number
+          basket_cost_naira?: number | null
+          basket_index?: number | null
+          basket_version?: number
+          computed_at?: string
+          created_at?: string
+          id?: string
+          is_complete?: boolean
+          iso_week?: number
+          iso_year?: number
+          missing_commodity_ids?: string[]
+          sub_index_values?: Json | null
+          wow_pct?: number | null
+          yoy_pct?: number | null
+        }
+        Relationships: []
+      }
       collection_sites: {
         Row: {
           city: string
