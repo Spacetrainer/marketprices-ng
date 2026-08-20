@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      article_tags: {
+        Row: {
+          article_id: string
+          tag_id: string
+        }
+        Insert: {
+          article_id: string
+          tag_id: string
+        }
+        Update: {
+          article_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_tags_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       articles: {
         Row: {
           agent_assisted: boolean
@@ -404,6 +434,55 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      homepage_pins: {
+        Row: {
+          article_id: string
+          expires_at: string
+          pinned_at: string
+          pinned_by: string
+          position: number
+          section_id: string
+        }
+        Insert: {
+          article_id: string
+          expires_at: string
+          pinned_at?: string
+          pinned_by: string
+          position: number
+          section_id: string
+        }
+        Update: {
+          article_id?: string
+          expires_at?: string
+          pinned_at?: string
+          pinned_by?: string
+          position?: number
+          section_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homepage_pins_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "homepage_pins_pinned_by_fkey"
+            columns: ["pinned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "homepage_pins_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media: {
         Row: {
@@ -807,6 +886,30 @@ export type Database = {
         }
         Relationships: []
       }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       units: {
         Row: {
           abbreviation: string
@@ -839,6 +942,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_author: { Args: { uid: string }; Returns: boolean }
       can_edit_media: {
         Args: { uid: string; uploader: string }
         Returns: boolean
