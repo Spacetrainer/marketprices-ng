@@ -937,6 +937,45 @@ export type Database = {
         }
         Relationships: []
       }
+      videos: {
+        Row: {
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          imported_content_item_id: string | null
+          last_synced_at: string
+          thumbnail_url: string | null
+          title: string
+          view_count: number | null
+          youtube_id: string
+          youtube_published_at: string | null
+        }
+        Insert: {
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          imported_content_item_id?: string | null
+          last_synced_at?: string
+          thumbnail_url?: string | null
+          title: string
+          view_count?: number | null
+          youtube_id: string
+          youtube_published_at?: string | null
+        }
+        Update: {
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          imported_content_item_id?: string | null
+          last_synced_at?: string
+          thumbnail_url?: string | null
+          title?: string
+          view_count?: number | null
+          youtube_id?: string
+          youtube_published_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -955,6 +994,10 @@ export type Database = {
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_admin_or_editor: { Args: { uid: string }; Returns: boolean }
       is_staff: { Args: { uid: string }; Returns: boolean }
+      link_video_to_content_item: {
+        Args: { content_item_id: string; video_id: string }
+        Returns: undefined
+      }
       promote_price_anomaly: {
         Args: { anomaly_id: string }
         Returns: undefined
