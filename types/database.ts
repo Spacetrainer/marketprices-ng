@@ -592,6 +592,77 @@ export type Database = {
           },
         ]
       }
+      content_performance: {
+        Row: {
+          avg_time_seconds: number | null
+          clicks: number | null
+          collected_at: string
+          collected_for_date: string
+          content_item_id: string
+          follows: number | null
+          format: string
+          id: string
+          impressions: number | null
+          platform: string
+          read_completion: number | null
+          saves: number | null
+          search_impressions: number | null
+          sessions: number | null
+          shares: number | null
+          source_system: string
+          views: number | null
+          watch_through: number | null
+        }
+        Insert: {
+          avg_time_seconds?: number | null
+          clicks?: number | null
+          collected_at?: string
+          collected_for_date: string
+          content_item_id: string
+          follows?: number | null
+          format: string
+          id?: string
+          impressions?: number | null
+          platform: string
+          read_completion?: number | null
+          saves?: number | null
+          search_impressions?: number | null
+          sessions?: number | null
+          shares?: number | null
+          source_system: string
+          views?: number | null
+          watch_through?: number | null
+        }
+        Update: {
+          avg_time_seconds?: number | null
+          clicks?: number | null
+          collected_at?: string
+          collected_for_date?: string
+          content_item_id?: string
+          follows?: number | null
+          format?: string
+          id?: string
+          impressions?: number | null
+          platform?: string
+          read_completion?: number | null
+          saves?: number | null
+          search_impressions?: number | null
+          sessions?: number | null
+          shares?: number | null
+          source_system?: string
+          views?: number | null
+          watch_through?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_performance_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_revisions: {
         Row: {
           content_item_id: string
