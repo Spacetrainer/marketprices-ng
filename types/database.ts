@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -847,6 +847,56 @@ export type Database = {
         }
         Relationships: []
       }
+      raw_items: {
+        Row: {
+          author: string | null
+          body_snippet: string | null
+          fetched_at: string
+          id: string
+          published_at: string | null
+          source_id: string
+          summary: string | null
+          title: string
+          title_fingerprint: string | null
+          url: string
+          url_hash: string
+        }
+        Insert: {
+          author?: string | null
+          body_snippet?: string | null
+          fetched_at?: string
+          id?: string
+          published_at?: string | null
+          source_id: string
+          summary?: string | null
+          title: string
+          title_fingerprint?: string | null
+          url: string
+          url_hash: string
+        }
+        Update: {
+          author?: string | null
+          body_snippet?: string | null
+          fetched_at?: string
+          id?: string
+          published_at?: string | null
+          source_id?: string
+          summary?: string | null
+          title?: string
+          title_fingerprint?: string | null
+          url?: string
+          url_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raw_items_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sections: {
         Row: {
           chip_bg: string
@@ -882,6 +932,135 @@ export type Database = {
           name?: string
           nav_order?: number
           slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      signals: {
+        Row: {
+          category: string
+          category_weight: number | null
+          commodities: string[]
+          commodity_match: number | null
+          created_at: string
+          decision_utility: number | null
+          dismiss_reason: string | null
+          dismissed_at: string | null
+          dismissed_by: string | null
+          entities: Json | null
+          geo_scope: string | null
+          geo_score: number | null
+          id: string
+          novelty_score: number | null
+          raw_item_id: string
+          recency_score: number | null
+          scored_at: string
+          signal_score: number | null
+          state: string
+          utility_breakdown: Json
+        }
+        Insert: {
+          category: string
+          category_weight?: number | null
+          commodities?: string[]
+          commodity_match?: number | null
+          created_at?: string
+          decision_utility?: number | null
+          dismiss_reason?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          entities?: Json | null
+          geo_scope?: string | null
+          geo_score?: number | null
+          id?: string
+          novelty_score?: number | null
+          raw_item_id: string
+          recency_score?: number | null
+          scored_at?: string
+          signal_score?: number | null
+          state?: string
+          utility_breakdown: Json
+        }
+        Update: {
+          category?: string
+          category_weight?: number | null
+          commodities?: string[]
+          commodity_match?: number | null
+          created_at?: string
+          decision_utility?: number | null
+          dismiss_reason?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          entities?: Json | null
+          geo_scope?: string | null
+          geo_score?: number | null
+          id?: string
+          novelty_score?: number | null
+          raw_item_id?: string
+          recency_score?: number | null
+          scored_at?: string
+          signal_score?: number | null
+          state?: string
+          utility_breakdown?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signals_dismissed_by_fkey"
+            columns: ["dismissed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signals_raw_item_id_fkey"
+            columns: ["raw_item_id"]
+            isOneToOne: true
+            referencedRelation: "raw_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sources: {
+        Row: {
+          cadence_minutes: number
+          created_at: string
+          feed_url: string | null
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_polled_at: string | null
+          name: string
+          region: string
+          trust_tier: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          cadence_minutes: number
+          created_at?: string
+          feed_url?: string | null
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_polled_at?: string | null
+          name: string
+          region: string
+          trust_tier: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          cadence_minutes?: number
+          created_at?: string
+          feed_url?: string | null
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_polled_at?: string | null
+          name?: string
+          region?: string
+          trust_tier?: string
+          type?: string
           updated_at?: string
         }
         Relationships: []
@@ -991,6 +1170,10 @@ export type Database = {
         Args: { anomaly_id: string; reason: string }
         Returns: undefined
       }
+      dismiss_signal: {
+        Args: { reason: string; signal_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_admin_or_editor: { Args: { uid: string }; Returns: boolean }
       is_staff: { Args: { uid: string }; Returns: boolean }
@@ -1002,6 +1185,7 @@ export type Database = {
         Args: { anomaly_id: string }
         Returns: undefined
       }
+      promote_signal: { Args: { signal_id: string }; Returns: undefined }
       supersede_price_observation: {
         Args: { observation_id: string }
         Returns: undefined
