@@ -50,7 +50,7 @@ export type Database = {
           author_id: string
           body: string
           canonical_url: string | null
-          content_item_id: string | null
+          content_item_id: string
           country: string
           dek: string | null
           header_alt: string
@@ -76,7 +76,7 @@ export type Database = {
           author_id: string
           body: string
           canonical_url?: string | null
-          content_item_id?: string | null
+          content_item_id: string
           country?: string
           dek?: string | null
           header_alt: string
@@ -102,7 +102,7 @@ export type Database = {
           author_id?: string
           body?: string
           canonical_url?: string | null
-          content_item_id?: string | null
+          content_item_id?: string
           country?: string
           dek?: string | null
           header_alt?: string
@@ -129,6 +129,13 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_content_item_fk"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
             referencedColumns: ["id"]
           },
           {
@@ -399,6 +406,260 @@ export type Database = {
           },
         ]
       }
+      content_items: {
+        Row: {
+          angle_note: string | null
+          anomaly_ids: string[]
+          archetype: string
+          body_mdx: string | null
+          caption_file_url: string | null
+          country: string | null
+          created_at: string
+          created_by: string
+          data_blocks: Json | null
+          dek: string | null
+          explanation_load: number | null
+          format: string
+          format_overridden: boolean
+          header_alt: string | null
+          header_render_urls: Json | null
+          header_template: string
+          header_template_vars: Json | null
+          headline: string | null
+          headline_hypothesis: string
+          id: string
+          insight_type: string
+          no_distribution: boolean
+          override_reason: string | null
+          priority: number | null
+          progression: number | null
+          published_article_id: string | null
+          published_at: string | null
+          punch: number | null
+          recommended_format: string | null
+          runtime_seconds: number | null
+          scene_count: number | null
+          scheduled_by: string | null
+          scheduled_for: string | null
+          script: Json | null
+          section_id: string | null
+          seo: Json | null
+          signal_ids: string[]
+          slug: string | null
+          source_screen: string
+          sources: Json
+          stakes: number | null
+          status: string
+          tags: string[] | null
+          verification_log: Json | null
+          video_fit: number | null
+          video_urls: Json | null
+          youtube_id: string | null
+        }
+        Insert: {
+          angle_note?: string | null
+          anomaly_ids?: string[]
+          archetype: string
+          body_mdx?: string | null
+          caption_file_url?: string | null
+          country?: string | null
+          created_at?: string
+          created_by: string
+          data_blocks?: Json | null
+          dek?: string | null
+          explanation_load?: number | null
+          format: string
+          format_overridden?: boolean
+          header_alt?: string | null
+          header_render_urls?: Json | null
+          header_template: string
+          header_template_vars?: Json | null
+          headline?: string | null
+          headline_hypothesis: string
+          id?: string
+          insight_type: string
+          no_distribution?: boolean
+          override_reason?: string | null
+          priority?: number | null
+          progression?: number | null
+          published_article_id?: string | null
+          published_at?: string | null
+          punch?: number | null
+          recommended_format?: string | null
+          runtime_seconds?: number | null
+          scene_count?: number | null
+          scheduled_by?: string | null
+          scheduled_for?: string | null
+          script?: Json | null
+          section_id?: string | null
+          seo?: Json | null
+          signal_ids?: string[]
+          slug?: string | null
+          source_screen: string
+          sources: Json
+          stakes?: number | null
+          status?: string
+          tags?: string[] | null
+          verification_log?: Json | null
+          video_fit?: number | null
+          video_urls?: Json | null
+          youtube_id?: string | null
+        }
+        Update: {
+          angle_note?: string | null
+          anomaly_ids?: string[]
+          archetype?: string
+          body_mdx?: string | null
+          caption_file_url?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string
+          data_blocks?: Json | null
+          dek?: string | null
+          explanation_load?: number | null
+          format?: string
+          format_overridden?: boolean
+          header_alt?: string | null
+          header_render_urls?: Json | null
+          header_template?: string
+          header_template_vars?: Json | null
+          headline?: string | null
+          headline_hypothesis?: string
+          id?: string
+          insight_type?: string
+          no_distribution?: boolean
+          override_reason?: string | null
+          priority?: number | null
+          progression?: number | null
+          published_article_id?: string | null
+          published_at?: string | null
+          punch?: number | null
+          recommended_format?: string | null
+          runtime_seconds?: number | null
+          scene_count?: number | null
+          scheduled_by?: string | null
+          scheduled_for?: string | null
+          script?: Json | null
+          section_id?: string | null
+          seo?: Json | null
+          signal_ids?: string[]
+          slug?: string | null
+          source_screen?: string
+          sources?: Json
+          stakes?: number | null
+          status?: string
+          tags?: string[] | null
+          verification_log?: Json | null
+          video_fit?: number | null
+          video_urls?: Json | null
+          youtube_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_header_template_fkey"
+            columns: ["header_template"]
+            isOneToOne: false
+            referencedRelation: "content_templates"
+            referencedColumns: ["template_code"]
+          },
+          {
+            foreignKeyName: "content_items_published_article_id_fkey"
+            columns: ["published_article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_scheduled_by_fkey"
+            columns: ["scheduled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_revisions: {
+        Row: {
+          content_item_id: string
+          created_at: string
+          id: string
+          payload: Json
+          step: string
+        }
+        Insert: {
+          content_item_id: string
+          created_at?: string
+          id?: string
+          payload: Json
+          step: string
+        }
+        Update: {
+          content_item_id?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          step?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_revisions_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_templates: {
+        Row: {
+          canva_template_id: string
+          created_at: string
+          format: string
+          id: string
+          is_active: boolean
+          output_sizes: Json
+          template_code: string
+          updated_at: string
+          variable_schema: Json
+        }
+        Insert: {
+          canva_template_id: string
+          created_at?: string
+          format: string
+          id?: string
+          is_active?: boolean
+          output_sizes: Json
+          template_code: string
+          updated_at?: string
+          variable_schema: Json
+        }
+        Update: {
+          canva_template_id?: string
+          created_at?: string
+          format?: string
+          id?: string
+          is_active?: boolean
+          output_sizes?: Json
+          template_code?: string
+          updated_at?: string
+          variable_schema?: Json
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           created_at: string
@@ -434,6 +695,51 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      format_overrides: {
+        Row: {
+          actor: string
+          chosen: string
+          content_item_id: string
+          created_at: string
+          id: string
+          reason: string
+          recommended: string
+        }
+        Insert: {
+          actor: string
+          chosen: string
+          content_item_id: string
+          created_at?: string
+          id?: string
+          reason: string
+          recommended: string
+        }
+        Update: {
+          actor?: string
+          chosen?: string
+          content_item_id?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          recommended?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "format_overrides_actor_fkey"
+            columns: ["actor"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "format_overrides_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       homepage_pins: {
         Row: {
@@ -1153,7 +1459,15 @@ export type Database = {
           youtube_id?: string
           youtube_published_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "videos_content_item_fk"
+            columns: ["imported_content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
