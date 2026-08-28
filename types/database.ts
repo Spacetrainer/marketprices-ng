@@ -161,6 +161,44 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          diff: Json
+          entity_id: string
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          diff: Json
+          entity_id: string
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          diff?: Json
+          entity_id?: string
+          entity_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       basket_definition: {
         Row: {
           active_from: string
@@ -757,6 +795,50 @@ export type Database = {
           value?: number
         }
         Relationships: []
+      }
+      editorial_rules: {
+        Row: {
+          active_from: string
+          changed_at: string
+          changed_by: string | null
+          id: string
+          is_active: boolean
+          key: string
+          scope: string
+          value: Json
+          version: number
+        }
+        Insert: {
+          active_from?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          is_active?: boolean
+          key: string
+          scope: string
+          value: Json
+          version: number
+        }
+        Update: {
+          active_from?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          is_active?: boolean
+          key?: string
+          scope?: string
+          value?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "editorial_rules_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       entitlements: {
         Row: {
@@ -1685,6 +1767,7 @@ export type Database = {
         Returns: boolean
       }
       can_promote: { Args: { uid: string }; Returns: boolean }
+      can_view_audit_log: { Args: { uid?: string }; Returns: boolean }
       dismiss_price_anomaly: {
         Args: { anomaly_id: string; reason: string }
         Returns: undefined
@@ -1705,9 +1788,28 @@ export type Database = {
         Returns: undefined
       }
       promote_signal: { Args: { signal_id: string }; Returns: undefined }
+      set_editorial_rule: {
+        Args: {
+          p_actor_id?: string
+          p_key: string
+          p_scope: string
+          p_value: Json
+        }
+        Returns: string
+      }
       supersede_price_observation: {
         Args: { observation_id: string }
         Returns: undefined
+      }
+      write_audit_entry: {
+        Args: {
+          p_action: string
+          p_actor_id: string
+          p_diff: Json
+          p_entity_id: string
+          p_entity_type: string
+        }
+        Returns: string
       }
     }
     Enums: {
