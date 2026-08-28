@@ -731,6 +731,33 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_rollups: {
+        Row: {
+          computed_at: string
+          date: string
+          dimension: string
+          dimension_value: string
+          metric_key: string
+          value: number
+        }
+        Insert: {
+          computed_at?: string
+          date: string
+          dimension: string
+          dimension_value: string
+          metric_key: string
+          value: number
+        }
+        Update: {
+          computed_at?: string
+          date?: string
+          dimension?: string
+          dimension_value?: string
+          metric_key?: string
+          value?: number
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           created_at: string
@@ -1397,6 +1424,63 @@ export type Database = {
           },
         ]
       }
+      site_events: {
+        Row: {
+          content_item_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          published_article_id: string | null
+          referrer: string | null
+          session_id: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          content_item_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          published_article_id?: string | null
+          referrer?: string | null
+          session_id: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          content_item_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          published_article_id?: string | null
+          referrer?: string | null
+          session_id?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_events_content_item_id_fkey"
+            columns: ["content_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_events_published_article_id_fkey"
+            columns: ["published_article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sources: {
         Row: {
           cadence_minutes: number
@@ -1536,6 +1620,56 @@ export type Database = {
             columns: ["imported_content_item_id"]
             isOneToOne: false
             referencedRelation: "content_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weight_proposals: {
+        Row: {
+          current_value: number
+          decided_at: string | null
+          decided_by: string | null
+          evidence: Json
+          id: string
+          key: string
+          proposed_at: string
+          proposed_value: number
+          sample_size: number
+          scope: string
+          status: string
+        }
+        Insert: {
+          current_value: number
+          decided_at?: string | null
+          decided_by?: string | null
+          evidence: Json
+          id?: string
+          key: string
+          proposed_at?: string
+          proposed_value: number
+          sample_size: number
+          scope: string
+          status?: string
+        }
+        Update: {
+          current_value?: number
+          decided_at?: string | null
+          decided_by?: string | null
+          evidence?: Json
+          id?: string
+          key?: string
+          proposed_at?: string
+          proposed_value?: number
+          sample_size?: number
+          scope?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weight_proposals_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
