@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -1789,12 +1789,7 @@ export type Database = {
       }
       promote_signal: { Args: { signal_id: string }; Returns: undefined }
       set_editorial_rule: {
-        Args: {
-          p_actor_id?: string
-          p_key: string
-          p_scope: string
-          p_value: Json
-        }
+        Args: { p_key: string; p_scope: string; p_value: Json }
         Returns: string
       }
       supersede_price_observation: {
