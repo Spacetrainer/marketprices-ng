@@ -1776,6 +1776,17 @@ export type Database = {
         Args: { reason: string; signal_id: string }
         Returns: undefined
       }
+      format_override_state: {
+        Args: { p_exclude?: string; p_item: string }
+        Returns: {
+          is_overridden: boolean
+          latest_at: string
+          latest_chosen: string
+          latest_reason: string
+          latest_recommended: string
+          log_rows: number
+        }[]
+      }
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_admin_or_editor: { Args: { uid: string }; Returns: boolean }
       is_staff: { Args: { uid: string }; Returns: boolean }
