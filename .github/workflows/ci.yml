@@ -29,11 +29,20 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Admin route inventory (P12.1)
+        run: pnpm check:routes
+
       - name: Install Playwright browsers (with OS deps)
         run: pnpm exec playwright install --with-deps chromium
 
       - name: E2E tests
         run: pnpm test:e2e
+        # The /admin middleware reads these at request time; without them every guarded
+        # route 500s instead of redirecting and the P12.5 boundary tests fail. The
+        # publishable key is public by design (P9.3) — it is a secret here only for tidiness.
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Upload Playwright report
         if: always()

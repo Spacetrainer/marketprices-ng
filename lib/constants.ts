@@ -16,3 +16,30 @@ export const SECTIONS: Section[] = [
   { slug: "interviews", label: "Interviews" },
   { slug: "africa", label: "Africa" },
 ];
+
+/**
+ * The complete set of admin routes (P12.1, P12.5). Six surfaces, plus the login screen and
+ * the one editor — which is opened from Draft studio and Publish queue and is NOT a sidebar
+ * item. `scripts/check-routes.ts` asserts the filesystem under `app/(admin)/` contains
+ * nothing outside this list, so adding a route means editing this constant, which means the
+ * reviewer sees it. That is the entire point of the allowlist.
+ *
+ * Entries not yet built are still listed: the check fails on routes present on disk but
+ * absent here, not the other way round.
+ */
+export const ADMIN_ROUTES = [
+  "/admin", // 1. Dashboard
+  "/admin/signals", // 2. Signal feed
+  "/admin/radar", // 3. Price radar
+  "/admin/studio", // 4. Draft studio
+  "/admin/queue", // 5. Publish queue
+  "/admin/settings/[group]", // 6. Settings
+  "/admin/editor/[id]", // the one editor (P3.7)
+  "/admin/login", // the only unauthenticated admin route
+] as const;
+
+/** The single public entry point into the control room (P12.5) — the footer legal-row link. */
+export const ADMIN_LOGIN_PATH = "/admin/login";
+
+/** Where a fully authenticated session lands: the Dashboard. */
+export const ADMIN_ROOT_PATH = "/admin";

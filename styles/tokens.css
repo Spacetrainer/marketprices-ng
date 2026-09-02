@@ -28,6 +28,10 @@
   --surface-50:    #F7F8FA;
   --on-dark:       #FFFFFF;
   --on-dark-muted: #B8C3D6;
+    /* Form fields */
+  --field-border:       var(--line-200);
+  --field-border-focus: var(--navy-brand);
+  --field-error:        #E11D48;
 
   /* Section chips */
   --chip-prices-bg:     #D5EAFA; --chip-prices-fg:     #14456F;
