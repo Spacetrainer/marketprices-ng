@@ -29,27 +29,37 @@ export function QueueCard({ card }: QueueCardProps) {
       data-card={card.id}
       data-measure={measure.state}
       className={[
-        "group flex h-[96px] items-center justify-between gap-sp-2 rounded-r-card border border-line-200 bg-surface-0 px-sp-4 shadow-rest",
+        // Anchored, not centred. The figure sits against the top padding and the text block
+        // against the bottom one, so all six cards share a figure line and a label line
+        // whatever their content height. Centring made every card's baseline depend on
+        // whether its own label happened to wrap, which is why the row looked ragged.
+        "group relative flex h-[96px] flex-col justify-between overflow-hidden rounded-r-card border border-line-200 bg-surface-0 px-sp-4 py-sp-2 shadow-rest",
         // Drawn on every card so an amber one does not sit 3px narrower than its neighbours.
         "border-l-[3px]",
         bordered ? "border-l-amber-action" : "border-l-line-200",
       ].join(" ")}
     >
-      <span className="flex min-w-0 flex-col gap-sp-1">
+      {/* The figure line, and the only line that yields width to the chevron — an unavailable
+          label is words rather than a digit, and would otherwise run underneath it. */}
+      <span className="pr-sp-4">
         {measure.state === "known" ? (
-          <span className="queue-count text-fs-queue font-bold leading-none text-navy-deep">
+          <span className="queue-count block text-fs-queue font-bold leading-none text-navy-deep">
             {measure.value}
           </span>
         ) : (
-          <span className="text-fs-card font-bold leading-tight text-ink-500">
+          <span className="block text-fs-meta font-bold leading-[1.4] text-ink-500">
             {measure.label}
           </span>
         )}
+      </span>
 
-        <span className="text-fs-body font-medium text-ink-900">{card.label}</span>
+      <span className="flex flex-col gap-sp-1">
+        <span className="text-fs-body font-medium leading-[1.4] text-ink-900">
+          {card.label}
+        </span>
 
         {measure.state === "unavailable" ? (
-          <span className="text-fs-meta text-ink-500">{measure.note}</span>
+          <span className="text-fs-chip leading-[1.4] text-ink-500">{measure.note}</span>
         ) : null}
       </span>
 
@@ -66,7 +76,7 @@ function ChevronIcon() {
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden="true"
-      className="shrink-0 text-ink-500"
+      className="absolute right-sp-4 top-sp-3 text-ink-500"
     >
       <path
         d="M6 3.5 10.5 8 6 12.5"
