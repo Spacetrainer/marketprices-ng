@@ -8,6 +8,7 @@ import {
   type AssuranceLevel,
 } from "./access";
 import type { UserRole } from "./roles";
+import { ADMIN_LOGIN_PATH, ADMIN_ROOT_PATH } from "../constants";
 
 function account(
   role: UserRole,
@@ -185,5 +186,78 @@ describe("resolveAdminAccess", () => {
       to: "/admin",
       reason: "already-authenticated",
     });
+  });
+});
+
+/**
+ * Authorisation, added with the sidebar (§7.2). These assert the guard and the nav agree —
+ * lib/auth/surfaces.test.ts holds the exhaustive role/surface matrix; these check that
+ * `resolveAdminAccess` actually consults it.
+ */
+describe("resolveAdminAccess — role authorisation", () => {
+  const fullAnalyst = account("analyst", "aal2", "aal2");
+  const fullEditor = account("editor", "aal2", "aal2");
+  const fullContributor = account("contributor", "aal2", "aal2");
+
+  it("lets a fully authenticated Analyst onto the Dashboard", () => {
+    expect(resolveAdminAccess(ADMIN_ROOT_PATH, fullAnalyst)).toEqual({ type: "allow" });
+  });
+
+  it("turns an Analyst away from every other surface, back to the Dashboard", () => {
+    for (const path of [
+      "/admin/signals",
+      "/admin/radar",
+      "/admin/studio",
+      "/admin/queue",
+      "/admin/settings/sources",
+      "/admin/editor/abc",
+    ]) {
+      expect(resolveAdminAccess(path, fullAnalyst), path).toEqual({
+        type: "redirect",
+        to: ADMIN_ROOT_PATH,
+        reason: "forbidden",
+      });
+    }
+  });
+
+  it("turns a Contributor away from Settings but not from the working surfaces", () => {
+    expect(resolveAdminAccess("/admin/settings/sources", fullContributor)).toEqual({
+      type: "redirect",
+      to: ADMIN_ROOT_PATH,
+      reason: "forbidden",
+    });
+    expect(resolveAdminAccess("/admin/studio", fullContributor)).toEqual({ type: "allow" });
+  });
+
+  it("lets an Editor onto all six", () => {
+    for (const path of [
+      ADMIN_ROOT_PATH,
+      "/admin/signals",
+      "/admin/radar",
+      "/admin/studio",
+      "/admin/queue",
+      "/admin/settings/sources",
+    ]) {
+      expect(resolveAdminAccess(path, fullEditor), path).toEqual({ type: "allow" });
+    }
+  });
+
+  it("refuses the forbidden path BEFORE the role check when 2FA is unfinished", () => {
+    // An Analyst stranded at aal1 goes to login, not to the Dashboard: authentication is
+    // still the earlier question, and "forbidden" must not leak past an unfinished factor.
+    const challengedAnalyst = account("analyst", "aal1", "aal2");
+    expect(resolveAdminAccess("/admin/radar", challengedAnalyst)).toEqual({
+      type: "redirect",
+      to: ADMIN_LOGIN_PATH,
+      reason: "challenge-required",
+    });
+  });
+
+  it("cannot loop: the redirect target is allowed for every role", () => {
+    for (const role of ["admin", "editor", "contributor", "analyst"] as const) {
+      expect(resolveAdminAccess(ADMIN_ROOT_PATH, account(role, "aal2", "aal2"))).toEqual({
+        type: "allow",
+      });
+    }
   });
 });

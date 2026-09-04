@@ -3,13 +3,9 @@ import { redirect } from "next/navigation";
 import { ADMIN_ROOT_PATH } from "../../../../lib/constants";
 import {
   resolveLoginStep,
-  SIGNED_OUT,
-  UNPROVISIONED,
-  type AdminSession,
-  type AssuranceLevel,
   type LoginStep,
 } from "../../../../lib/auth/access";
-import { createClient } from "../../../../lib/supabase/server";
+import { readAdminSession } from "../../../../lib/auth/session";
 import { ChallengeForm } from "./challenge-form";
 import { CredentialsForm } from "./credentials-form";
 import { EnrolForm } from "./enrol-form";
@@ -37,7 +33,7 @@ const HEADINGS: Record<Exclude<LoginStep, "complete">, string> = {
  * refresh part-way through enrolment resumes instead of stranding a half-scanned QR code.
  */
 export default async function AdminLoginPage() {
-  const step = resolveLoginStep(await readSession());
+  const step = resolveLoginStep(await readAdminSession());
 
   // Nothing left to do here. The middleware normally catches this first; this is the
   // same decision made again locally so the page is never reachable in a finished state.
@@ -84,33 +80,4 @@ function UnprovisionedNotice() {
       <SignOutLink />
     </div>
   );
-}
-
-async function readSession(): Promise<AdminSession> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return SIGNED_OUT;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, is_active")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!profile) return UNPROVISIONED;
-
-  const { data: aal } =
-    await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
-  return {
-    type: "staff",
-    account: {
-      role: profile.role,
-      isActive: profile.is_active,
-      currentLevel: (aal?.currentLevel ?? null) as AssuranceLevel,
-      nextLevel: (aal?.nextLevel ?? null) as AssuranceLevel,
-    },
-  };
 }

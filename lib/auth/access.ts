@@ -1,5 +1,6 @@
 import { ADMIN_LOGIN_PATH, ADMIN_ROOT_PATH } from "../constants";
 import { requiresTwoFactor, type UserRole } from "./roles";
+import { canViewSurface } from "./surfaces";
 
 /** Supabase's authenticator assurance level. `null` when there is no session to read one from. */
 export type AssuranceLevel = "aal1" | "aal2" | null;
@@ -46,7 +47,8 @@ export type AdminRedirectReason =
   | "deactivated"
   | "enrolment-required"
   | "challenge-required"
-  | "already-authenticated";
+  | "already-authenticated"
+  | "forbidden";
 
 /** The step the login screen should render. Derived server-side on every load, never held
  *  in client state, so a mid-enrolment refresh resumes where it left off. */
@@ -127,7 +129,19 @@ export function resolveAdminAccess(
         };
   }
 
-  return onLoginScreen
-    ? { type: "redirect", to: ADMIN_ROOT_PATH, reason: "already-authenticated" }
-    : { type: "allow" };
+  if (onLoginScreen) {
+    return { type: "redirect", to: ADMIN_ROOT_PATH, reason: "already-authenticated" };
+  }
+
+  // Authorisation, after authentication. The sidebar hides what a role may not open, but a
+  // hidden link is not a closed door — the URL is still typeable. Both halves read the SAME
+  // `canViewSurface`, so a role that loses a nav item loses the route in the same commit.
+  //
+  // The Dashboard is the fallback because every role can see it (§7.2), which also means
+  // this branch cannot loop: `canViewSurface(role, ADMIN_ROOT_PATH)` is true for all four.
+  if (!canViewSurface(account.role, pathname)) {
+    return { type: "redirect", to: ADMIN_ROOT_PATH, reason: "forbidden" };
+  }
+
+  return { type: "allow" };
 }

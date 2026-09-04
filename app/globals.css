@@ -57,6 +57,9 @@
   --color-sev-high: var(--sev-high);
   --color-sev-moderate: var(--sev-moderate);
   --color-sidebar-inactive: var(--sidebar-inactive);
+  --color-sidebar-active-bg: var(--sidebar-active-bg);
+  --color-badge-count-bg: var(--badge-count-bg);
+  --color-badge-urgent-bg: var(--badge-urgent-bg);
 
   /* Fonts */
   --font-ui: var(--font-ui);

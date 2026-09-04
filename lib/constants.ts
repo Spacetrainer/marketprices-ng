@@ -43,3 +43,11 @@ export const ADMIN_LOGIN_PATH = "/admin/login";
 
 /** Where a fully authenticated session lands: the Dashboard. */
 export const ADMIN_ROOT_PATH = "/admin";
+
+/**
+ * The product's one timezone. Settings group 9 fixes publishing to WAT (§8.16), and every
+ * "today" and "this week" boundary in the control room is read on this clock — a Dashboard
+ * that counts a UTC day tells a Lagos editor the wrong thing for the first hour of it.
+ * Named as an IANA zone rather than as +01:00 so the maths never hardcodes an offset.
+ */
+export const WAT_TIME_ZONE = "Africa/Lagos";
