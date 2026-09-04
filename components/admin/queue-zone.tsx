@@ -34,7 +34,12 @@ export function QueueZone({ cards }: QueueZoneProps) {
           Nothing needs you right now.
         </p>
       ) : (
-        <ul className="grid grid-cols-1 gap-sp-4 min-[768px]:grid-cols-3 min-[1200px]:grid-cols-6">
+        // Six across is a 1440 design (§8.10 "six count cards in one row"). Below that the
+        // row wraps rather than squeezing: at 1200px six columns leave each card ~139px, and
+        // the unavailable card's label plus explanation cannot fit a fixed 96px box that
+        // narrow — it overflowed by 74px, silently clipped. The threshold is measured, not
+        // picked; tests/e2e/dashboard-queue-card.spec.ts holds it there.
+        <ul className="grid grid-cols-1 gap-sp-4 min-[768px]:grid-cols-3 min-[1440px]:grid-cols-6">
           {cards.map((card) => (
             <li key={card.id} className="contents">
               <QueueCard card={card} />
