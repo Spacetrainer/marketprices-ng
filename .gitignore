@@ -16,6 +16,10 @@
 /playwright-report
 /blob-report
 
+# A captured signed-in admin session (scripts/capture-admin-session.ts). Real auth cookies
+# for a real account — never commit it. Regenerate locally instead of sharing it.
+/auth.json
+
 # next.js
 /.next/
 /out/
