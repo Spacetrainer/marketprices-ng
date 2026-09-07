@@ -144,6 +144,65 @@ for (const width of [1200, 1440]) {
   });
 }
 
+/**
+ * The card's visual hierarchy, measured rather than reasoned about.
+ *
+ * Five cards say "big bold figure, small quiet name". The unavailable card said the reverse
+ * — its value was --ink-500 at 12px under a 13px near-black name, so the loudest text on the
+ * card was its own caption. Class assertions cannot see that; only computed style can, which
+ * is why this lives in the browser suite next to the layout contract.
+ *
+ * It does NOT assert the value matches the digit's 28px. It cannot: "Not connected yet" is
+ * 134.6px bold at 13px against 126.7px of clear width, so --fs-meta is the largest step that
+ * stays on one line. The claim here is about weight and colour, and about the value never
+ * being quieter than the name beneath it.
+ */
+test("the unavailable card's value is emphasised over its name, as on every other card", async ({
+  page,
+}) => {
+  await mountZone(page, 1440);
+
+  const read = await page.evaluate(() => {
+    const style = (el: Element | null | undefined) => {
+      if (!el) return null;
+      const cs = getComputedStyle(el);
+      return {
+        px: Math.round(parseFloat(cs.fontSize)),
+        weight: Number(cs.fontWeight),
+        color: cs.color,
+      };
+    };
+
+    const dispatch = document.querySelector('[data-card="dispatch-failures"]');
+    const measured = document.querySelector('[data-card="ready"]');
+
+    return {
+      // The unavailable card: figure line, then the name under it.
+      value: style(dispatch?.children[0].querySelector("span")),
+      name: style(dispatch?.children[1].querySelector("span")),
+      // The same two slots on a measured card, which is the reference.
+      digit: style(measured?.querySelector(".queue-count")),
+      digitName: style(measured?.children[1].querySelector("span")),
+    };
+  });
+
+  const { value, name, digit, digitName } = read;
+  expect(value, "no value line on the unavailable card").not.toBeNull();
+  expect(digit, "no digit on the measured card").not.toBeNull();
+
+  // The value wears the figure's weight and colour — the two things it can borrow.
+  expect(value?.weight).toBe(digit?.weight);
+  expect(value?.color).toBe(digit?.color);
+
+  // The name wears the caption, byte for byte the same one a measured card's name wears.
+  expect(name).toEqual(digitName);
+
+  // And the hierarchy itself: the value is never quieter than the name below it. This is
+  // the assertion that fails on the original bug, where the value was lighter AND greyer.
+  expect(value?.weight).toBeGreaterThan(name?.weight ?? 0);
+  expect(name?.weight).toBeLessThan(digit?.weight ?? 0);
+});
+
 test("the unavailable card keeps all of its text inside the card", async ({ page }) => {
   // 1440, not 1200: this is the six-column width, where each card is at its narrowest and
   // the unavailable state has the least room. At 1200 the grid is three columns and the

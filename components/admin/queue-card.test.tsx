@@ -67,6 +67,46 @@ describe("QueueCard", () => {
     expect(html).toContain('data-measure="unavailable"');
   });
 
+  it("gives the unmeasured value the figure's emphasis and its name the caption's", () => {
+    // The card's hierarchy, asserted as markup so a refactor cannot quietly swap the two
+    // back. The rendered proof is in tests/e2e/dashboard-queue-card.spec.ts, which compares
+    // the computed weight and colour in a browser — this is the cheap guard next to it.
+    const html = renderToStaticMarkup(
+      <QueueCard
+        card={card({
+          id: "dispatch-failures",
+          label: "Dispatch failures",
+          measure: {
+            state: "unavailable",
+            label: "Not connected yet",
+            note: "The dispatch queue lives outside this database.",
+          },
+        })}
+      />,
+    );
+
+    const value = html.slice(html.indexOf("<span class"), html.indexOf("Not connected yet"));
+    expect(value).toContain("font-bold");
+    expect(value).toContain("text-navy-deep");
+    // The caption colour on the value line is what inverted the card.
+    expect(value).not.toContain("text-ink-500");
+
+    const label = html.slice(0, html.indexOf("Dispatch failures"));
+    const labelClass = label.slice(label.lastIndexOf("<span class"));
+    expect(labelClass).toContain("font-medium");
+    expect(labelClass).toContain("text-ink-900");
+    expect(labelClass).not.toContain("font-bold");
+  });
+
+  it("uses that same caption styling for a measured card's name", () => {
+    const html = renderToStaticMarkup(<QueueCard card={card()} />);
+    const label = html.slice(0, html.indexOf("Hot signals unactioned"));
+    const labelClass = label.slice(label.lastIndexOf("<span class"));
+    expect(labelClass).toContain("text-fs-body");
+    expect(labelClass).toContain("font-medium");
+    expect(labelClass).toContain("text-ink-900");
+  });
+
   it("never draws the urgency border on an unmeasured card — there is no number to be urgent", () => {
     const html = renderToStaticMarkup(
       <QueueCard

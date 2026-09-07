@@ -47,13 +47,26 @@ export function QueueCard({ card }: QueueCardProps) {
             {measure.value}
           </span>
         ) : (
-          <span className="block text-fs-meta font-bold leading-[1.4] text-ink-500">
+          // The figure line, carrying the figure's emphasis: font-bold and --navy-deep are
+          // exactly what the digit wears on the other five cards, so the value reads as the
+          // value and the name below it reads as its caption. Rendering this in --ink-500
+          // put the quiet styling on the value and left the 13px label as the loudest thing
+          // on the card, which inverted the hierarchy every other card sets.
+          //
+          // The one thing it cannot borrow is --fs-queue. Measured in Manrope against the
+          // 126.7px of width this line has at the six-column layout, "Not connected yet"
+          // runs 124.3px bold at 12px and 134.6px at 13px — so --fs-meta is the largest
+          // step that stays on one line, and every larger one wraps and overflows the 96px
+          // box. Prominence here is weight and colour, because size is not available.
+          <span className="block text-fs-meta font-bold leading-[1.4] text-navy-deep">
             {measure.label}
           </span>
         )}
       </span>
 
       <span className="flex flex-col gap-sp-1">
+        {/* The caption, identical on all six cards whether it sits under a digit or under
+            words. It is never the loudest text in the card. */}
         <span className="text-fs-body font-medium leading-[1.4] text-ink-900">
           {card.label}
         </span>
