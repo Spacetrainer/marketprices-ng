@@ -48,3 +48,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated data
+# scripts/generate-form-options.ts rebuilds this from the database — the Google Form's
+# option lists. Source of truth is the database, not this file.
+/data/form-options.json

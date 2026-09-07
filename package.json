@@ -19,7 +19,7 @@
     "check:vocab": "grep -rniE '\\blead(s|_type)?\\b' app components lib docs/prompts || true",
     "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > types/database.ts",
     "db:push": "supabase db push",
-    "db:seed": "psql $DATABASE_URL -f supabase/seed.sql",
+    "db:seed": "psql \"${DATABASE_URL:?DATABASE_URL is not set - export it, or load .env.local first}\" -v ON_ERROR_STOP=1 -f supabase/seed.sql",
     "lhci": "lhci autorun"
   },
   "dependencies": {
