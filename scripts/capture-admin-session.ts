@@ -77,9 +77,80 @@ function ask(prompt: string, echo: boolean): Promise<string> {
   });
 }
 
+type Page = import("@playwright/test").Page;
+
 /** Which step the login screen is showing, read from the card's own attribute. */
-async function currentStep(page: import("@playwright/test").Page): Promise<string | null> {
+async function currentStep(page: Page): Promise<string | null> {
   return page.locator("[data-login-step]").getAttribute("data-login-step");
+}
+
+/**
+ * Waits for the redirect chain to come to REST, and refuses to treat a URL as an outcome.
+ *
+ * This is the whole correctness of the script. After the credentials action, Next routes
+ * optimistically to /admin and the middleware then bounces an aal1 session back to the
+ * challenge — so `/admin` appears in the address bar for a moment while the session is
+ * still one factor short. An earlier version waited on that URL, concluded it had finished,
+ * never asked for a code, and saved an aal1 state that reported success and then failed
+ * every test. Settle on RENDERED MARKERS instead: a login step that is no longer the one we
+ * submitted, the Dashboard's own nav, or a form error.
+ */
+async function settle(page: Page, submittedStep: string): Promise<void> {
+  await page.waitForFunction(
+    (from) => {
+      const step =
+        document.querySelector("[data-login-step]")?.getAttribute("data-login-step") ?? null;
+      const onDashboard =
+        document.querySelector('nav[aria-label="Control room"]') !== null;
+      const failed = document.querySelector('[role="alert"]') !== null;
+      return onDashboard || failed || (step !== null && step !== from);
+    },
+    submittedStep,
+    { timeout: 30_000 },
+  );
+}
+
+/** A form-level rejection, if the page is showing one. Never includes what was typed. */
+async function formError(page: Page): Promise<string | null> {
+  const alert = await page
+    .locator('[role="alert"]')
+    .first()
+    .textContent()
+    .catch(() => null);
+  const text = alert?.trim();
+  return text ? text : null;
+}
+
+/**
+ * The assurance level actually recorded in the cookie we are about to save.
+ *
+ * Decoded locally and never printed. This is the gate the first version lacked: reaching the
+ * Dashboard is strong evidence, but reading `aal` off the token is proof, and it is what
+ * turns "the script said success" into something worth trusting.
+ */
+export function assuranceLevelOf(state: { cookies: { value: string }[] }): string | null {
+  for (const cookie of state.cookies) {
+    let raw = cookie.value;
+    if (raw.startsWith("base64-")) {
+      raw = Buffer.from(raw.slice("base64-".length), "base64url").toString("utf8");
+    }
+    try {
+      const session: unknown = JSON.parse(raw);
+      if (typeof session !== "object" || session === null) continue;
+      const token = (session as { access_token?: unknown }).access_token;
+      if (typeof token !== "string") continue;
+      const payload: unknown = JSON.parse(
+        Buffer.from(token.split(".")[1], "base64url").toString("utf8"),
+      );
+      if (typeof payload === "object" && payload !== null) {
+        const aal = (payload as { aal?: unknown }).aal;
+        if (typeof aal === "string") return aal;
+      }
+    } catch {
+      // Not a session cookie. Try the next one.
+    }
+  }
+  return null;
 }
 
 async function main(): Promise<void> {
@@ -110,20 +181,10 @@ async function main(): Promise<void> {
     await page.fill("#email", email);
     await page.fill("#password", password);
     await page.getByRole("button", { name: "Sign in" }).click();
+    await settle(page, "credentials");
 
-    // Either the password was wrong (the form re-renders with an alert), or we advance.
-    await page.waitForFunction(
-      () =>
-        window.location.pathname !== "/admin/login" ||
-        document.querySelector('[role="alert"]') !== null ||
-        document.querySelector("[data-login-step]")?.getAttribute("data-login-step") !==
-          "credentials",
-      null,
-      { timeout: 30_000 },
-    );
-
-    const alert = await page.locator('[role="alert"]').first().textContent().catch(() => null);
-    if (alert?.trim()) throw new Error(`Sign-in refused: ${alert.trim()}`);
+    const signInError = await formError(page);
+    if (signInError) throw new Error(`Sign-in refused: ${signInError}`);
 
     const afterPassword = await currentStep(page);
 
@@ -135,42 +196,62 @@ async function main(): Promise<void> {
     }
 
     if (afterPassword === "challenge") {
+      console.log("Password accepted. Your second factor is required.");
       // Asked for now, not earlier: a TOTP code is only valid for about thirty seconds.
       const code = await Promise.race([
         ask("Six-digit code from your authenticator: ", true),
         new Promise<string>((_, reject) =>
-          setTimeout(() => reject(new Error("Timed out waiting for the code.")), PROMPT_TIMEOUT_MS),
+          setTimeout(
+            () => reject(new Error("Timed out waiting for the code.")),
+            PROMPT_TIMEOUT_MS,
+          ),
         ),
       ]);
       if (!/^\d{6}$/.test(code)) throw new Error("That is not a six-digit code.");
 
       await page.fill("#code", code);
       await page.getByRole("button", { name: "Verify" }).click();
+      await settle(page, "challenge");
 
-      const codeAlert = await page
-        .locator('[role="alert"]')
-        .first()
-        .textContent({ timeout: 5_000 })
-        .catch(() => null);
-      if (codeAlert?.trim()) throw new Error(`Code refused: ${codeAlert.trim()}`);
+      const codeError = await formError(page);
+      if (codeError) throw new Error(`Code refused: ${codeError}`);
     }
 
-    // The guard only lets a fully authenticated session onto the Dashboard, so arriving
-    // here IS the proof that the session is aal2 and the profile is active.
-    await page.waitForURL(`${BASE_URL}${ADMIN_ROOT_PATH}`, { timeout: 30_000 });
+    // Ask for the Dashboard outright and require the shell to actually render. A URL can be
+    // transient; the sidebar only exists if the middleware admitted this session.
+    await page.goto(`${BASE_URL}${ADMIN_ROOT_PATH}`, { waitUntil: "load" });
+    await page.waitForSelector('nav[aria-label="Control room"]', { timeout: 15_000 });
+
+    if (page.url() !== `${BASE_URL}${ADMIN_ROOT_PATH}`) {
+      throw new Error(`Ended at ${page.url()} rather than the Dashboard. Nothing saved.`);
+    }
 
     const state = await context.storageState();
+
+    // The gate. Admin and Editor require a second factor (§7.1, P9.4), so an aal1 cookie is
+    // not a usable session and must never be written — saving one is how this script
+    // previously reported success while producing a file that failed every test.
+    const aal = assuranceLevelOf(state);
+    if (aal !== "aal2") {
+      throw new Error(
+        `The captured session is ${aal ?? "of unknown assurance"}, not aal2. Nothing saved.\n` +
+          "The second factor did not complete. Re-run and enter the code when prompted.",
+      );
+    }
+
     writeFileSync(OUTPUT, JSON.stringify(state, null, 2), { mode: 0o600 });
 
-    const cookieCount = state.cookies.length;
-    console.log(`\nSaved ${cookieCount} cookies to ${OUTPUT} (mode 600).`);
+    console.log(`\nSaved ${state.cookies.length} cookie(s) to ${OUTPUT} (mode 600), aal2.`);
     console.log("It is gitignored. Re-run this script when it expires.");
   } finally {
     await browser.close();
   }
 }
 
-main().catch((error: unknown) => {
+/** Only run when invoked as a script, so the aal gate above can be unit-tested. */
+const invokedDirectly = (process.argv[1] ?? "").includes("capture-admin-session");
+
+if (invokedDirectly) main().catch((error: unknown) => {
   // Deliberately prints only the message. Nothing here should ever carry a credential, and
   // a stack trace on a login script is noise rather than help.
   console.error(`\n${error instanceof Error ? error.message : String(error)}`);
