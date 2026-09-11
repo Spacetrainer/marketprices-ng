@@ -20,8 +20,28 @@ jobs:
           node-version: "22"
           cache: pnpm
 
+      # Pure file checks — bash, awk and grep over the working tree. No database,
+      # no secrets, no node_modules. They run BEFORE install so a P0.1 or P12.3
+      # violation fails in seconds instead of after a cold dependency install.
+      #
+      # Invoked as `bash scripts/...`, NOT `pnpm check:...`, and that is load
+      # bearing: pnpm auto-installs before `pnpm run` when node_modules is
+      # absent, which on a fresh runner both erases the speed argument above and
+      # performs an install that does not carry --frozen-lockfile. Same command
+      # either way; only this form keeps that flag meaningful.
+      - name: Seed audit (P0.1)
+        run: bash scripts/check-seed.sh
+
+      - name: Vocabulary audit (P12.3)
+        run: bash scripts/check-vocab.sh
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Cheapest check that needs node_modules, and the only mechanical guard on
+      # P0.2/P6.1/P10.6 — a hardcoded figure makes the suites below moot.
+      - name: Lint (P0.2, P6.1, P10.6)
+        run: pnpm lint
 
       - name: Typecheck
         run: pnpm typecheck
