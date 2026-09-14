@@ -52,6 +52,21 @@ jobs:
       - name: Admin route inventory (P12.1)
         run: pnpm check:routes
 
+      # The Google Form's dropdowns and the ingest route's name-to-id resolution both come
+      # from the committed data/form-options.json. This regenerates it from the live database
+      # and fails if the committed copy no longer matches, so the file cannot quietly go
+      # stale and start offering collectors options intake would reject. `generated_at` is
+      # excluded from the comparison — it changes every run, and a check that always fails is
+      # a check everyone learns to ignore.
+      #
+      # Placed here deliberately: it is the first step needing the database, and it is cheap,
+      # so it fails before the Playwright browser install spends a minute or two.
+      - name: Form options drift (§3.2)
+        run: pnpm check:form-options
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+
       - name: Install Playwright browsers (with OS deps)
         run: pnpm exec playwright install --with-deps chromium
 

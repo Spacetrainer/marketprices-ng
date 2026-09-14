@@ -49,7 +49,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# generated data
-# scripts/generate-form-options.ts rebuilds this from the database — the Google Form's
-# option lists. Source of truth is the database, not this file.
-/data/form-options.json
+# data/form-options.json is NOT ignored, deliberately. scripts/generate-form-options.ts
+# rebuilds it from the database and the database stays the source of truth — but
+# app/api/ingest/price/route.ts reads the file from process.cwd() at REQUEST time, and
+# Vercel builds from git, so an ignored file would not exist in production and every
+# submission would 503. `pnpm check:form-options` fails CI if the committed copy drifts.
