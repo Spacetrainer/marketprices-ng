@@ -16,9 +16,12 @@
 /playwright-report
 /blob-report
 
-# A captured signed-in admin session (scripts/capture-admin-session.ts). Real auth cookies
+# A captured signed-in staff session (scripts/capture-admin-session.ts). Real auth cookies
 # for a real account — never commit it. Regenerate locally instead of sharing it.
+# The sidecar records which role the cookies belong to; it holds no credential, but it is
+# meaningless without the file it describes and is ignored with it rather than left behind.
 /auth.json
+/auth.meta.json
 
 # next.js
 /.next/

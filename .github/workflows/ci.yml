@@ -72,12 +72,26 @@ jobs:
 
       - name: E2E tests
         run: pnpm test:e2e
-        # The /admin middleware reads these at request time; without them every guarded
-        # route 500s instead of redirecting and the P12.5 boundary tests fail. The
-        # publishable key is public by design (P9.3) — it is a secret here only for tidiness.
         env:
+          # The /admin middleware reads these at request time; without them every guarded
+          # route 500s instead of redirecting and the P12.5 boundary tests fail. The
+          # publishable key is public by design (P9.3) — it is a secret here only for
+          # tidiness. The capture in tests/e2e/auth.setup.ts also reads them, to look up the
+          # signed-in account's role through its own `profiles_select_own` policy.
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          # The Contributor service account, which is what lets dashboard-authenticated.spec.ts
+          # run here instead of always skipping. A REAL password for a REAL account in the
+          # production project (see docs/exceptions.md) — that is the whole of why it is a
+          # secret rather than a repo variable. Contributor is the least-privileged role that
+          # still reaches the Dashboard with its sidebar intact, and the only one of the four
+          # for which an unattended login is possible at all: Admin and Editor mandate a
+          # second factor (§7.1, P9.4), and an Analyst sees one nav item.
+          #
+          # Absent these, the setup project skips and the authenticated spec skips with it.
+          # Nothing else in the suite depends on them.
+          E2E_CONTRIBUTOR_EMAIL: ${{ secrets.E2E_CONTRIBUTOR_EMAIL }}
+          E2E_CONTRIBUTOR_PASSWORD: ${{ secrets.E2E_CONTRIBUTOR_PASSWORD }}
 
       - name: Upload Playwright report
         if: always()

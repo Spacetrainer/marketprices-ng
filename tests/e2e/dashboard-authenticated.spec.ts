@@ -1,10 +1,14 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { ADMIN_ROOT_PATH } from "../../lib/constants";
-import { assuranceLevelOf } from "../../scripts/capture-admin-session";
+import { ADMIN_SURFACES, visibleSurfaces } from "../../lib/auth/surfaces";
+import {
+  readSessionMeta,
+  SESSION_STATE_PATH,
+} from "../../scripts/capture-admin-session";
 
 /**
- * The Dashboard as an Admin actually sees it.
+ * The Dashboard as a signed-in member of staff actually sees it.
  *
  * Everything else in this suite tests the control room from outside the door: the guard
  * redirects, the login steps, a component mounted on its own. This is the only test that
@@ -14,58 +18,83 @@ import { assuranceLevelOf } from "../../scripts/capture-admin-session";
  * produce), and that the three honest-unknown states survive the trip through the database
  * and into the DOM.
  *
- * It needs `auth.json` from `pnpm capture:session`. That session expires, so this skips
- * rather than fails when it is absent — a missing local credential is not a broken build.
- * The unattended-CI answer is a Contributor account, which needs no second factor.
+ * IT IS NOT AN ADMIN TEST. The session it runs against is whichever one was captured: a
+ * Contributor in CI (`tests/e2e/auth.setup.ts`), typically an Admin locally
+ * (`pnpm capture:session`). The Zone 1 and Zone 2 assertions hold identically for both —
+ * every policy those figures pass through gates on `is_staff()`, which is role-agnostic by
+ * design (0008) — so the ONLY thing that varies is the sidebar, and that is read from the
+ * role rather than assumed. See the note at SURFACES.
+ *
+ * It needs a captured session. That session expires, so this skips rather than fails when it
+ * is absent — a missing local credential is not a broken build. In CI the setup project is a
+ * hard dependency, so a failed login fails the run instead of skipping it.
  */
 
-const AUTH_STATE = "auth.json";
-const HAS_STATE = existsSync(AUTH_STATE);
+const meta = readSessionMeta();
 
 /**
- * Admin and Editor require a second factor (§7.1, P9.4), so an aal1 file cannot reach any
- * surface. Naming that here turns an expired or half-finished capture into one legible line
- * instead of six redirect failures that look like the Dashboard is broken.
+ * The guard, which now asks only whether there is a session to use.
+ *
+ * It used to require `aal === "aal2"`, and that was the wrong question twice over. It is not
+ * NECESSARY — a Contributor has no mandatory second factor (P9.4), so aal1 is a complete
+ * session for that role and the guard skipped the very runs it was added to enable. And it
+ * was never SUFFICIENT — an expired token still reads `aal2`, so the stale file it was meant
+ * to catch sailed straight past it into six confusing redirect failures.
+ *
+ * The real predicate is "would the middleware admit this session", and `captureSession` has
+ * already answered it, from the inside, with the role in hand: it refuses to write either
+ * file unless the Dashboard shell genuinely rendered. So the presence of BOTH files is the
+ * assertion, and there is one statement of the 2FA rule in this codebase rather than three.
  */
-const CAPTURED_AAL = HAS_STATE
-  ? assuranceLevelOf(
-      JSON.parse(readFileSync(AUTH_STATE, "utf8")) as { cookies: { value: string }[] },
-    )
-  : null;
+const HAS_SESSION = existsSync(SESSION_STATE_PATH) && meta !== null;
 
-test.describe("Dashboard, signed in as Admin", () => {
-  test.skip(!HAS_STATE, "No captured session. Run `pnpm capture:session` first.");
+/**
+ * What the sidebar should hold for the role that was actually captured.
+ *
+ * Derived, not hardcoded to six. That is the honest form of the §7.2 claim: the assertion is
+ * that the SERVER read a real `profiles` row and rendered the nav for that role — an
+ * end-to-end binding from database to DOM that `components/admin/sidebar.test.tsx` cannot
+ * make against a role it passes in itself. HIDDEN is the half that carries the weight: for a
+ * Contributor it is exactly `Settings`, and proving it absent is proving the role reached the
+ * renderer at all.
+ *
+ * Empty when there is no session, which is unreachable — the describe skips first.
+ */
+const SURFACES = meta ? visibleSurfaces(meta.role) : [];
+const HIDDEN = ADMIN_SURFACES.filter((surface) => !SURFACES.includes(surface));
+const BADGED = SURFACES.filter((surface) => surface.badge !== null);
+
+test.describe("Dashboard, signed in", () => {
   test.skip(
-    HAS_STATE && CAPTURED_AAL !== "aal2",
-    `Captured session is ${CAPTURED_AAL ?? "unreadable"}, not aal2 — re-run \`pnpm capture:session\`.`,
+    !HAS_SESSION,
+    "No captured session. Run `pnpm capture:session`, or set E2E_CONTRIBUTOR_* and let the setup project capture one.",
   );
 
-  test.use({ storageState: AUTH_STATE, viewport: { width: 1440, height: 1000 } });
+  test.use({ storageState: SESSION_STATE_PATH, viewport: { width: 1440, height: 1000 } });
 
-  test("renders the shell, both zones, and six nav items", async ({ page }) => {
+  test("renders the shell, both zones, and this role's nav items", async ({ page }) => {
     await page.goto(ADMIN_ROOT_PATH);
 
-    // Not redirected. The middleware admits nothing below aal2 with an active profile, so
-    // simply being here is the assertion that the whole guard chain passed.
+    // Not redirected. The middleware admits no session that has not finished whatever its
+    // role requires, so simply being here is the assertion that the whole guard chain passed.
     await expect(page).toHaveURL(ADMIN_ROOT_PATH);
     await expect(page.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();
 
     const nav = page.getByRole("navigation", { name: "Control room" });
-    await expect(nav.getByRole("link")).toHaveCount(6);
+    await expect(nav.getByRole("link")).toHaveCount(SURFACES.length);
 
-    for (const label of [
-      "Dashboard",
-      "Signal feed",
-      "Price radar",
-      "Draft studio",
-      "Publish queue",
-      "Settings",
-    ]) {
-      await expect(nav.getByRole("link", { name: new RegExp(label) })).toHaveCount(1);
+    for (const surface of SURFACES) {
+      await expect(nav.getByRole("link", { name: new RegExp(surface.label) })).toHaveCount(1);
     }
 
-    // Admin is the only role that sees all six (§7.2), and the sidebar is built from the
-    // same visibleSurfaces() the route guard authorises with.
+    // The half that actually tests the role. A hidden nav item is not a closed door, but it
+    // IS the visible evidence that `visibleSurfaces(role)` ran on the server against the role
+    // this session really holds — for a Contributor that means Settings is absent (§7.2).
+    for (const surface of HIDDEN) {
+      await expect(nav.getByRole("link", { name: new RegExp(surface.label) })).toHaveCount(0);
+    }
+
+    // Every role can see the Dashboard, so this one is unconditional.
     await expect(
       nav.getByRole("link", { name: /Dashboard/ }),
     ).toHaveAttribute("aria-current", "page");
@@ -79,10 +108,12 @@ test.describe("Dashboard, signed in as Admin", () => {
     await page.goto(ADMIN_ROOT_PATH);
     const nav = page.getByRole("navigation", { name: "Control room" });
 
-    // Four badges (§7.5: Signal feed, Price radar, Draft studio, Publish queue) and no
-    // more. `queue-count` is only on the known arm of NavBadge.
-    await expect(nav.locator(".queue-count")).toHaveCount(4);
-    await expect(nav.locator(".queue-count")).toHaveText(["0", "0", "0", "0"]);
+    // §7.5 badges Signal feed, Price radar, Draft studio and Publish queue; Dashboard and
+    // Settings carry none. Counted from the role's own surfaces so the number follows the
+    // sidebar — it is four for Admin and four for Contributor, since the only item a
+    // Contributor loses is the unbadged one. `queue-count` is only on NavBadge's known arm.
+    await expect(nav.locator(".queue-count")).toHaveCount(BADGED.length);
+    await expect(nav.locator(".queue-count")).toHaveText(BADGED.map(() => "0"));
 
     // The distinction this test exists for. An RLS denial and an empty table both count 0
     // rows, but a FAILED read returns an unavailable measure and renders a dash with this
@@ -220,8 +251,10 @@ test.describe("Dashboard, signed in as Admin", () => {
     await page.goto(ADMIN_ROOT_PATH);
     await expect(page.locator("[data-card]")).toHaveCount(6);
     await expect(page.locator("[data-readout]")).toHaveCount(6);
+    // Named for the role, because the sidebar differs between them and an image filed under
+    // the wrong role is worse than no image.
     await page.screenshot({
-      path: "test-results/dashboard-admin.png",
+      path: `test-results/dashboard-${meta?.role ?? "unknown"}.png`,
       fullPage: true,
     });
   });
