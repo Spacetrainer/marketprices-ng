@@ -45,8 +45,20 @@ const meta = readSessionMeta();
  * already answered it, from the inside, with the role in hand: it refuses to write either
  * file unless the Dashboard shell genuinely rendered. So the presence of BOTH files is the
  * assertion, and there is one statement of the 2FA rule in this codebase rather than three.
+ *
+ * IT MUST BE A FUNCTION, AND IT MUST BE PASSED TO `test.skip` AS A CALLBACK. Playwright
+ * evaluates the value form of `test.skip(condition, …)` during the COLLECTION pass, which
+ * runs before the `setup` project it depends on. On a fresh runner there is no `auth.json`
+ * at that moment, so the skip was decided — and frozen — before the login that creates the
+ * file had happened, and the suite skipped itself every time despite setup then succeeding.
+ * It only ever passed locally because a session captured by an earlier `pnpm capture:session`
+ * was already sitting on disk when collection ran. The callback form is evaluated at run
+ * time, after the dependency has finished, which is the only moment the question has a
+ * meaningful answer.
  */
-const HAS_SESSION = existsSync(SESSION_STATE_PATH) && meta !== null;
+function hasSession(): boolean {
+  return existsSync(SESSION_STATE_PATH) && readSessionMeta() !== null;
+}
 
 /**
  * What the sidebar should hold for the role that was actually captured.
@@ -59,6 +71,13 @@ const HAS_SESSION = existsSync(SESSION_STATE_PATH) && meta !== null;
  * renderer at all.
  *
  * Empty when there is no session, which is unreachable — the describe skips first.
+ *
+ * Module scope is safe here even though the guard above is not, and the difference is worth
+ * stating. Playwright loads this file twice: once to collect, and again inside the worker
+ * that runs the tests. Only the worker's load matters for these three, and it happens after
+ * `setup` has written both files — so `meta` is the role that was actually captured, not the
+ * `null` collection saw on a cold runner. What could not survive at module scope was the
+ * SKIP, because a modifier is read from the collection pass and never revisited.
  */
 const SURFACES = meta ? visibleSurfaces(meta.role) : [];
 const HIDDEN = ADMIN_SURFACES.filter((surface) => !SURFACES.includes(surface));
@@ -66,7 +85,7 @@ const BADGED = SURFACES.filter((surface) => surface.badge !== null);
 
 test.describe("Dashboard, signed in", () => {
   test.skip(
-    !HAS_SESSION,
+    () => !hasSession(),
     "No captured session. Run `pnpm capture:session`, or set E2E_CONTRIBUTOR_* and let the setup project capture one.",
   );
 

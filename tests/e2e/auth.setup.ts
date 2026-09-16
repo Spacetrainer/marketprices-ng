@@ -18,11 +18,31 @@ import { captureSession } from "../../scripts/capture-admin-session";
  *
  * LOCAL BEHAVIOUR IS UNCHANGED. With no credentials in the environment this skips and touches
  * nothing, so a session captured by `pnpm capture:session` is left exactly as it was and the
- * spec goes on using it.
+ * spec goes on using it. In CI, where nobody can capture one by hand, the same absence is a
+ * hard failure instead — see the check in the body.
  */
 setup("capture a Contributor session", async ({ baseURL }) => {
   const email = process.env.E2E_CONTRIBUTOR_EMAIL;
   const password = process.env.E2E_CONTRIBUTOR_PASSWORD;
+
+  /**
+   * In CI, absent credentials are a broken build, not a reason to stand down.
+   *
+   * Skipping is the right answer on a laptop and the wrong one on a runner. If these secrets
+   * are ever unset, renamed, or scoped away from a fork, the skip cascades — no session is
+   * captured, `dashboard-authenticated.spec.ts` skips with it, and the job reports green
+   * having verified nothing about the signed-in Dashboard. That is the same false pass the
+   * collection-time skip produced, arriving from a different direction, and it is worth
+   * failing loudly for: CI is the only place these tests ever run unattended.
+   */
+  if (process.env.CI && (!email || !password)) {
+    throw new Error(
+      "E2E_CONTRIBUTOR_EMAIL and E2E_CONTRIBUTOR_PASSWORD must be set in CI.\n" +
+        "Without them no session is captured and the authenticated Dashboard suite skips, " +
+        "which would let the job pass without testing anything it was added to test.\n" +
+        "Check the repository secrets of that name are present and in scope for this workflow.",
+    );
+  }
 
   setup.skip(
     !email || !password,
