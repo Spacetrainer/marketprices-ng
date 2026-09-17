@@ -1,7 +1,15 @@
 import { defineConfig } from "@playwright/test";
 
-/** The one spec that needs a real session, and the setup project that produces it. */
-const AUTHENTICATED_SPEC = /dashboard-authenticated\.spec\.ts$/;
+/**
+ * The specs that need a real session, and the setup project that produces it.
+ *
+ * Matched on the `-authenticated.spec.ts` SUFFIX rather than named one by one. The naming
+ * convention is the enrolment: a new signed-in suite joins the `authenticated` project by
+ * being called the right thing, instead of by someone remembering to edit two lists here. The
+ * failure mode that avoids is specific and quiet — a spec added to `testIgnore` but not to
+ * `testMatch` runs nowhere at all and reports green.
+ */
+const AUTHENTICATED_SPEC = /-authenticated\.spec\.ts$/;
 const SETUP_SPEC = /auth\.setup\.ts$/;
 
 export default defineConfig({

@@ -1192,6 +1192,8 @@ export type Database = {
           collection_site_id: string
           collector_id: string
           commodity_id: string
+          corrected_price: number | null
+          correction_reason: string | null
           currency: string
           flags: string[]
           id: string
@@ -1215,6 +1217,8 @@ export type Database = {
           collection_site_id: string
           collector_id: string
           commodity_id: string
+          corrected_price?: number | null
+          correction_reason?: string | null
           currency?: string
           flags?: string[]
           id?: string
@@ -1238,6 +1242,8 @@ export type Database = {
           collection_site_id?: string
           collector_id?: string
           commodity_id?: string
+          corrected_price?: number | null
+          correction_reason?: string | null
           currency?: string
           flags?: string[]
           id?: string
@@ -1761,6 +1767,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_price_submission: {
+        Args: {
+          p_corrected_price?: number
+          p_correction_reason?: string
+          p_submission_id: string
+          p_week_start_date: string
+        }
+        Returns: string
+      }
       can_author: { Args: { uid: string }; Returns: boolean }
       can_edit_media: {
         Args: { uid: string; uploader: string }
@@ -1799,6 +1814,10 @@ export type Database = {
         Returns: undefined
       }
       promote_signal: { Args: { signal_id: string }; Returns: undefined }
+      reject_price_submission: {
+        Args: { p_reason: string; p_submission_id: string }
+        Returns: undefined
+      }
       set_editorial_rule: {
         Args: { p_key: string; p_scope: string; p_value: Json }
         Returns: string

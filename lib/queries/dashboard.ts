@@ -211,15 +211,24 @@ export async function getNavBadges(): Promise<NavBadges> {
 
   // What each badge counts is "what is waiting on this screen" — the same reading the six
   // surfaces have in §7.5: unactioned intake, and items sitting in production or scheduled.
+  //
+  // PRICE RADAR COUNTS PENDING SUBMISSIONS, NOT ANOMALIES, and that is a deliberate narrowing
+  // rather than a change of meaning. §7.5 badges the radar for urgency and §8.12 puts two
+  // things on it that can wait on a human: the review queue (region 0) and the anomaly table
+  // (region 3). Only the first exists — `price_anomalies` is written by `lib/anomalies.ts`,
+  // which is Stage 4 and not built, so the table is permanently empty and the badge read 0
+  // while sixteen prices sat unreviewed. A badge that says 0 over a full queue is worse than
+  // no badge. THE ANOMALY COUNT IS ADDED BACK, as a sum, the day Stage 4 can produce one
+  // (confirmed 2026-09-17); until then the badge counts the work that actually exists.
   const [signals, radar, studio, queue] = await Promise.all([
     countRows(() =>
       supabase.from("signals").select("*", { count: "exact", head: true }).eq("state", "new"),
     ),
     countRows(() =>
       supabase
-        .from("price_anomalies")
+        .from("price_submissions")
         .select("*", { count: "exact", head: true })
-        .eq("state", "new"),
+        .eq("status", "pending"),
     ),
     countRows(() =>
       supabase
