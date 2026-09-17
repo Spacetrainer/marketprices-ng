@@ -33,7 +33,27 @@ export default defineConfig({
    * credentials are present, leaving a locally captured session untouched.
    */
   projects: [
-    { name: "setup", testMatch: SETUP_SPEC },
+    /**
+     * The setup gets its own timeout, and it is not a convenience.
+     *
+     * `captureSession` is written to wait up to 30s for the login to settle and a further 15s
+     * for the Dashboard's nav — 45s of deliberate patience, each wait with its own error
+     * message naming what did not happen ("Sign-in refused: …", "Ended at … rather than the
+     * Dashboard"). Under Playwright's 30s default those messages were UNREACHABLE: the test
+     * died first and reported a bare "Test timeout of 30000ms exceeded", which says nothing
+     * about whether the credentials were wrong, the profile was missing or the page was
+     * simply still compiling.
+     *
+     * That is what happened locally on 2026-09-17 — a cold `.next` made `next dev` compile
+     * /admin/login and /admin on demand, the capture crossed 30s, and a perfectly good login
+     * was indistinguishable from a broken one. The same command passed in 14.7s once the
+     * cache was warm. CI has been passing at ~12s on a faster machine, which made a real
+     * config defect look like a local quirk.
+     *
+     * 90s is the capture's own budget plus room for those two compilations. It raises a
+     * ceiling and changes nothing about a healthy run.
+     */
+    { name: "setup", testMatch: SETUP_SPEC, timeout: 90_000 },
     {
       name: "public",
       // Both exclusions are needed: without them this project would re-run the authenticated

@@ -52,9 +52,15 @@ test.describe("Price radar, signed in", () => {
     // The current-week section renders whether or not it has rows — either the table or the
     // collapsed line. What must NOT happen is the region vanishing, which would make an empty
     // queue and a broken query look identical.
-    await expect(
-      page.getByRole("heading", { name: "This week's submissions", level: 2 }),
-    ).toBeVisible();
+    //
+    // KEYED ON THE ID, NOT THE HEADING TEXT. The id is the section's own contract: `section`
+    // carries `aria-labelledby="current-week-heading"`, so if this element is missing the
+    // region has no accessible name either, which is the failure worth catching. Matching the
+    // text was both weaker and wrong — the heading renders `&rsquo;`, so its accessible name
+    // holds U+2019 while the selector held an ASCII apostrophe, and Playwright normalises
+    // whitespace in accessible names but never punctuation. That mismatch is invisible in a
+    // diff and cost a CI run.
+    await expect(page.locator("#current-week-heading")).toBeVisible();
 
     // An unread queue must never be drawn as an empty one (P0.2). Its absence here is the
     // assertion that the read genuinely succeeded.

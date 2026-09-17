@@ -123,7 +123,13 @@ test.describe("Dashboard, signed in", () => {
     await expect(page.locator("footer")).toHaveCount(0);
   });
 
-  test("badges read a measured zero, not an unavailable dash", async ({ page }) => {
+  test("every badge reads a measured count, not an unavailable dash", async ({ page }) => {
+    // The real pending total, read from the surface that lists those rows rather than written
+    // here as a literal. It was 16 on 2026-09-17 and it moves every time a collector submits,
+    // so a number in this file would be a fact with an expiry date on it.
+    await page.goto("/admin/radar");
+    const pending = await page.locator("[data-submission]").count();
+
     await page.goto(ADMIN_ROOT_PATH);
     const nav = page.getByRole("navigation", { name: "Control room" });
 
@@ -132,7 +138,29 @@ test.describe("Dashboard, signed in", () => {
     // sidebar — it is four for Admin and four for Contributor, since the only item a
     // Contributor loses is the unbadged one. `queue-count` is only on NavBadge's known arm.
     await expect(nav.locator(".queue-count")).toHaveCount(BADGED.length);
-    await expect(nav.locator(".queue-count")).toHaveText(BADGED.map(() => "0"));
+
+    // EACH BADGE ON ITS OWN, AND NOT AGAINST A UNIFORM FIGURE. This used to assert that all
+    // four read "0", which was true only for as long as every badged table was empty and
+    // stopped being true the moment the radar badge started counting pending submissions
+    // instead of the anomalies Stage 4 has not built. What the test is actually for survives
+    // that change: a badge holding digits came back through a permitting policy, and a badge
+    // holding a dash did not. The VALUE is asserted where it can be sourced; the SHAPE is
+    // asserted everywhere, because inventing an expected number for a table this test cannot
+    // read would be asserting a measurement nobody took (P0.2).
+    for (const surface of BADGED) {
+      const badge = nav
+        .getByRole("link", { name: new RegExp(surface.label) })
+        .locator(".queue-count");
+      await expect(badge).toHaveCount(1);
+      await expect(badge).toHaveText(/^\d+$/);
+    }
+
+    // The one badge with an independent source. Two different queries against one table, read
+    // through two different pages, so a disagreement here is a real one rather than a
+    // restatement — and it is the assertion that would have caught the badge counting a table
+    // Stage 4 never fills.
+    const radarBadge = nav.getByRole("link", { name: /Price radar/ }).locator(".queue-count");
+    await expect(radarBadge).toHaveText(String(pending));
 
     // The distinction this test exists for. An RLS denial and an empty table both count 0
     // rows, but a FAILED read returns an unavailable measure and renders a dash with this
