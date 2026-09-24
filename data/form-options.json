@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-14T11:28:20.679Z",
+  "generated_at": "2026-09-24T19:28:06.889Z",
   "commodities": [
     {
       "id": "b0db8f5b-433c-46f1-9d3b-666eeabc624d",
@@ -112,6 +112,11 @@
       "id": "bf4ccb9c-a4f6-4dfc-b885-fff61543e6c0",
       "name": "Big pack",
       "abbreviation": "bg pack"
+    },
+    {
+      "id": "b307e269-13f9-4451-9af2-a40ad85c66c7",
+      "name": "Derica",
+      "abbreviation": "derica"
     },
     {
       "id": "292c2773-76da-42f1-8e9c-218805c62578",

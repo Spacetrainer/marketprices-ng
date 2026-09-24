@@ -10,7 +10,8 @@
 -- SOURCE. Generated from data/marketprices-products.csv
 --   sha256 1f700e723835f25aadb24c6b45fc5c1ddcce64ce96a857feb7782617a6f41dda
 --   261 data rows, filtered to unit_source = 'Template' -> 201 products
---   across 16 categories, using 8 distinct units.
+--   across 16 categories, using 8 distinct units from the sheet plus the
+--   Derica, which is in none of the sheet's 25 units and arrived with 0039.
 --
 -- The 60 'Proposed - confirm' rows are deliberately absent, filtered PER ROW on
 -- unit_source and not by category: five categories (Fish & Seafood, Meat,
@@ -20,9 +21,10 @@
 -- Filtering by category would have wrongly seeded those 15.
 --
 -- DEPENDS ON TWO MIGRATIONS. This file will fail loudly without both:
---   0036 -- units.base_multiplier nullable. Every one of the 8 units below is
+--   0036 -- units.base_multiplier nullable. Every one of the 9 units below is
 --          non-metric and has no weight anywhere in the source file (both
---          size/weight columns are empty on all 261 rows). Under the old NOT
+--          size/weight columns are empty on all 261 rows); nobody has weighed a
+--          derica either, so it is seeded with no multiplier too. Under the old NOT
 --          NULL constraint not one unit could be created, and therefore not one
 --          commodity, because commodities.default_unit_id is NOT NULL.
 --   0037 -- commodities.commodity_group nullable. The source gives one taxonomy
@@ -47,11 +49,15 @@
 --      1. Nothing may convert across these units until real weights come back
 --      from the field (see 0036).
 --
---   3. units.abbreviation is the ONE value in this file that is not in the
---      source CSV. The column is NOT NULL UNIQUE and the sheet carries no
---      abbreviations, so the eight below are derived from the unit names and
---      are the only thing here worth a second read before it ships. They are
---      display shorthand, nothing computes on them.
+--   3. units.abbreviation is not in the source CSV at all. The column is NOT
+--      NULL UNIQUE and the sheet carries no abbreviations, so the nine below
+--      are derived from the unit names and are worth a second read before they
+--      ship. They are display shorthand, nothing computes on them.
+--
+--      The Derica is the one row here whose NAME is also absent from the sheet,
+--      and the three commodities whose default unit this file states against
+--      the sheet's own retail_unit column are okro, ginger and garlic-local.
+--      Both are 0039's doing, and 0039 records the evidence for each.
 --
 -- NOT SEEDED. collection_sites is deliberately empty -- the source sheet
 -- dropped per-market tracking and names no real sites, and a site name renders
@@ -63,15 +69,26 @@
 begin;
 
 -- ----------------------------------------------------------------------------
--- units -- the 8 actually used by the seeded products
+-- units -- the 9 actually used by the seeded products
 --
--- Only these eight, not all 25 in the source file. The other 17 belong solely
--- to the excluded rows, and `units` has NO is_active column -- unlike
--- commodities and collection_sites, a unit cannot be retired once it exists.
--- generate-form-options.ts reads the whole table, so seeding all 25 would put
--- '1 kg' and 'Carton (20 kg)' permanently in front of a collector pricing a
--- commodity whose entire series is measured in paint buckets. They arrive with
--- the migration that confirms Meat, Poultry, Eggs, Fish and Oils.
+-- Eight of the nine come from the source file: only those eight, not all 25 in
+-- it. The other 17 belong solely to the excluded rows, and `units` has NO
+-- is_active column -- unlike commodities and collection_sites, a unit cannot be
+-- retired once it exists. generate-form-options.ts reads the whole table, so
+-- seeding all 25 would put '1 kg' and 'Carton (20 kg)' permanently in front of
+-- a collector pricing a commodity whose entire series is measured in paint
+-- buckets. They arrive with the migration that confirms Meat, Poultry, Eggs,
+-- Fish and Oils.
+--
+-- THE NINTH IS THE DERICA, and it is in none of the source file's 25 units.
+-- It was added by 0039_derica_unit_and_retail_unit_corrections.sql, which
+-- corrects three retail units the sheet records as Paint bucket -- okro to
+-- Derica, ginger to Plate, garlic-local to Small bundle. That migration carries
+-- the evidence for each of the three; this file carries the same end state so
+-- that a fresh database is born corrected rather than born wrong and patched.
+-- data/marketprices-products.csv is deliberately NOT edited and still reads
+-- Paint bucket for all three: it is the received source document, pinned by the
+-- sha256 above, and it stays the record of what the sheet actually said.
 --
 -- base_multiplier is omitted from the column list rather than written as NULL:
 -- the column has no default, so omitting it stores NULL, and writing it out
@@ -82,6 +99,7 @@ insert into units (name, abbreviation) values
   ('Big basket'              , 'basket'),
   ('Big bundle'              , 'bg bundle'),
   ('Big pack'                , 'bg pack'),
+  ('Derica'                  , 'derica'),
   ('Paint bucket'            , 'bucket'),
   ('Plate'                   , 'plate'),
   ('Sack'                    , 'sack'),
@@ -148,7 +166,7 @@ from (values
   ('leek'                                  , 'Leek'                                  , 'Vegetables'                  , 'Paint bucket'  ,  25),
   ('lemon-grass'                           , 'Lemon Grass'                           , 'Vegetables'                  , 'Paint bucket'  ,  26),
   ('carrot'                                , 'Carrot'                                , 'Vegetables'                  , 'Paint bucket'  ,  27),
-  ('okro'                                  , 'Okro'                                  , 'Vegetables'                  , 'Paint bucket'  ,  28),
+  ('okro'                                  , 'Okro'                                  , 'Vegetables'                  , 'Derica'        ,  28),
   ('cabbage-green'                         , 'Cabbage Green'                         , 'Vegetables'                  , 'Paint bucket'  ,  29),
   ('cabbage-red'                           , 'Cabbage Red'                           , 'Vegetables'                  , 'Paint bucket'  ,  30),
   ('lettuce'                               , 'Lettuce'                               , 'Vegetables'                  , 'Paint bucket'  ,  31),
@@ -220,9 +238,9 @@ from (values
   ('thyme-leaf'                            , 'Thyme Leaf'                            , 'Spices & Seeds'              , 'Paint bucket'  , 112),
   ('ogbono-seed'                           , 'Ogbono Seed'                           , 'Spices & Seeds'              , 'Paint bucket'  , 113),
   ('banga-stick'                           , 'Banga Stick'                           , 'Spices & Seeds'              , 'Paint bucket'  , 114),
-  ('garlic-local'                          , 'Garlic Local'                          , 'Spices & Seeds'              , 'Paint bucket'  , 115),
+  ('garlic-local'                          , 'Garlic Local'                          , 'Spices & Seeds'              , 'Small bundle'  , 115),
   ('garlic-imported'                       , 'Garlic Imported'                       , 'Spices & Seeds'              , 'Paint bucket'  , 116),
-  ('ginger'                                , 'Ginger'                                , 'Spices & Seeds'              , 'Paint bucket'  , 117),
+  ('ginger'                                , 'Ginger'                                , 'Spices & Seeds'              , 'Plate'         , 117),
   ('bay-leaf'                              , 'Bay Leaf'                              , 'Spices & Seeds'              , 'Paint bucket'  , 118),
   ('cloves'                                , 'Cloves'                                , 'Spices & Seeds'              , 'Paint bucket'  , 119),
   ('nutmeg'                                , 'Nutmeg'                                , 'Spices & Seeds'              , 'Paint bucket'  , 120),

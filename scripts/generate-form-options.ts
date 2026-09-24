@@ -133,9 +133,10 @@ async function fetchContent(): Promise<FormOptionsContent> {
       .order("name", { ascending: true }),
 
     // No filter: `units` has no is_active column, and unlike the other two a unit cannot be
-    // retired once it exists. seed.sql names this script as the reason only the 8 units
-    // actually used by the seeded commodities were inserted rather than all 25 in the source
-    // file — the whole table is what the form offers.
+    // retired once it exists. seed.sql names this script as the reason only the units actually
+    // used by the seeded commodities were inserted — the 8 the source file uses, rather than
+    // all 25 in it, plus the Derica that 0039 added for okro. The whole table is what the form
+    // offers.
     supabase.from("units").select("id, name, abbreviation").order("name", { ascending: true }),
   ]);
 
