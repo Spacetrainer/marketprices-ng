@@ -100,3 +100,54 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  # The behaviour of 0038's decision path — approve, edit-and-approve, reject,
+  # the refusal of a second decision, and the provenance trigger — against a
+  # real Postgres with every migration applied. 0038 verified its own plumbing
+  # at apply time; this verifies what it DOES.
+  #
+  # A SEPARATE JOB, AND THAT IS THE POINT. It is not a step in `test` for two
+  # reasons, and the first one is the safety argument:
+  #
+  #   1. IT DECLARES NO SECRETS. GitHub Actions scopes env per job, so this job
+  #      holds no NEXT_PUBLIC_SUPABASE_*, no E2E_* and no database password. It
+  #      has nothing to authenticate to marketprices-rebuild with. The test
+  #      writes fixture prices, and production now holds sixteen real published
+  #      ones; the guarantee that the two never meet is this absence, not a
+  #      flag anybody has to remember to pass. scripts/check-decisions.sh adds
+  #      two more tripwires on top, and the test file rolls back regardless.
+  #
+  #   2. `supabase start` pulls container images and costs a minute or two.
+  #      Running in parallel keeps that off the critical path of the fast
+  #      checks, which are meant to fail in seconds.
+  #
+  # No pnpm install and no Node: the script is bash and psql, and psql ships on
+  # the runner image.
+  decisions:
+    name: Price decision path (0038)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.113.0
+
+      # Local stack only. `supabase db reset` without --linked targets the
+      # container started above; it applies every migration in order and then
+      # loads supabase/seed.sql, so the test runs against the real reference
+      # catalogue rather than an invented one. --linked must never appear here:
+      # this repo is linked to production, and a reset against it would destroy
+      # the published series.
+      - name: Start the local Supabase stack
+        run: supabase start
+
+      - name: Apply migrations and reference data
+        run: supabase db reset
+
+      - name: Price decision behaviour (0038)
+        run: bash scripts/check-decisions.sh
+
+      - name: Stop the local stack
+        if: always()
+        run: supabase stop
