@@ -3,6 +3,59 @@
 -- One new unit, and three retail units corrected to what the field actually
 -- reports.
 --
+-- ----------------------------------------------------------------------------
+-- AMENDED 2026-09-25, AFTER THIS FILE HAD ALREADY BEEN APPLIED TO PRODUCTION.
+-- Read this before the rest of the header.
+--
+-- This text is no longer byte-identical to what ran against marketprices-rebuild
+-- on 2026-09-24. CLAUDE.md says never edit an applied migration, and that rule is
+-- right. This is the exception, and this note is the price of it.
+--
+-- WHAT BROKE. The "Price decision path (0038)" CI job applies every migration to
+-- an EMPTY database and loads seed.sql afterwards -- that is the order
+-- `supabase start` and `supabase db reset` use: migrations first, seed second.
+-- This file corrects rows that seed.sql creates, so on a fresh database it runs
+-- before its subject exists. The precondition below counted the three
+-- commodities, found zero, and raised. CI run 36116875280 died there, at this
+-- file's first statement:
+--
+--   ERROR: expected 3 commodities (okro, ginger, garlic-local), found 0. This
+--   migration corrects seeded rows; seed the catalogue first. (SQLSTATE P0001)
+--
+-- WHAT CHANGED. Three touches, all the same idea: an empty `commodities` table
+-- means the catalogue has not been seeded yet, so there is nothing here to
+-- correct and seed.sql already carries this file's end state (it was edited to
+-- match in the same commit that added this migration).
+--
+--   1. The precondition returns early, with a notice, when `commodities` is empty.
+--   2. The Derica insert is conditional on the catalogue existing, so a fresh
+--      database is not given an orphan unit before seed.sql runs.
+--   3. The verification block returns early on the same condition.
+--
+-- NOTHING ELSE MOVED, and the guards keep their teeth. A NON-EMPTY catalogue
+-- missing the three slugs still raises, exactly as before: that is a real
+-- anomaly, not a fresh database, and this amendment does not soften it. A
+-- catalogue where someone has already changed one of the three defaults by hand
+-- still raises. On a seeded database every statement here behaves as it did on
+-- 2026-09-24.
+--
+-- WHY A LATER MIGRATION COULD NOT DO THIS. The failure is at THIS file's apply
+-- time, so 0040 never gets to run. No fix existed that left this text untouched.
+--
+-- PRODUCTION WAS NOT RE-RUN AND DID NOT CHANGE. 0039 is recorded as applied in
+-- marketprices-rebuild (`supabase migration list`: local 0039 / remote 0039) and
+-- `supabase db push` selects work by version number, so the amended text will
+-- never execute there. The three corrections landed on 2026-09-24 and stay
+-- landed. Checked on 2026-09-25 in rolled-back transactions against production,
+-- recorded at the foot of this file under VERIFICATION OF THE AMENDMENT.
+--
+-- THE COST, NAMED. The statements recorded against version 0039 in production
+-- are the original ones. This file now reads slightly differently from what that
+-- database executed, and no tool reconciles the two. That gap is the whole
+-- reason for this note: nobody should have to diff a CI log against a migration
+-- to find out.
+-- ----------------------------------------------------------------------------
+--
 -- WHY. seed.sql took each commodity's default_unit_id from the `retail_unit`
 -- column of data/marketprices-products.csv. That column is right for the great
 -- majority of the 201 seeded products and wrong for these three, which the
@@ -94,9 +147,23 @@
 
 do $$
 declare
+  v_catalogue  int;
   v_found      int;
   v_unexpected text;
 begin
+  -- Added 2026-09-25; see AMENDED at the top. An empty `commodities` is a fresh
+  -- database mid-`db reset`, where migrations run before seed.sql. There is
+  -- nothing seeded to correct yet, and seed.sql carries this end state itself,
+  -- so this file stands aside. This is the ONLY condition that skips the guards
+  -- below.
+  select count(*) into v_catalogue from commodities;
+
+  if v_catalogue = 0 then
+    raise notice
+      '0039: commodities is empty -- a fresh database, built migrations-first. Nothing to correct; seed.sql carries this end state.';
+    return;
+  end if;
+
   select count(*) into v_found
     from commodities
    where slug in ('okro', 'ginger', 'garlic-local');
@@ -136,10 +203,17 @@ $$;
 --
 -- ON CONFLICT DO NOTHING against the natural key, so this file is inert on a
 -- database where seed.sql has already introduced the row.
+--
+-- WHERE EXISTS added 2026-09-25; see AMENDED at the top. On a fresh database
+-- this file runs before seed.sql, and an unconditional insert would leave a
+-- Derica in `units` that no commodity points at -- which the verification block
+-- below would then correctly refuse. Gating on the catalogue keeps the whole
+-- file inert until there is something to correct.
 -- ----------------------------------------------------------------------------
 
 insert into units (name, abbreviation)
-values ('Derica', 'derica')
+select 'Derica', 'derica'
+ where exists (select 1 from commodities)
 on conflict (name) do nothing;
 
 -- ----------------------------------------------------------------------------
@@ -168,11 +242,23 @@ update commodities c
 
 do $$
 declare
+  v_catalogue int;
   v_ok        int;
   v_derica    record;
   v_users     int;
   v_price_use int;
 begin
+  -- Added 2026-09-25; see AMENDED at the top. Same condition as the
+  -- precondition: nothing was corrected because there was nothing to correct,
+  -- so there is nothing to verify. Every check below still runs on every
+  -- database that HAS a catalogue.
+  select count(*) into v_catalogue from commodities;
+
+  if v_catalogue = 0 then
+    raise notice '0039: nothing to verify -- commodities is empty and this file made no change.';
+    return;
+  end if;
+
   select count(*) into v_ok
     from commodities c
     join units u on u.id = c.default_unit_id
@@ -268,4 +354,45 @@ $$;
 -- That is the intended behaviour and is NOT idempotency: this file is applied
 -- once, and a second attempt is treated as a signal that someone changed these
 -- rows by hand rather than as a no-op to swallow.
+-- ----------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------
+-- VERIFICATION OF THE AMENDMENT, 2026-09-25. Four checks against
+-- marketprices-rebuild, every one of them inside a transaction that was rolled
+-- back. Production was confirmed untouched afterwards on a fresh connection:
+-- 201 commodities, 9 units, Derica present, 16 observations, 16 submissions,
+-- and garlic-local=Small bundle | ginger=Plate | okro=Derica.
+--
+--   1. THE AMENDMENT CHANGES NOTHING ABOUT PRODUCTION. The original file and
+--      this one were each run against the database as it stands. Both refused
+--      at the precondition, with the same message, for the same reason:
+--        default unit already changed outside this migration (garlic-local is
+--        already 'Small bundle', ginger is already 'Plate', okro is already
+--        'Derica'). Someone decided this by hand -- reconcile with them rather
+--        than overwriting it.
+--      That is the SECOND APPLICATION REFUSES behaviour recorded above, not a
+--      fault: these corrections landed on 2026-09-24 and a re-run is meant to
+--      stop. Identical before and after the amendment.
+--
+--   2. THE SEEDED PATH STILL WORKS, END TO END. In one rolled-back transaction
+--      the three defaults were set back to Paint bucket and the Derica deleted
+--      -- the pre-0039 world -- and this file was then run in full against it.
+--      Precondition passed. INSERT 0 1, UPDATE 3, verification block passed
+--      with no exception. After: units 8 -> 9, Derica(derica, base_multiplier
+--      NULL), garlic-local=Small bundle | ginger=Plate | okro=Derica,
+--      observations and submissions unchanged at 16 and 16. That reproduces the
+--      2026-09-24 record above, statement for statement, with the amended text.
+--
+--   3. THE FRESH PATH IS INERT. Empty session-local stand-ins for `commodities`
+--      and `units` were put in front of the real tables on the search_path, so
+--      the file met the state a `db reset` gives it. Both notices fired, INSERT
+--      0 0, UPDATE 0, no exception, and no orphan Derica was created. A
+--      simulation of the shape, not a substitute for CI: the authority on the
+--      fresh path is the "Price decision path (0038)" job applying all 39
+--      migrations to a real empty database.
+--
+--   4. THE GUARD KEEPS ITS TEETH. Against a catalogue that EXISTS but does not
+--      contain the three slugs (two unrelated commodities), the precondition
+--      still raised `expected 3 commodities (okro, ginger, garlic-local), found
+--      0`. Only a completely empty `commodities` stands this file down.
 -- ----------------------------------------------------------------------------

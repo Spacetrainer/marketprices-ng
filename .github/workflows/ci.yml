@@ -133,17 +133,21 @@ jobs:
         with:
           version: 2.113.0
 
-      # Local stack only. `supabase db reset` without --linked targets the
-      # container started above; it applies every migration in order and then
-      # loads supabase/seed.sql, so the test runs against the real reference
-      # catalogue rather than an invented one. --linked must never appear here:
-      # this repo is linked to production, and a reset against it would destroy
-      # the published series.
-      - name: Start the local Supabase stack
+      # ONE STEP, NOT TWO. `supabase start` on a cold runner brings the
+      # containers up AND applies every migration in order and then loads
+      # supabase/seed.sql, so the test runs against the real reference
+      # catalogue rather than an invented one. A `supabase db reset` after it
+      # only dropped that database and did the same work again -- every runner
+      # here is cold, so the second pass was pure duplication, and it put the
+      # migration failure of run 36116875280 in a step named "Start the local
+      # Supabase stack" where nobody would look for it. The step name below
+      # says where migrations and seed actually happen.
+      #
+      # LOCAL STACK ONLY. Nothing here names --linked or --db-url: this repo IS
+      # linked to production, and a reset against it would destroy the
+      # published series.
+      - name: Start the local stack, apply all migrations, load seed.sql
         run: supabase start
-
-      - name: Apply migrations and reference data
-        run: supabase db reset
 
       - name: Price decision behaviour (0038)
         run: bash scripts/check-decisions.sh
