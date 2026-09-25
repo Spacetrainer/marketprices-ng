@@ -29,6 +29,11 @@
   --color-on-dark: var(--on-dark);
   --color-on-dark-muted: var(--on-dark-muted);
 
+  /* Form fields */
+  --color-field-border: var(--field-border);
+  --color-field-border-focus: var(--field-border-focus);
+  --color-field-error: var(--field-error);
+
   --color-chip-prices-bg: var(--chip-prices-bg);
   --color-chip-prices-fg: var(--chip-prices-fg);
   --color-chip-production-bg: var(--chip-production-bg);
@@ -52,6 +57,9 @@
   --color-sev-high: var(--sev-high);
   --color-sev-moderate: var(--sev-moderate);
   --color-sidebar-inactive: var(--sidebar-inactive);
+  --color-sidebar-active-bg: var(--sidebar-active-bg);
+  --color-badge-count-bg: var(--badge-count-bg);
+  --color-badge-urgent-bg: var(--badge-urgent-bg);
 
   /* Fonts */
   --font-ui: var(--font-ui);

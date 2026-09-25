@@ -1,0 +1,262 @@
+id,category,product,variety_grade,retail_unit,retail_size_weight,wholesale_unit,wholesale_size_weight,unit_source,status
+MP-0001,Leafy Vegetables,Soko (Nigerian Spinach),,Small bundle,,Big bundle,,Template,Active
+MP-0002,Leafy Vegetables,Tete (Amaranth Green),,Small bundle,,Big bundle,,Template,Active
+MP-0003,Leafy Vegetables,Ewuro (Bitter Leaf),,Small bundle,,Big bundle,,Template,Active
+MP-0004,Leafy Vegetables,Water Leaf,,Small bundle,,Big bundle,,Template,Active
+MP-0005,Leafy Vegetables,Scent Leaf (Basil),,Small bundle,,Big bundle,,Template,Active
+MP-0006,Leafy Vegetables,Ugwu Leaf (Fluted Pumpkin),,Small bundle,,Big bundle,,Template,Active
+MP-0007,Leafy Vegetables,Uziza Leaf (Piper Guineense),,Small bundle,,Big bundle,,Template,Active
+MP-0008,Leafy Vegetables,Okazi Leaf (Wild Spinach),,Small bundle,,Big bundle,,Template,Active
+MP-0009,Leafy Vegetables,Ewedu,,Small bundle,,Big bundle,,Template,Active
+MP-0010,Leafy Vegetables,Atama Leaves,,Small bundle,,Big bundle,,Template,Active
+MP-0011,Leafy Vegetables,Editan Leaf,,Small bundle,,Big bundle,,Template,Active
+MP-0012,Leafy Vegetables,Kale,,Small bundle,,Big bundle,,Template,Active
+MP-0013,Leafy Vegetables,Coriander Leaf,,Small bundle,,Big bundle,,Template,Active
+MP-0014,Leafy Vegetables,Celery Leaf,,Small bundle,,Big bundle,,Template,Active
+MP-0015,Peppers,Rodo (Scotch Bonnet),,Paint bucket,,Big basket,,Template,Active
+MP-0016,Peppers,Tatase (Bell Pepper),,Paint bucket,,Big basket,,Template,Active
+MP-0017,Peppers,Shombo (Cayenne Pepper),,Paint bucket,,Big basket,,Template,Active
+MP-0018,Peppers,Tomato (Hausa/Yoruba),,Paint bucket,,Big basket,,Template,Active
+MP-0019,Peppers,Green Pepper (Bell),,Paint bucket,,Big basket,,Template,Active
+MP-0020,Peppers,Yellow/Red Pepper,,Paint bucket,,Big basket,,Template,Active
+MP-0021,Peppers,Peppercorn,,Paint bucket,,Big basket,,Template,Active
+MP-0022,Peppers,Alligator Pepper,,Paint bucket,,Big basket,,Template,Active
+MP-0023,Peppers,Chilli Pepper Green (Habanero),,Paint bucket,,Big basket,,Template,Active
+MP-0024,Peppers,Chilli Pepper Red (Habanero),,Paint bucket,,Big basket,,Template,Active
+MP-0025,Vegetables,Leek,,Paint bucket,,Big basket,,Template,Active
+MP-0026,Vegetables,Lemon Grass,,Paint bucket,,Big basket,,Template,Active
+MP-0027,Vegetables,Carrot,,Paint bucket,,Big basket,,Template,Active
+MP-0028,Vegetables,Okro,,Paint bucket,,Big basket,,Template,Active
+MP-0029,Vegetables,Cabbage Green,,Paint bucket,,Big basket,,Template,Active
+MP-0030,Vegetables,Cabbage Red,,Paint bucket,,Big basket,,Template,Active
+MP-0031,Vegetables,Lettuce,,Paint bucket,,Big basket,,Template,Active
+MP-0032,Vegetables,Cauliflower,,Paint bucket,,Big basket,,Template,Active
+MP-0033,Vegetables,Garden Egg Green,,Paint bucket,,Big basket,,Template,Active
+MP-0034,Vegetables,Garden Egg White,,Paint bucket,,Big basket,,Template,Active
+MP-0035,Vegetables,Watercress,,Paint bucket,,Big basket,,Template,Active
+MP-0036,Vegetables,Spring Onion,,Paint bucket,,Big basket,,Template,Active
+MP-0037,Vegetables,Broccoli,,Paint bucket,,Big basket,,Template,Active
+MP-0038,Tubers,Beetroot,,Paint bucket,,Sack,,Template,Active
+MP-0039,Tubers,Cocoyam,,Paint bucket,,Sack,,Template,Active
+MP-0040,Tubers,Sweet Potatoes,,Paint bucket,,Sack,,Template,Active
+MP-0041,Tubers,Irish Potatoes,,Paint bucket,,Sack,,Template,Active
+MP-0042,Tubers,Cassava,,Paint bucket,,Sack,,Template,Active
+MP-0043,Tubers,Old Yam,,Single tuber (medium),,Bundle of 100 tubers,,Proposed - confirm,Active
+MP-0044,Tubers,New Yam,,Single tuber (medium),,Bundle of 100 tubers,,Proposed - confirm,Active
+MP-0045,Tubers,Water Yam,,Single tuber (medium),,Bundle of 100 tubers,,Proposed - confirm,Active
+MP-0046,Grains,Maize Yellow,,Paint bucket,,Sack,,Template,Active
+MP-0047,Grains,Maize White,,Paint bucket,,Sack,,Template,Active
+MP-0048,Grains,Wheat Local,,Paint bucket,,Sack,,Template,Active
+MP-0049,Grains,Wheat Imported,,Paint bucket,,Sack,,Template,Active
+MP-0050,Grains,Rice Short Grain,,Paint bucket,,Sack,,Template,Active
+MP-0051,Grains,Rice Long Grain,,Paint bucket,,Sack,,Template,Active
+MP-0052,Grains,Ofada Rice,,Paint bucket,,Sack,,Template,Active
+MP-0053,Grains,Millet,,Paint bucket,,Sack,,Template,Active
+MP-0054,Grains,Guinea Corn White (Sorghum),,Paint bucket,,Sack,,Template,Active
+MP-0055,Grains,Guinea Corn Red (Sorghum),,Paint bucket,,Sack,,Template,Active
+MP-0056,Grains,Barley,,Paint bucket,,Sack,,Template,Active
+MP-0057,Grains,Oats,,Paint bucket,,Sack,,Template,Active
+MP-0058,Grains,Quinoa,,Paint bucket,,Sack,,Template,Active
+MP-0059,Fruits,Watermelon,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0060,Fruits,Pineapple Local,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0061,Fruits,Pineapple Cotonou,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0062,Fruits,Coconut,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0063,Fruits,Golden Melon,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0064,Fruits,Pawpaw,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0065,Fruits,Sugarcane,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0066,Fruits,Kiwano Horned Melon,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0067,Fruits,Bread Fruit,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0068,Fruits,Custard Apple/Soursop,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0069,Fruits,Cocoa Fruit,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0070,Fruits,Plum,,Single (medium),,Big basket,,Proposed - confirm,Active
+MP-0071,Fruits,Kiwi,,Plate,,Big basket,,Template,Active
+MP-0072,Fruits,Plantain Ripe,,Plate,,Big basket,,Template,Active
+MP-0073,Fruits,Plantain Unripe,,Plate,,Big basket,,Template,Active
+MP-0074,Fruits,African Pear,,Plate,,Big basket,,Template,Active
+MP-0075,Fruits,Cucumber,,Plate,,Big basket,,Template,Active
+MP-0076,Fruits,Avocado Unripe,,Plate,,Big basket,,Template,Active
+MP-0077,Fruits,Avocado Ripe,,Plate,,Big basket,,Template,Active
+MP-0078,Fruits,Eggplant,,Plate,,Big basket,,Template,Active
+MP-0079,Fruits,Guava,,Plate,,Big basket,,Template,Active
+MP-0080,Fruits,Tamarind,,Plate,,Big basket,,Template,Active
+MP-0081,Fruits,Star Fruit,,Plate,,Big basket,,Template,Active
+MP-0082,Fruits,Dragon Fruit,,Plate,,Big basket,,Template,Active
+MP-0083,Fruits,Tigernut,,Plate,,Big basket,,Template,Active
+MP-0084,Fruits,Oranges,,Plate,,Big basket,,Template,Active
+MP-0085,Fruits,Grape,,Plate,,Big basket,,Template,Active
+MP-0086,Fruits,Passion Fruit,,Plate,,Big basket,,Template,Active
+MP-0087,Fruits,Tangerine Local,,Plate,,Big basket,,Template,Active
+MP-0088,Fruits,Tangelo Imported,,Plate,,Big basket,,Template,Active
+MP-0089,Fruits,Lemon,,Plate,,Big basket,,Template,Active
+MP-0090,Fruits,Limes,,Plate,,Big basket,,Template,Active
+MP-0091,Fruits,Strawberry,,Plate,,Big basket,,Template,Active
+MP-0092,Fruits,Raspberry,,Plate,,Big basket,,Template,Active
+MP-0093,Fruits,Blackberry,,Plate,,Big basket,,Template,Active
+MP-0094,Fruits,Dates,,Plate,,Big basket,,Template,Active
+MP-0095,Fruits,Agbalumo,,Plate,,Big basket,,Template,Active
+MP-0096,Fruits,Banana Local/Native,,Plate,,Big basket,,Template,Active
+MP-0097,Fruits,Banana Imported,,Plate,,Big basket,,Template,Active
+MP-0098,Fruits,Mango Sheri,,Plate,,Big basket,,Template,Active
+MP-0099,Fruits,Mango Julie,,Plate,,Big basket,,Template,Active
+MP-0100,Fruits,Apricot,,Plate,,Big basket,,Template,Active
+MP-0101,Fruits,Peaches,,Plate,,Big basket,,Template,Active
+MP-0102,Fruits,Apple Green,,Plate,,Big basket,,Template,Active
+MP-0103,Fruits,Apple Red,,Plate,,Big basket,,Template,Active
+MP-0104,Fruits,Pomegranate,,Plate,,Big basket,,Template,Active
+MP-0105,Fruits,Pear,,Plate,,Big basket,,Template,Active
+MP-0106,Spices & Seeds,Onions Red,,Paint bucket,,Sack,,Template,Active
+MP-0107,Spices & Seeds,Onions White,,Paint bucket,,Sack,,Template,Active
+MP-0108,Spices & Seeds,Melon Seed (Egusi),,Paint bucket,,Sack,,Template,Active
+MP-0109,Spices & Seeds,Cinnamon,,Paint bucket,,Sack,,Template,Active
+MP-0110,Spices & Seeds,Locust Beans (Iru),,Paint bucket,,Sack,,Template,Active
+MP-0111,Spices & Seeds,Zobo Leaves,,Paint bucket,,Sack,,Template,Active
+MP-0112,Spices & Seeds,Thyme Leaf,,Paint bucket,,Sack,,Template,Active
+MP-0113,Spices & Seeds,Ogbono Seed,,Paint bucket,,Sack,,Template,Active
+MP-0114,Spices & Seeds,Banga Stick,,Paint bucket,,Sack,,Template,Active
+MP-0115,Spices & Seeds,Garlic Local,,Paint bucket,,Sack,,Template,Active
+MP-0116,Spices & Seeds,Garlic Imported,,Paint bucket,,Sack,,Template,Active
+MP-0117,Spices & Seeds,Ginger,,Paint bucket,,Sack,,Template,Active
+MP-0118,Spices & Seeds,Bay Leaf,,Paint bucket,,Sack,,Template,Active
+MP-0119,Spices & Seeds,Cloves,,Paint bucket,,Sack,,Template,Active
+MP-0120,Spices & Seeds,Nutmeg,,Paint bucket,,Sack,,Template,Active
+MP-0121,Spices & Seeds,Rosemary,,Paint bucket,,Sack,,Template,Active
+MP-0122,Spices & Seeds,Turmeric,,Paint bucket,,Sack,,Template,Active
+MP-0123,Spices & Seeds,Ehuru,,Paint bucket,,Sack,,Template,Active
+MP-0124,Spices & Seeds,Ugba,,Paint bucket,,Sack,,Template,Active
+MP-0125,Spices & Seeds,Ogiri,,Paint bucket,,Sack,,Template,Active
+MP-0126,Spices & Seeds,Uda Seed,,Paint bucket,,Sack,,Template,Active
+MP-0127,Spices & Seeds,Moringa Leaf,,Paint bucket,,Sack,,Template,Active
+MP-0128,Beans & Nuts,Red Kidney Beans,,Paint bucket,,Sack,,Template,Active
+MP-0129,Beans & Nuts,Soyabeans,,Paint bucket,,Sack,,Template,Active
+MP-0130,Beans & Nuts,Beans Oloyin,,Paint bucket,,Sack,,Template,Active
+MP-0131,Beans & Nuts,Beans Oloo,,Paint bucket,,Sack,,Template,Active
+MP-0132,Beans & Nuts,Groundnut Uncooked,,Paint bucket,,Sack,,Template,Active
+MP-0133,Beans & Nuts,Black Eyed Beans,,Paint bucket,,Sack,,Template,Active
+MP-0134,Beans & Nuts,Bambara Nuts (Okpa),,Paint bucket,,Sack,,Template,Active
+MP-0135,Beans & Nuts,Lentils,,Paint bucket,,Sack,,Template,Active
+MP-0136,Beans & Nuts,Rye Grain,,Paint bucket,,Sack,,Template,Active
+MP-0137,Beans & Nuts,Sesame Seed,,Paint bucket,,Sack,,Template,Active
+MP-0138,Beans & Nuts,Flaxseed,,Paint bucket,,Sack,,Template,Active
+MP-0139,Beans & Nuts,Runner Beans,,Paint bucket,,Sack,,Template,Active
+MP-0140,Beans & Nuts,Cashew Nut,,Paint bucket,,Sack,,Template,Active
+MP-0141,Beans & Nuts,African Walnut (Asala),,Paint bucket,,Sack,,Template,Active
+MP-0142,Processed Leafy Vegetables,Dried Soko,,Small pack,,Big pack,,Template,Active
+MP-0143,Processed Leafy Vegetables,Dried Tete,,Small pack,,Big pack,,Template,Active
+MP-0144,Processed Leafy Vegetables,Dried Bitter Leaf,,Small pack,,Big pack,,Template,Active
+MP-0145,Processed Leafy Vegetables,Dried Water Leaf,,Small pack,,Big pack,,Template,Active
+MP-0146,Processed Leafy Vegetables,Dried Scent Leaf,,Small pack,,Big pack,,Template,Active
+MP-0147,Processed Leafy Vegetables,Dried Ugwu,,Small pack,,Big pack,,Template,Active
+MP-0148,Processed Leafy Vegetables,Dried Uziza,,Small pack,,Big pack,,Template,Active
+MP-0149,Processed Leafy Vegetables,Dried Ukazi,,Small pack,,Big pack,,Template,Active
+MP-0150,Processed Leafy Vegetables,Dried Ewedu,,Small pack,,Big pack,,Template,Active
+MP-0151,Processed Peppers,Blended Rodo,,Small pack,,Big pack,,Template,Active
+MP-0152,Processed Peppers,Blended Tatase,,Small pack,,Big pack,,Template,Active
+MP-0153,Processed Peppers,Blended Shombo,,Small pack,,Big pack,,Template,Active
+MP-0154,Processed Peppers,Blended Tomato,,Small pack,,Big pack,,Template,Active
+MP-0155,Processed Peppers,Dried Habanero Pepper,,Small pack,,Big pack,,Template,Active
+MP-0156,Processed Peppers,Dried Red Pepper,,Small pack,,Big pack,,Template,Active
+MP-0157,Processed Peppers,Dried Cayenne Pepper,,Small pack,,Big pack,,Template,Active
+MP-0158,Processed Peppers,Dried Black Pepper,,Small pack,,Big pack,,Template,Active
+MP-0159,Processed Vegetables,Ground Dried Okro,,Small pack,,Big pack,,Template,Active
+MP-0160,Processed Vegetables,Dried Cabbage,,Small pack,,Big pack,,Template,Active
+MP-0161,Processed Vegetables,Dried Cauliflower,,Small pack,,Big pack,,Template,Active
+MP-0162,Processed Vegetables,Dried Garden Egg,,Small pack,,Big pack,,Template,Active
+MP-0163,Processed Vegetables,Dried Watercress,,Small pack,,Big pack,,Template,Active
+MP-0164,Processed Vegetables,Dried Spring Onion,,Small pack,,Big pack,,Template,Active
+MP-0165,Processed Vegetables,Dried Coriander Leaves,,Small pack,,Big pack,,Template,Active
+MP-0166,Processed Vegetables,Dried Lettuce,,Small pack,,Big pack,,Template,Active
+MP-0167,Processed Tubers,Yam Flour (Elubo Dudu),,Small pack,,Big pack,,Template,Active
+MP-0168,Processed Tubers,Cassava Flour (Lafun),,Small pack,,Big pack,,Template,Active
+MP-0169,Processed Tubers,Sweet Potato Flour,,Small pack,,Big pack,,Template,Active
+MP-0170,Processed Tubers,Irish Potato Flour,,Small pack,,Big pack,,Template,Active
+MP-0171,Processed Tubers,Garri Yellow,,Small pack,,Big pack,,Template,Active
+MP-0172,Processed Tubers,Garri White,,Small pack,,Big pack,,Template,Active
+MP-0173,Processed Tubers,Garri Ijebu,,Small pack,,Big pack,,Template,Active
+MP-0174,Processed Tubers,Cocoyam Flour,,Small pack,,Big pack,,Template,Active
+MP-0175,Processed Tubers,Fufu,,Small pack,,Big pack,,Template,Active
+MP-0176,Processed Grains,Rice Flour,,Small pack,,Big pack,,Template,Active
+MP-0177,Processed Grains,Maize Flour,,Small pack,,Big pack,,Template,Active
+MP-0178,Processed Grains,Wheat Flour,,Small pack,,Big pack,,Template,Active
+MP-0179,Processed Grains,Millet Flour,,Small pack,,Big pack,,Template,Active
+MP-0180,Processed Grains,Sorghum Flour,,Small pack,,Big pack,,Template,Active
+MP-0181,Processed Grains,Barley Flour,,Small pack,,Big pack,,Template,Active
+MP-0182,Processed Grains,Oats Flour,,Small pack,,Big pack,,Template,Active
+MP-0183,Processed Grains,Guinea Corn Flour,,Small pack,,Big pack,,Template,Active
+MP-0184,Processed Fruits,Plantain Flour,,Small pack,,Big pack,,Template,Active
+MP-0185,Processed Fruits,Dried Mango,,Small pack,,Big pack,,Template,Active
+MP-0186,Processed Fruits,Dried Orange,,Small pack,,Big pack,,Template,Active
+MP-0187,Processed Fruits,Dried Pineapple,,Small pack,,Big pack,,Template,Active
+MP-0188,Processed Fruits,Dried Watermelon,,Small pack,,Big pack,,Template,Active
+MP-0189,Processed Fruits,Dried Guava,,Small pack,,Big pack,,Template,Active
+MP-0190,Processed Fruits,Dried Coconut,,Small pack,,Big pack,,Template,Active
+MP-0191,Processed Fruits,Dried Cashew,,Small pack,,Big pack,,Template,Active
+MP-0192,Processed Fruits,Dried Apples,,Small pack,,Big pack,,Template,Active
+MP-0193,Processed Fruits,African Velvet Tamarind (Awin),,Small pack,,Big pack,,Template,Active
+MP-0194,Processed Spices,Ground Egusi,,Small pack,,Big pack,,Template,Active
+MP-0195,Processed Spices,Ground Zobo Leaves,,Small pack,,Big pack,,Template,Active
+MP-0196,Processed Spices,Alligator Pepper Powder,,Small pack,,Big pack,,Template,Active
+MP-0197,Processed Spices,Ground Ogbono,,Small pack,,Big pack,,Template,Active
+MP-0198,Processed Spices,Garlic Powder,,Small pack,,Big pack,,Template,Active
+MP-0199,Processed Spices,Ginger Powder,,Small pack,,Big pack,,Template,Active
+MP-0200,Processed Spices,Bay Leaf Powder,,Small pack,,Big pack,,Template,Active
+MP-0201,Processed Spices,Cloves Powder,,Small pack,,Big pack,,Template,Active
+MP-0202,Processed Spices,Nutmeg Powder,,Small pack,,Big pack,,Template,Active
+MP-0203,Processed Spices,Cinnamon Powder,,Small pack,,Big pack,,Template,Active
+MP-0204,Processed Spices,Rosemary Powder,,Small pack,,Big pack,,Template,Active
+MP-0205,Processed Spices,White Pepper Powder,,Small pack,,Big pack,,Template,Active
+MP-0206,Processed Spices,Turmeric Powder,,Small pack,,Big pack,,Template,Active
+MP-0207,Processed Spices,Dried Basil Powder,,Small pack,,Big pack,,Template,Active
+MP-0208,Processed Legumes & Nuts,Soya Bean Flour,,Small pack,,Big pack,,Template,Active
+MP-0209,Processed Legumes & Nuts,Beans Flour,,Small pack,,Big pack,,Template,Active
+MP-0210,Processed Legumes & Nuts,Black Eyed Beans Flour,,Small pack,,Big pack,,Template,Active
+MP-0211,Processed Legumes & Nuts,Bambara Nuts Flour,,Small pack,,Big pack,,Template,Active
+MP-0212,Processed Legumes & Nuts,Sesame Flour,,Small pack,,Big pack,,Template,Active
+MP-0213,Processed Legumes & Nuts,Flaxseed Flour,,Small pack,,Big pack,,Template,Active
+MP-0214,Processed Legumes & Nuts,Groundnut Paste,,Small pack,,Big pack,,Template,Active
+MP-0215,Processed Legumes & Nuts,Cashew Nut Paste,,Small pack,,Big pack,,Template,Active
+MP-0216,Processed Legumes & Nuts,Tiger Nut Paste,,Small pack,,Big pack,,Template,Active
+MP-0217,Oils,Palm Oil,,1 litre bottle,,25-litre keg,,Proposed - confirm,Active
+MP-0218,Oils,Groundnut Oil,,1 litre bottle,,25-litre keg,,Proposed - confirm,Active
+MP-0219,Oils,Vegetable Oil,,1 litre bottle,,25-litre keg,,Proposed - confirm,Active
+MP-0220,Oils,Coconut Oil,,1 litre bottle,,25-litre keg,,Proposed - confirm,Active
+MP-0221,Oils,Soya Oil,,1 litre bottle,,25-litre keg,,Proposed - confirm,Active
+MP-0222,Oils,Chilli Oil,,1 litre bottle,,25-litre keg,,Proposed - confirm,Active
+MP-0223,Meat,Beef (with bone),,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0224,Meat,Beef (boneless),,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0225,Meat,Cow Leg (Bokoto),,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0226,Meat,Shaki (Tripe),,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0227,Meat,Ponmo (Cow Skin),,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0228,Meat,Cow Liver,,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0229,Meat,Cow Kidney,,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0230,Meat,Cow Tail,,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0231,Meat,Goat Meat,,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0232,Meat,Ram / Mutton,,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0233,Meat,Pork,,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0234,Meat,Assorted Offal,,1 kg,,1 kg (abattoir bulk),,Proposed - confirm,Active
+MP-0235,Poultry,Broiler Chicken (live),,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0236,Poultry,Broiler Chicken (dressed),,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0237,Poultry,Old Layer,,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0238,Poultry,Cockerel,,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0239,Poultry,Local Chicken,,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0240,Poultry,Turkey (live),,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0241,Poultry,Turkey (frozen),,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0242,Poultry,Duck,,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0243,Poultry,Guinea Fowl,,Per bird,,Lot of 10 birds,,Proposed - confirm,Active
+MP-0244,Eggs,Chicken Eggs,,Crate of 30,,Pack of 12 crates,,Proposed - confirm,Active
+MP-0245,Eggs,Quail Eggs,,Pack of 20,,Carton of 50 packs,,Proposed - confirm,Active
+MP-0246,Fish & Seafood,"Titus (Mackerel, frozen)",,1 kg,,Carton (20 kg),,Proposed - confirm,Active
+MP-0247,Fish & Seafood,"Kote (Croaker, frozen)",,1 kg,,Carton (20 kg),,Proposed - confirm,Active
+MP-0248,Fish & Seafood,"Panla (Hake, frozen)",,1 kg,,Carton (20 kg),,Proposed - confirm,Active
+MP-0249,Fish & Seafood,Sardine (frozen),,1 kg,,Carton (20 kg),,Proposed - confirm,Active
+MP-0250,Fish & Seafood,Prawns,,1 kg,,Carton (20 kg),,Proposed - confirm,Active
+MP-0251,Fish & Seafood,Shrimp,,1 kg,,Carton (20 kg),,Proposed - confirm,Active
+MP-0252,Fish & Seafood,Crab,,1 kg,,Carton (20 kg),,Proposed - confirm,Active
+MP-0253,Fish & Seafood,Catfish (fresh),,1 kg,,1 kg (bulk),,Proposed - confirm,Active
+MP-0254,Fish & Seafood,Tilapia (fresh),,1 kg,,1 kg (bulk),,Proposed - confirm,Active
+MP-0255,Fish & Seafood,Dried Fish (Eja Gbigbe),,Paint bucket,,Sack,,Proposed - confirm,Active
+MP-0256,Fish & Seafood,Stockfish Head,,Paint bucket,,Sack,,Proposed - confirm,Active
+MP-0257,Fish & Seafood,Stockfish Body,,Paint bucket,,Sack,,Proposed - confirm,Active
+MP-0258,Fish & Seafood,Crayfish,,Paint bucket,,Sack,,Proposed - confirm,Active
+MP-0259,Fish & Seafood,Periwinkle,,Paint bucket,,Sack,,Proposed - confirm,Active
+MP-0260,Fish & Seafood,Snails (Big),,Per piece,,Bag of 100,,Proposed - confirm,Active
+MP-0261,Fish & Seafood,Snails (Medium),,Per piece,,Bag of 100,,Proposed - confirm,Active

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends postgresql-client
+
 corepack enable && corepack prepare pnpm@11.21.0 --activate
 pnpm install --frozen-lockfile 2>/dev/null || pnpm install
 curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz -C /tmp && sudo mv /tmp/supabase /usr/local/bin/supabase

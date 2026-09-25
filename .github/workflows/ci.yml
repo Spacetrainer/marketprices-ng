@@ -20,8 +20,28 @@ jobs:
           node-version: "22"
           cache: pnpm
 
+      # Pure file checks — bash, awk and grep over the working tree. No database,
+      # no secrets, no node_modules. They run BEFORE install so a P0.1 or P12.3
+      # violation fails in seconds instead of after a cold dependency install.
+      #
+      # Invoked as `bash scripts/...`, NOT `pnpm check:...`, and that is load
+      # bearing: pnpm auto-installs before `pnpm run` when node_modules is
+      # absent, which on a fresh runner both erases the speed argument above and
+      # performs an install that does not carry --frozen-lockfile. Same command
+      # either way; only this form keeps that flag meaningful.
+      - name: Seed audit (P0.1)
+        run: bash scripts/check-seed.sh
+
+      - name: Vocabulary audit (P12.3)
+        run: bash scripts/check-vocab.sh
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Cheapest check that needs node_modules, and the only mechanical guard on
+      # P0.2/P6.1/P10.6 — a hardcoded figure makes the suites below moot.
+      - name: Lint (P0.2, P6.1, P10.6)
+        run: pnpm lint
 
       - name: Typecheck
         run: pnpm typecheck
@@ -29,11 +49,49 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Admin route inventory (P12.1)
+        run: pnpm check:routes
+
+      # The Google Form's dropdowns and the ingest route's name-to-id resolution both come
+      # from the committed data/form-options.json. This regenerates it from the live database
+      # and fails if the committed copy no longer matches, so the file cannot quietly go
+      # stale and start offering collectors options intake would reject. `generated_at` is
+      # excluded from the comparison — it changes every run, and a check that always fails is
+      # a check everyone learns to ignore.
+      #
+      # Placed here deliberately: it is the first step needing the database, and it is cheap,
+      # so it fails before the Playwright browser install spends a minute or two.
+      - name: Form options drift (§3.2)
+        run: pnpm check:form-options
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+
       - name: Install Playwright browsers (with OS deps)
         run: pnpm exec playwright install --with-deps chromium
 
       - name: E2E tests
         run: pnpm test:e2e
+        env:
+          # The /admin middleware reads these at request time; without them every guarded
+          # route 500s instead of redirecting and the P12.5 boundary tests fail. The
+          # publishable key is public by design (P9.3) — it is a secret here only for
+          # tidiness. The capture in tests/e2e/auth.setup.ts also reads them, to look up the
+          # signed-in account's role through its own `profiles_select_own` policy.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          # The Contributor service account, which is what lets dashboard-authenticated.spec.ts
+          # run here instead of always skipping. A REAL password for a REAL account in the
+          # production project (see docs/exceptions.md) — that is the whole of why it is a
+          # secret rather than a repo variable. Contributor is the least-privileged role that
+          # still reaches the Dashboard with its sidebar intact, and the only one of the four
+          # for which an unattended login is possible at all: Admin and Editor mandate a
+          # second factor (§7.1, P9.4), and an Analyst sees one nav item.
+          #
+          # Absent these, the setup project skips and the authenticated spec skips with it.
+          # Nothing else in the suite depends on them.
+          E2E_CONTRIBUTOR_EMAIL: ${{ secrets.E2E_CONTRIBUTOR_EMAIL }}
+          E2E_CONTRIBUTOR_PASSWORD: ${{ secrets.E2E_CONTRIBUTOR_PASSWORD }}
 
       - name: Upload Playwright report
         if: always()
@@ -42,3 +100,58 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  # The behaviour of 0038's decision path — approve, edit-and-approve, reject,
+  # the refusal of a second decision, and the provenance trigger — against a
+  # real Postgres with every migration applied. 0038 verified its own plumbing
+  # at apply time; this verifies what it DOES.
+  #
+  # A SEPARATE JOB, AND THAT IS THE POINT. It is not a step in `test` for two
+  # reasons, and the first one is the safety argument:
+  #
+  #   1. IT DECLARES NO SECRETS. GitHub Actions scopes env per job, so this job
+  #      holds no NEXT_PUBLIC_SUPABASE_*, no E2E_* and no database password. It
+  #      has nothing to authenticate to marketprices-rebuild with. The test
+  #      writes fixture prices, and production now holds sixteen real published
+  #      ones; the guarantee that the two never meet is this absence, not a
+  #      flag anybody has to remember to pass. scripts/check-decisions.sh adds
+  #      two more tripwires on top, and the test file rolls back regardless.
+  #
+  #   2. `supabase start` pulls container images and costs a minute or two.
+  #      Running in parallel keeps that off the critical path of the fast
+  #      checks, which are meant to fail in seconds.
+  #
+  # No pnpm install and no Node: the script is bash and psql, and psql ships on
+  # the runner image.
+  decisions:
+    name: Price decision path (0038)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.113.0
+
+      # ONE STEP, NOT TWO. `supabase start` on a cold runner brings the
+      # containers up AND applies every migration in order and then loads
+      # supabase/seed.sql, so the test runs against the real reference
+      # catalogue rather than an invented one. A `supabase db reset` after it
+      # only dropped that database and did the same work again -- every runner
+      # here is cold, so the second pass was pure duplication, and it put the
+      # migration failure of run 36116875280 in a step named "Start the local
+      # Supabase stack" where nobody would look for it. The step name below
+      # says where migrations and seed actually happen.
+      #
+      # LOCAL STACK ONLY. Nothing here names --linked or --db-url: this repo IS
+      # linked to production, and a reset against it would destroy the
+      # published series.
+      - name: Start the local stack, apply all migrations, load seed.sql
+        run: supabase start
+
+      - name: Price decision behaviour (0038)
+        run: bash scripts/check-decisions.sh
+
+      - name: Stop the local stack
+        if: always()
+        run: supabase stop

@@ -1,0 +1,196 @@
+{
+  "generated_at": "2026-09-25T11:45:21.742Z",
+  "commodities": [
+    {
+      "id": "b0db8f5b-433c-46f1-9d3b-666eeabc624d",
+      "name": "Ugwu Leaf (Fluted Pumpkin)",
+      "aliases": []
+    },
+    {
+      "id": "5d336f49-3576-4eb0-9318-68e92ee6edbd",
+      "name": "Rodo (Scotch Bonnet)",
+      "aliases": []
+    },
+    {
+      "id": "8746a712-70ca-492c-b0f6-4034aeb2b8f0",
+      "name": "Tatase (Bell Pepper)",
+      "aliases": []
+    },
+    {
+      "id": "ba329131-3867-4e3f-a671-c1077ef92a93",
+      "name": "Tomato (Hausa/Yoruba)",
+      "aliases": []
+    },
+    {
+      "id": "db0a4457-9c92-4641-89e5-534bbe73bea0",
+      "name": "Okro",
+      "aliases": []
+    },
+    {
+      "id": "b99142d7-a0ec-4f23-acc2-80475f02077b",
+      "name": "Sweet Potatoes",
+      "aliases": []
+    },
+    {
+      "id": "733428ce-7a16-4101-85ae-e951e9a2bffa",
+      "name": "Irish Potatoes",
+      "aliases": []
+    },
+    {
+      "id": "ec83ab26-75cf-4db3-b691-84354eb90c7c",
+      "name": "Cassava",
+      "aliases": []
+    },
+    {
+      "id": "ee15e741-4f30-4f99-a52d-571718ceb50a",
+      "name": "Maize White",
+      "aliases": []
+    },
+    {
+      "id": "1950c250-9956-4341-b872-25d4a665a423",
+      "name": "Rice Long Grain",
+      "aliases": []
+    },
+    {
+      "id": "765f41cd-495c-4eef-a3c5-cf8fd7ddcc72",
+      "name": "Onions Red",
+      "aliases": []
+    },
+    {
+      "id": "266e4e00-e51a-4f66-b58e-52afe99830b7",
+      "name": "Garlic Local",
+      "aliases": []
+    },
+    {
+      "id": "c9bc26d5-211a-4cee-9919-1d7c6ec3ee50",
+      "name": "Ginger",
+      "aliases": []
+    },
+    {
+      "id": "aced7722-0f88-406c-8064-56676594748e",
+      "name": "Groundnut Uncooked",
+      "aliases": []
+    },
+    {
+      "id": "ff1ebb6a-92dd-4860-a8f9-13bc476aa1b7",
+      "name": "Black Eyed Beans",
+      "aliases": []
+    },
+    {
+      "id": "fc90b0eb-6050-401d-9afc-11a1b03ee412",
+      "name": "Garri Yellow",
+      "aliases": []
+    },
+    {
+      "id": "21408af9-cf90-4c25-ac25-8bb9367cef08",
+      "name": "Garri White",
+      "aliases": []
+    }
+  ],
+  "collection_sites": [
+    {
+      "id": "5b229aa1-b6c0-458b-95ec-38669f48dc86",
+      "name": "Ile-Epo Market"
+    },
+    {
+      "id": "8b1a38fb-5d50-4f3f-b9f0-3187f49267be",
+      "name": "Oko-Oba Abattoir"
+    }
+  ],
+  "units": [
+    {
+      "id": "f4bfa24b-eb64-4038-b2e8-dc3de0fc1d0a",
+      "name": "1 kg",
+      "abbreviation": "kg"
+    },
+    {
+      "id": "307823d9-6760-401a-9411-765d65dbe5d0",
+      "name": "1 litre bottle",
+      "abbreviation": "1 litre"
+    },
+    {
+      "id": "09243163-5305-4b3a-9876-de713eebb60f",
+      "name": "Big basket",
+      "abbreviation": "basket"
+    },
+    {
+      "id": "d05082ec-e1d3-4c5b-950c-f79f92aab456",
+      "name": "Big bundle",
+      "abbreviation": "bg bundle"
+    },
+    {
+      "id": "bf4ccb9c-a4f6-4dfc-b885-fff61543e6c0",
+      "name": "Big pack",
+      "abbreviation": "bg pack"
+    },
+    {
+      "id": "47c08622-e077-403f-a9b4-8f8393155ec0",
+      "name": "Crate of 30",
+      "abbreviation": "crate 30"
+    },
+    {
+      "id": "b307e269-13f9-4451-9af2-a40ad85c66c7",
+      "name": "Derica",
+      "abbreviation": "derica"
+    },
+    {
+      "id": "f23ca39e-bf80-438a-9c9e-1bd0fed968ce",
+      "name": "Pack of 20",
+      "abbreviation": "pack 20"
+    },
+    {
+      "id": "292c2773-76da-42f1-8e9c-218805c62578",
+      "name": "Paint bucket",
+      "abbreviation": "bucket"
+    },
+    {
+      "id": "1a1abac2-8da1-447d-94b5-786ac1560d7e",
+      "name": "Per bird",
+      "abbreviation": "bird"
+    },
+    {
+      "id": "a5d6e1eb-c64a-49be-829f-cac190a12944",
+      "name": "Per cut",
+      "abbreviation": "cut"
+    },
+    {
+      "id": "f7cbd6ec-6767-4e86-b9e6-fba76d9d5b3e",
+      "name": "Per piece",
+      "abbreviation": "piece"
+    },
+    {
+      "id": "b8f9bca3-0eb2-4ff0-a27e-4723a5c5a7ca",
+      "name": "Plate",
+      "abbreviation": "plate"
+    },
+    {
+      "id": "f31118ba-da6a-4ca1-8b81-350ccb93d740",
+      "name": "Sack",
+      "abbreviation": "sack"
+    },
+    {
+      "id": "323a28fd-fba0-44b6-a9ef-a67af1315351",
+      "name": "Single (medium)",
+      "abbreviation": "single md"
+    },
+    {
+      "id": "c6107f3e-ebc1-4803-afa9-58165fdac766",
+      "name": "Single tuber (medium)",
+      "abbreviation": "tuber md"
+    },
+    {
+      "id": "a5cb0102-5115-42ab-ad47-402dd3866709",
+      "name": "Small bundle",
+      "abbreviation": "sm bundle"
+    },
+    {
+      "id": "9fb2727b-7574-4531-ab3c-4bd298134bc5",
+      "name": "Small pack",
+      "abbreviation": "sm pack"
+    }
+  ],
+  "tiers": [
+    "retail",
+    "wholesale"
+  ]
+}
