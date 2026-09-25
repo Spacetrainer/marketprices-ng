@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-24T19:28:06.889Z",
+  "generated_at": "2026-09-25T11:45:21.742Z",
   "commodities": [
     {
       "id": "b0db8f5b-433c-46f1-9d3b-666eeabc624d",
@@ -99,6 +99,16 @@
   ],
   "units": [
     {
+      "id": "f4bfa24b-eb64-4038-b2e8-dc3de0fc1d0a",
+      "name": "1 kg",
+      "abbreviation": "kg"
+    },
+    {
+      "id": "307823d9-6760-401a-9411-765d65dbe5d0",
+      "name": "1 litre bottle",
+      "abbreviation": "1 litre"
+    },
+    {
       "id": "09243163-5305-4b3a-9876-de713eebb60f",
       "name": "Big basket",
       "abbreviation": "basket"
@@ -114,14 +124,39 @@
       "abbreviation": "bg pack"
     },
     {
+      "id": "47c08622-e077-403f-a9b4-8f8393155ec0",
+      "name": "Crate of 30",
+      "abbreviation": "crate 30"
+    },
+    {
       "id": "b307e269-13f9-4451-9af2-a40ad85c66c7",
       "name": "Derica",
       "abbreviation": "derica"
     },
     {
+      "id": "f23ca39e-bf80-438a-9c9e-1bd0fed968ce",
+      "name": "Pack of 20",
+      "abbreviation": "pack 20"
+    },
+    {
       "id": "292c2773-76da-42f1-8e9c-218805c62578",
       "name": "Paint bucket",
       "abbreviation": "bucket"
+    },
+    {
+      "id": "1a1abac2-8da1-447d-94b5-786ac1560d7e",
+      "name": "Per bird",
+      "abbreviation": "bird"
+    },
+    {
+      "id": "a5d6e1eb-c64a-49be-829f-cac190a12944",
+      "name": "Per cut",
+      "abbreviation": "cut"
+    },
+    {
+      "id": "f7cbd6ec-6767-4e86-b9e6-fba76d9d5b3e",
+      "name": "Per piece",
+      "abbreviation": "piece"
     },
     {
       "id": "b8f9bca3-0eb2-4ff0-a27e-4723a5c5a7ca",
@@ -132,6 +167,16 @@
       "id": "f31118ba-da6a-4ca1-8b81-350ccb93d740",
       "name": "Sack",
       "abbreviation": "sack"
+    },
+    {
+      "id": "323a28fd-fba0-44b6-a9ef-a67af1315351",
+      "name": "Single (medium)",
+      "abbreviation": "single md"
+    },
+    {
+      "id": "c6107f3e-ebc1-4803-afa9-58165fdac766",
+      "name": "Single tuber (medium)",
+      "abbreviation": "tuber md"
     },
     {
       "id": "a5cb0102-5115-42ab-ad47-402dd3866709",
