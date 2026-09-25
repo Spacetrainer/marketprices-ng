@@ -57,3 +57,10 @@ next-env.d.ts
 # app/api/ingest/price/route.ts reads the file from process.cwd() at REQUEST time, and
 # Vercel builds from git, so an ignored file would not exist in production and every
 # submission would 503. `pnpm check:form-options` fails CI if the committed copy drifts.
+
+# supabase
+# `supabase db push` writes a TLS certificate for the target here. It is generated per
+# push, belongs to the connection rather than to this project, and nothing in the repo
+# reads it. The rest of supabase/.temp IS tracked — it records which project this repo is
+# linked to — so this ignores the one generated directory, not the folder around it.
+/supabase/.temp/pgdelta/
