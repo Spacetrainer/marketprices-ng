@@ -20,7 +20,7 @@
     "check:vocab": "bash scripts/check-vocab.sh",
     "gen:form-options": "tsx --env-file-if-exists=.env.local scripts/generate-form-options.ts",
     "check:form-options": "tsx --env-file-if-exists=.env.local scripts/generate-form-options.ts --check",
-    "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > types/database.ts",
+    "db:types": "tsx --env-file-if-exists=.env.local scripts/db-types.ts",
     "db:push": "supabase db push",
     "db:seed": "psql \"${DATABASE_URL:?DATABASE_URL is not set - export it, or load .env.local first}\" -v ON_ERROR_STOP=1 -f supabase/seed.sql",
     "lhci": "lhci autorun"
