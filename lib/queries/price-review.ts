@@ -6,6 +6,16 @@ import type {
   ApproveSubmissionInput,
   RejectSubmissionInput,
 } from "../validation/price-review";
+import { availableUnitRole, type LivePriceThisWeek } from "./unit-role";
+
+/**
+ * `LivePriceThisWeek` and `availableUnitRole` live in `./unit-role` and are re-exported here
+ * so every server-side caller reads unchanged. They moved because the review panel is a Client
+ * Component and needs the function: importing a value out of THIS module drags
+ * `../supabase/server` — and so `next/headers` — into the browser bundle, which does not
+ * compile. `./unit-role` imports nothing server-only, and its header says so and why.
+ */
+export { availableUnitRole, type LivePriceThisWeek };
 
 /**
  * The Price radar's review queue (build plan 3.5, §8.12 region 0).
@@ -67,22 +77,6 @@ export interface ObservedPrice {
   currency: string;
   collectedOn: string;
   siteName: string;
-}
-
-/**
- * A price already live for the submission's OWN commodity, tier and week — in either unit.
- *
- * THIS IS WHAT MAKES THE ROLE DECISION POSSIBLE IN THE UI. `approve_price_submission()` refuses
- * an omitted role when the week already holds something (P0.2 — a role is never inferred from
- * arrival order), so the reviewer has to be told what is there before they can answer. An empty
- * list means one click; a list of one means the choice is real; a list of two means the cap is
- * full and this submission cannot be approved at all.
- */
-export interface LivePriceThisWeek {
-  unitName: string;
-  unitRole: UnitRole;
-  price: number;
-  currency: string;
 }
 
 export interface PendingSubmission {
@@ -273,26 +267,6 @@ export function groupByWeek(rows: readonly ObservedPrice[]): Map<string, LivePri
   }
 
   return grouped;
-}
-
-/**
- * Which role a submission could still take for its week, or null when the week is full.
- *
- * PURE, AND EXPORTED FROM HERE RATHER THAN DECIDED IN THE PANEL, for the reason
- * `takeRecentWeeks` and `partitionByWeek` are: it is a rule about the data (P1.7), the three
- * outcomes it distinguishes are three different acts in the UI, and it is testable without a
- * browser. The panel renders the answer; it does not work it out.
- *
- * DERIVED FROM WHAT IS PUBLISHED, NEVER FROM ARRIVAL ORDER. An empty week returns 'primary'
- * because a lone price is the figure every surface shows — which is a description, not a guess.
- * A week holding a primary returns 'secondary'. A full week returns null, and the panel offers
- * no approval at all, because `approve_price_submission()` would refuse whatever it sent.
- */
-export function availableUnitRole(live: readonly LivePriceThisWeek[]): UnitRole | null {
-  const taken = new Set(live.map((entry) => entry.unitRole));
-  if (!taken.has("primary")) return "primary";
-  if (!taken.has("secondary")) return "secondary";
-  return null;
 }
 
 export function takeRecentWeeks(

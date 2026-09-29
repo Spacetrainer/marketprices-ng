@@ -4,7 +4,12 @@ import { useActionState, useId, useState } from "react";
 import { Button } from "../../../../../components/primitives/button";
 import { cn } from "../../../../../lib/cn";
 import { formatNaira } from "../../../../../lib/format";
-import { availableUnitRole, type LivePriceThisWeek } from "../../../../../lib/queries/price-review";
+// From `lib/queries/unit-role`, NOT from `lib/queries/price-review`, and that is load bearing
+// rather than tidiness: this is a Client Component, and price-review.ts imports
+// `lib/supabase/server` — so `next/headers` — at its first line. Importing a value out of it
+// pulls that into the browser bundle and the build fails. unit-role.ts holds the same two
+// exports with no server-only import behind them.
+import { availableUnitRole, type LivePriceThisWeek } from "../../../../../lib/queries/unit-role";
 import { approveSubmissionAction, rejectSubmissionAction } from "./actions";
 import { emptyReviewState, type ReviewFormState } from "./review-state";
 

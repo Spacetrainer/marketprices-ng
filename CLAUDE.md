@@ -96,7 +96,14 @@ Non-negotiable:
 ## Testing
 - Every component with logic gets a Vitest test.
 - Every page gets a Playwright smoke test.
-- Run `pnpm typecheck && pnpm lint && pnpm test` before you tell me a stage is done.
+- Run `pnpm typecheck && pnpm lint && pnpm test && pnpm build` before you tell me a stage is done.
+  `pnpm build` is not optional and not a formality. `tsc`, ESLint and Vitest all resolve modules
+  without caring about the App Router's client/server boundary, so ONLY the build catches a
+  Client Component that has pulled `next/headers` — or anything importing it, such as
+  `lib/supabase/server.ts` — into the browser bundle. That failure passes every other check and
+  then breaks CI and the Vercel deployment together. A type-only import is erased and is always
+  safe; importing a VALUE out of a module that touches Supabase is what drags the server graph
+  across.
 
 ## Rules for you
 - Do not install a package without telling me first and saying why.
