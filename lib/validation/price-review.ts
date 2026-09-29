@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UNIT_ROLES } from "./ingest";
 
 /**
  * The validation boundary for the two price decisions (CLAUDE.md: every external input is
@@ -74,11 +75,30 @@ const reason = z
  * a changed price with no stated reason cannot be defended to the collector it contradicts,
  * and a reason attached to nothing is noise.
  */
+/**
+ * Which of the at-most-two prices for the week this one is (P1.7, migration 0041).
+ *
+ * ABSENT IS THE COMMON CASE AND MEANS "LET THE FUNCTION DECIDE", which it will only do when
+ * nothing is live for the commodity, tier and week — a lone price is `primary` by description.
+ * The panel sends a value only when it has shown the reviewer what is already published, so an
+ * empty field here is never a silent choice between two real options.
+ *
+ * IT IS NOT DEFAULTED TO 'primary'. That would turn "the reviewer did not answer" into "the
+ * reviewer said this is the headline", which is the assumption `approve_price_submission()` refuses
+ * outright (P0.2) — and refusing in the database while quietly defaulting in the form would
+ * make the form a liar rather than a first answer.
+ */
+const unitRole = z
+  .union([z.enum(UNIT_ROLES), z.literal(""), z.null()])
+  .optional()
+  .transform((value) => (typeof value === "string" && value !== "" ? value : null));
+
 export const approveSubmissionSchema = z
   .object({
     submissionId,
     correctedPrice,
     correctionReason: reason,
+    unitRole,
   })
   .superRefine((value, ctx) => {
     if (value.correctedPrice !== null && value.correctionReason === null) {

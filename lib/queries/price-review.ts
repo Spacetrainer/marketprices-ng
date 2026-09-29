@@ -1,7 +1,7 @@
 import { createClient } from "../supabase/server";
 import { isoWeekOf, weekStartDate, weeksBetween, type IsoWeek } from "../weeks";
 import { WAT_TIME_ZONE } from "../constants";
-import type { SubmissionFlag } from "../validation/ingest";
+import type { SubmissionFlag, UnitRole } from "../validation/ingest";
 import type {
   ApproveSubmissionInput,
   RejectSubmissionInput,
@@ -32,11 +32,57 @@ export interface RecordedWeek {
   collectedOn: string;
   siteName: string;
   /**
+   * The unit this figure was collected in, and whether it led its week (P1.7, 0041).
+   *
+   * BOTH ARE DRAWN, not just carried. A series is per unit now, so every entry in a panel
+   * shares one unit — but which unit it is, and whether this commodity's week was led by it,
+   * is exactly what a reviewer needs to know before approving a second price against it.
+   */
+  unitName: string;
+  unitRole: UnitRole;
+  /**
    * How many ISO weeks earlier than the submission's own week this one is. 1 is the week
    * immediately before; anything larger means the weeks between it and the submission have no
    * published price, and the row says so rather than drawing the gap closed (P2.8).
    */
   weeksBefore: number;
+}
+
+/**
+ * One row read off `price_observations`, before it is grouped into a series or a week.
+ *
+ * SEPARATED FROM `RecordedWeek` so the two groupings the queue needs — per series for the
+ * history panel, per week for the role decision — are both built by PURE functions over the
+ * same read, and both can be tested against a gapped, two-unit series without a database.
+ */
+export interface ObservedPrice {
+  commodityId: string;
+  tier: string;
+  unitId: string;
+  unitName: string;
+  unitRole: UnitRole;
+  isoYear: number;
+  isoWeek: number;
+  price: number;
+  currency: string;
+  collectedOn: string;
+  siteName: string;
+}
+
+/**
+ * A price already live for the submission's OWN commodity, tier and week — in either unit.
+ *
+ * THIS IS WHAT MAKES THE ROLE DECISION POSSIBLE IN THE UI. `approve_price_submission()` refuses
+ * an omitted role when the week already holds something (P0.2 — a role is never inferred from
+ * arrival order), so the reviewer has to be told what is there before they can answer. An empty
+ * list means one click; a list of one means the choice is real; a list of two means the cap is
+ * full and this submission cannot be approved at all.
+ */
+export interface LivePriceThisWeek {
+  unitName: string;
+  unitRole: UnitRole;
+  price: number;
+  currency: string;
 }
 
 export interface PendingSubmission {
@@ -46,6 +92,8 @@ export interface PendingSubmission {
   commodityName: string;
   /** The unit the price was quoted in. A price per sack and a price per plate are not comparable. */
   unitName: string;
+  /** The unit's id, because the series this submission belongs to is keyed on it (P1.7, 0041). */
+  unitId: string;
   /** Optional descriptor within the commodity. Never published — `price_observations` has no column for it. */
   variety: string | null;
   tier: string;
@@ -64,8 +112,19 @@ export interface PendingSubmission {
    * three calendar weeks. The distinction is the whole honesty of the panel: three rows
    * labelled 38, 37, 36 and three labelled 38, 34, 29 look the same until you read them, and
    * only one of them means "steady weekly collection".
+   *
+   * PER UNIT, since 0041: these are the last three weeks in THIS submission's unit, not in
+   * whichever unit happened to be published most recently.
    */
   recentWeeks: RecordedWeek[];
+  /**
+   * What is already live for this submission's own commodity, tier and week, in either unit.
+   *
+   * Empty on the ordinary path. One entry means this submission would be the week's second
+   * price and the reviewer must say so explicitly. Two means the week is full (P1.7) and
+   * approval will be refused whatever they say.
+   */
+  liveThisWeek: LivePriceThisWeek[];
 }
 
 /**
@@ -134,9 +193,24 @@ function readPrice(value: unknown): number {
   return typeof value === "number" ? value : Number(value);
 }
 
-/** The series a price belongs to: one commodity, one tier (P1.7). Never a site (P1.8). */
-export function seriesKey(commodityId: string, tier: string): string {
-  return `${commodityId}::${tier}`;
+/**
+ * The series a price belongs to: one commodity, one tier, ONE UNIT (P1.7 as amended by
+ * migration 0041). Never a site (P1.8).
+ *
+ * THE UNIT JOINED THE KEY BECAUSE A WEEK CAN NOW HOLD TWO PRICES. Rodo is priced by the paint
+ * bucket and by the plate in the same week, and both are true. Grouping them into one series
+ * would put ₦7,000 and ₦1,000 side by side as consecutive readings of the same thing, which is
+ * the one drawing this panel exists to prevent: `base_multiplier` is null on every unit (0036),
+ * so there is no conversion that makes those two figures comparable, and a reviewer reading
+ * them as a fall would approve the next price against a baseline that never existed.
+ */
+export function seriesKey(commodityId: string, tier: string, unitId: string): string {
+  return `${commodityId}::${tier}::${unitId}`;
+}
+
+/** The key for "everything live in one commodity, tier and week", across both units. */
+function weekKey(commodityId: string, tier: string, isoYear: number, isoWeek: number): string {
+  return `${commodityId}::${tier}::${isoYear}::${isoWeek}`;
 }
 
 /**
@@ -147,6 +221,80 @@ export function seriesKey(commodityId: string, tier: string): string {
  * database. Ordering is by ISO year then ISO week rather than by `published_at`, because when
  * a week is approved is not when it happened — a late-entered week 34 is still week 34.
  */
+export function groupBySeries(rows: readonly ObservedPrice[]): Map<string, RecordedWeek[]> {
+  const grouped = new Map<string, RecordedWeek[]>();
+
+  for (const row of rows) {
+    const key = seriesKey(row.commodityId, row.tier, row.unitId);
+    const list = grouped.get(key) ?? [];
+    list.push({
+      isoYear: row.isoYear,
+      isoWeek: row.isoWeek,
+      price: row.price,
+      currency: row.currency,
+      collectedOn: row.collectedOn,
+      siteName: row.siteName,
+      unitName: row.unitName,
+      unitRole: row.unitRole,
+      // Filled in by `takeRecentWeeks`, which is the only place that knows which submission
+      // week this history is being measured against.
+      weeksBefore: 0,
+    });
+    grouped.set(key, list);
+  }
+
+  return grouped;
+}
+
+/**
+ * Everything live in one commodity, tier and week, keyed by all four — the other grouping of
+ * the same read, and the one the role decision is made from.
+ *
+ * ORDERED PRIMARY FIRST, because that is the figure the reviewer is being asked to sit a second
+ * price beside, and reading the headline second makes the panel harder than it needs to be.
+ */
+export function groupByWeek(rows: readonly ObservedPrice[]): Map<string, LivePriceThisWeek[]> {
+  const grouped = new Map<string, LivePriceThisWeek[]>();
+
+  for (const row of rows) {
+    const key = weekKey(row.commodityId, row.tier, row.isoYear, row.isoWeek);
+    const list = grouped.get(key) ?? [];
+    list.push({
+      unitName: row.unitName,
+      unitRole: row.unitRole,
+      price: row.price,
+      currency: row.currency,
+    });
+    grouped.set(key, list);
+  }
+
+  for (const list of grouped.values()) {
+    list.sort((a, b) => (a.unitRole === b.unitRole ? 0 : a.unitRole === "primary" ? -1 : 1));
+  }
+
+  return grouped;
+}
+
+/**
+ * Which role a submission could still take for its week, or null when the week is full.
+ *
+ * PURE, AND EXPORTED FROM HERE RATHER THAN DECIDED IN THE PANEL, for the reason
+ * `takeRecentWeeks` and `partitionByWeek` are: it is a rule about the data (P1.7), the three
+ * outcomes it distinguishes are three different acts in the UI, and it is testable without a
+ * browser. The panel renders the answer; it does not work it out.
+ *
+ * DERIVED FROM WHAT IS PUBLISHED, NEVER FROM ARRIVAL ORDER. An empty week returns 'primary'
+ * because a lone price is the figure every surface shows — which is a description, not a guess.
+ * A week holding a primary returns 'secondary'. A full week returns null, and the panel offers
+ * no approval at all, because `approve_price_submission()` would refuse whatever it sent.
+ */
+export function availableUnitRole(live: readonly LivePriceThisWeek[]): UnitRole | null {
+  const taken = new Set(live.map((entry) => entry.unitRole));
+  if (!taken.has("primary")) return "primary";
+  if (!taken.has("secondary")) return "secondary";
+  return null;
+}
+
 export function takeRecentWeeks(
   rows: readonly RecordedWeek[],
   week: IsoWeek,
@@ -221,7 +369,7 @@ export async function getReviewQueue(now: Date = new Date()): Promise<ReviewQueu
   const { data, error } = await supabase
     .from("price_submissions")
     .select(
-      `id, commodity_id, tier, iso_year, iso_week, price, currency, variety,
+      `id, commodity_id, unit_id, tier, iso_year, iso_week, price, currency, variety,
        collected_on, submitted_at, source, notes, photo_url, flags,
        commodities!inner(canonical_name),
        units!inner(name),
@@ -245,15 +393,20 @@ export async function getReviewQueue(now: Date = new Date()): Promise<ReviewQueu
   }
 
   const rows = data ?? [];
-  const history = await readSeriesHistory(
+  // ONE READ, TWO GROUPINGS. The history panel needs the series (commodity + tier + unit); the
+  // role decision needs the week (commodity + tier + week, both units). Both fall out of the
+  // same rows, so nothing is queried twice.
+  const observed = await readSeriesHistory(
     supabase,
-    rows.map((row) => ({ commodityId: row.commodity_id, tier: row.tier })),
+    rows.map((row) => row.commodity_id),
   );
+  const history = groupBySeries(observed);
+  const liveByWeek = groupByWeek(observed);
 
   const submissions = rows
     .map((row): PendingSubmission => {
       const week = { isoYear: row.iso_year, isoWeek: row.iso_week };
-      const series = history.get(seriesKey(row.commodity_id, row.tier)) ?? [];
+      const series = history.get(seriesKey(row.commodity_id, row.tier, row.unit_id)) ?? [];
 
       return {
         id: row.id,
@@ -261,6 +414,7 @@ export async function getReviewQueue(now: Date = new Date()): Promise<ReviewQueu
         isoWeek: row.iso_week,
         commodityName: nameOf(row.commodities, "canonical_name"),
         unitName: nameOf(row.units),
+        unitId: row.unit_id,
         variety: row.variety,
         tier: row.tier,
         price: readPrice(row.price),
@@ -276,6 +430,8 @@ export async function getReviewQueue(now: Date = new Date()): Promise<ReviewQueu
         // the cast states a fact the CHECK already enforces rather than trusting the payload.
         flags: (row.flags ?? []) as SubmissionFlag[],
         recentWeeks: takeRecentWeeks(series, week),
+        liveThisWeek:
+          liveByWeek.get(weekKey(row.commodity_id, row.tier, row.iso_year, row.iso_week)) ?? [],
       };
     })
     .sort(byWeekThenCommodity);
@@ -294,16 +450,16 @@ export async function getReviewQueue(now: Date = new Date()): Promise<ReviewQueu
  */
 async function readSeriesHistory(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  series: readonly { commodityId: string; tier: string }[],
-): Promise<Map<string, RecordedWeek[]>> {
-  const grouped = new Map<string, RecordedWeek[]>();
-  const commodityIds = [...new Set(series.map((entry) => entry.commodityId))];
-  if (commodityIds.length === 0) return grouped;
+  commodities: readonly string[],
+): Promise<ObservedPrice[]> {
+  const commodityIds = [...new Set(commodities)];
+  if (commodityIds.length === 0) return [];
 
   const { data, error } = await supabase
     .from("price_observations")
     .select(
-      `commodity_id, tier, iso_year, iso_week, price, currency, collected_on,
+      `commodity_id, unit_id, unit_role, tier, iso_year, iso_week, price, currency, collected_on,
+       units!inner(name),
        collection_sites!inner(name)`,
     )
     .in("commodity_id", commodityIds)
@@ -316,26 +472,30 @@ async function readSeriesHistory(
   // nowhere else on this screen: the panel is context beside a figure, not the figure, and
   // `unavailable` on the queue itself already covers the case where the decision data is
   // unreadable. The reviewer is never shown a PRICE that was not read.
-  if (error || !data) return grouped;
+  //
+  // IT ALSO COLLAPSES `liveThisWeek` TO EMPTY, which reads as "nothing is published for this
+  // week yet" and would offer one-click Approve for what might be a week's second price. That
+  // is safe because it is not the guarantee: `approve_price_submission()` re-reads the week
+  // under `for update` and refuses an omitted role when a live price exists (P1.7). The UI
+  // loses its explanation, not its constraint, and the reviewer gets the function's sentence.
+  if (error || !data) return [];
 
-  for (const row of data) {
-    const key = seriesKey(row.commodity_id, row.tier);
-    const list = grouped.get(key) ?? [];
-    list.push({
-      isoYear: row.iso_year,
-      isoWeek: row.iso_week,
-      price: readPrice(row.price),
-      currency: row.currency,
-      collectedOn: row.collected_on,
-      siteName: nameOf(row.collection_sites),
-      // Filled in by `takeRecentWeeks`, which is the only place that knows which submission
-      // week this history is being measured against.
-      weeksBefore: 0,
-    });
-    grouped.set(key, list);
-  }
-
-  return grouped;
+  return data.map((row) => ({
+    commodityId: row.commodity_id,
+    tier: row.tier,
+    unitId: row.unit_id,
+    unitName: nameOf(row.units),
+    // The database constrains this column to the two permitted values (0041), so the cast
+    // states a fact the CHECK already enforces rather than trusting the payload — the same call
+    // `flags` makes above.
+    unitRole: row.unit_role as UnitRole,
+    isoYear: row.iso_year,
+    isoWeek: row.iso_week,
+    price: readPrice(row.price),
+    currency: row.currency,
+    collectedOn: row.collected_on,
+    siteName: nameOf(row.collection_sites),
+  }));
 }
 
 /**
@@ -400,6 +560,12 @@ export async function approveSubmission(
     // corrected price of 0 is a value, not an absence.
     p_corrected_price: input.correctedPrice ?? undefined,
     p_correction_reason: input.correctionReason ?? undefined,
+    // The role, when the reviewer had to choose one (P1.7, 0041). Omitted on the ordinary
+    // path, where the function resolves `primary` because nothing else is live for the week —
+    // a description of a lone price, not an inference. When a live price DOES exist the
+    // function refuses an omitted role, so the form supplies it and the refusal is the
+    // backstop rather than the mechanism.
+    p_unit_role: input.unitRole ?? undefined,
   });
 
   if (error) return { ok: false, message: error.message };

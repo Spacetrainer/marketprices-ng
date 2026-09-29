@@ -32,9 +32,12 @@ Three rules override everything else in this file:
    verification pass rejects it. There is no override and no config flag.
 
 Also always:
-- Prices are weekly and univariate: one price per commodity, per ISO week, per tier (P1.7).
-  There is NO market-versus-market comparison in this product (P1.8). Collection sites are
-  provenance only.
+- Prices are weekly: at most TWO per commodity, per ISO week, per tier, and they must be in
+  DIFFERENT units — one `primary` (the figure surfaces lead with), one `secondary` (P1.7, as
+  amended by migration 0041). A third is refused. A series is commodity + tier + unit; two
+  prices in different units are never averaged or compared, and a published `unit_role` is
+  frozen. There is NO market-versus-market comparison in this product (P1.8). Collection sites
+  are provenance only.
 - Prices are append-only and always trace to a submission and a named collector (P1).
 - Every published article traces to a content item, including manually written ones (P1.9).
 - The engine has zero write access to price data (P5.2). Nothing reaches a reader without a

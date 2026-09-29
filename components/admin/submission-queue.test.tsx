@@ -10,6 +10,7 @@ function submission(overrides: Partial<PendingSubmission> = {}): PendingSubmissi
     isoWeek: 38,
     commodityName: "Yam",
     unitName: "Tuber",
+    unitId: "6bd0c8f9-60e0-4a3e-9bf2-9c3dd29ac1a2",
     variety: null,
     tier: "retail",
     price: 4000,
@@ -23,6 +24,7 @@ function submission(overrides: Partial<PendingSubmission> = {}): PendingSubmissi
     photoUrl: null,
     flags: ["new_series"],
     recentWeeks: [],
+    liveThisWeek: [],
     ...overrides,
   };
 }

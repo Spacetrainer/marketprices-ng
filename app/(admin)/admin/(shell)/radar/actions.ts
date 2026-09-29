@@ -93,6 +93,10 @@ export async function approveSubmissionAction(
     submissionId: formData.get("submissionId"),
     correctedPrice: formData.get("correctedPrice"),
     correctionReason: formData.get("correctionReason"),
+    // Present only on the second-price form, which is rendered only when the week already holds
+    // a live figure (P1.7, 0041). Absent everywhere else, where the function resolves the role
+    // itself because there is nothing to choose between.
+    unitRole: formData.get("unitRole"),
   });
 
   if (!parsed.success) {
@@ -113,10 +117,19 @@ export async function approveSubmissionAction(
   return {
     error: null,
     fieldErrors: {},
-    done:
+    done: [
       parsed.data.correctedPrice === null
         ? "Approved and published."
         : "Approved with your corrected price and published. The submitted figure is kept on the record.",
+      // Says which figure is now the headline, because that is the part of the decision the reviewer
+      // cannot see afterwards: a published role is frozen (0025's whole-row freeze), so
+      // changing it later is a supersede plus a fresh submission (P1.3).
+      parsed.data.unitRole === "secondary"
+        ? "It is this week's second price, in its own unit — the published headline figure is unchanged."
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" "),
   };
 }
 

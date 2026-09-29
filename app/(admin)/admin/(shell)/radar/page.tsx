@@ -67,6 +67,11 @@ export default async function PriceRadarPage() {
           submissionId={submission.id}
           submittedPrice={submission.price}
           commodityName={submission.commodityName}
+          unitName={submission.unitName}
+          // What the week already holds, in either unit (P1.7, 0041). It decides which decision
+          // the panel can offer at all, so it is read here rather than in the client component —
+          // the component holds state, never data.
+          liveThisWeek={submission.liveThisWeek}
         />
       )
     : () => (

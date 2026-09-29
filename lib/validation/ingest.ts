@@ -31,6 +31,19 @@ export const TIERS = ["retail", "wholesale"] as const;
 export type Tier = (typeof TIERS)[number];
 
 /**
+ * The two roles a price can hold within one commodity, week and tier (P1.7 as amended by
+ * migration 0041).
+ *
+ * THE VOCABULARY IS THE CAP. A commodity may carry at most two prices per week per tier, in
+ * different units — rodo by the paint bucket and by the plate — and with exactly two role
+ * values a third live price has no role left to take. `primary` is the figure public surfaces
+ * show first. Two prices in different units are never averaged or compared: `base_multiplier`
+ * is null on every unit (0036, "not yet weighed"), so no conversion between them exists.
+ */
+export const UNIT_ROLES = ["primary", "secondary"] as const;
+export type UnitRole = (typeof UNIT_ROLES)[number];
+
+/**
  * What the Apps Script sends. Field names mirror §6.1's form fields, snake_cased, because
  * the Sheet's column headers are what the bridge has to hand and a rename between the two
  * is one more place for the form and the endpoint to drift apart.
@@ -86,6 +99,24 @@ export const ingestPayloadSchema = z.object({
 
   photo_url: z.string().trim().url("photo_url is not a URL").nullish(),
   notes: z.string().trim().min(1).nullish(),
+
+  /**
+   * Which of the at-most-two prices for this week this one is PROPOSED to be (P1.7).
+   *
+   * OPTIONAL, AND ABSENT ON EVERY SUBMISSION THE GOOGLE FORM SENDS. The form does not ask,
+   * and it should not: a collector standing in a market has no view on which measure a page
+   * should show first. That is an editorial decision, and migration 0041 puts it where the
+   * decision is made — `approve_price_submission()` resolves the final role and writes it onto
+   * the submission before publishing.
+   *
+   * IT IS ACCEPTED HERE SO THE TRACKER IMPORTER HAS A DOOR. `scripts/import-tracker.ts` reads
+   * a reviewed map file that names the primary unit per commodity per tier, and that proposal
+   * has to reach the submission through the one door in (P1.1) rather than by a second write
+   * path. Until that script exists nothing sends this field, and a submission arriving without
+   * it is the normal case, not a degraded one — which is why there is NO DEFAULT. Inferring a
+   * role from arrival order is exactly the assumption P0.2 forbids.
+   */
+  unit_role: z.enum(UNIT_ROLES, { message: `unit_role must be one of: ${UNIT_ROLES.join(", ")}` }).nullish(),
 });
 
 export type IngestPayload = z.infer<typeof ingestPayloadSchema>;
@@ -501,7 +532,30 @@ export interface RateLimiter {
   check(key: string, now: Date): IngestResult<{ remaining: number }>;
 }
 
-export const RATE_LIMIT_MAX = 60;
+/**
+ * 300 per collector per hour.
+ *
+ * WHY IT WAS 60, AND WHY THAT IS NOW THE WRONG NUMBER. 60 was sized for a human filling a
+ * form one row at a time, which is what intake was when it was written. The weekly price
+ * tracker is the other caller: one spreadsheet column, posted row by row through this same
+ * door (P1.1). The column collected on 2026-09-26 carries 79 postable rows, and the largest
+ * column the tracker can declare — every publishable product, both tiers, both units — is 332.
+ * At 60 an ordinary week's import 429s on the sixty-first row.
+ *
+ * WHAT THE LIMIT IS ACTUALLY FOR, unchanged: containing a stuck Apps Script trigger re-firing
+ * the same row, or a bearer token used to flood the review queue. Not rationing honest
+ * collection. 300 is five times the largest real column to date and still plainly below a
+ * runaway loop.
+ *
+ * THE HONEST CONSEQUENCE: a fully priced column (332) spans two windows and takes just over an
+ * hour. That is the importer pausing deliberately — it sleeps to the next window rather than
+ * taking a 429 — not a failure. Chosen at 300 by the project owner on 2026-09-29 with that
+ * cost known.
+ *
+ * THE PER-INSTANCE WEAKNESS IS UNCHANGED AND GETS NO NEW CLAIM. See the note above: on
+ * serverless the true ceiling is this number multiplied by the count of warm instances.
+ */
+export const RATE_LIMIT_MAX = 300;
 export const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 export function createRateLimiter(
@@ -540,14 +594,27 @@ export function createRateLimiter(
 export type SubmissionFlag = "outlier" | "new_series" | "duplicate" | "site_switch";
 
 /**
- * What the series already knows about this commodity and tier, read once by the route.
+ * What the series already knows about this commodity, tier AND UNIT, read once by the route.
  *
- * `latest` is the most recent LIVE observation (superseded_at is null). Null means the
- * series has no published history at all.
+ * A SERIES IS COMMODITY + TIER + UNIT (P1.7 as amended, migration 0041). Since a week can hold
+ * two prices in different units, "the last published price for this commodity and tier" is no
+ * longer a single thing, and a ratio taken across two units is not a ratio at all. So the
+ * route's three baseline queries all filter on `unit_id`, and both fields below describe the
+ * submission's own unit only.
+ *
+ * `latest` is the most recent LIVE observation (superseded_at is null) in that unit. Null means
+ * this unit has no published history — which is now common and ordinary: the first paint-bucket
+ * price of a commodity that has been priced by the plate for months is a new series, and saying
+ * so is more useful than comparing it to the plate.
  */
 export interface SeriesBaseline {
   latest: { price: number; unitId: string; isoYear: number; isoWeek: number } | null;
-  /** A pending or approved submission, or a live observation, already holds this exact key. */
+  /**
+   * A pending or approved submission, or a live observation, already holds this exact
+   * (commodity, tier, week, UNIT). Keyed on the unit because a second price in a DIFFERENT unit
+   * is not a duplicate — it is the other half of the week, and flagging it would put a warning
+   * on 20 of the 79 rows of the tracker's first import for something that is not a problem.
+   */
   hasEntryForWeek: boolean;
 }
 
@@ -599,11 +666,22 @@ export function computeFlags(
     // assumption (P0.2). The reviewer is told it is a first, which is the useful fact.
     flags.push("new_series");
   } else if (baseline.latest.unitId !== resolved.unitId) {
-    // The unit changed. A sack against a plate is not a ratio, and units.base_multiplier is
-    // null across the board (seed.sql: "not yet weighed"), so no conversion exists to make
-    // it one. NO OUTLIER FLAG IS RAISED, because the comparison was never performed —
-    // raising one would claim a check that did not happen. See the module note in the
-    // handover: this is a real gap and wants its own flag value.
+    // UNREACHABLE ON THE ROUTE'S OWN PATH, AND KEPT ANYWAY.
+    //
+    // This branch was the documented gap: the baseline used to be the latest price for the
+    // commodity and tier in ANY unit, so a plate price arriving after a sack price got no
+    // outlier check at all and nothing said so. Migration 0041 closes it from the other end —
+    // a series is commodity + tier + unit, the route's baseline query filters on `unit_id`,
+    // and a mismatch can no longer occur there. A unit with no history is `new_series` above,
+    // which is the true statement.
+    //
+    // The branch stays because this function does not get to assume its caller filtered
+    // correctly. If a future caller hands over a baseline from a different unit, the honest
+    // outcome is still NO OUTLIER FLAG: a sack against a plate is not a ratio,
+    // units.base_multiplier is null across the board (0036, "not yet weighed"), and raising a
+    // flag would claim a check that did not happen. There is deliberately NO FIFTH FLAG VALUE
+    // for it (ruled 2026-09-29): the case is unreachable in practice, and a flag nobody can
+    // trigger is worse than a guard nobody needs.
   } else {
     const previous = baseline.latest.price;
     const current = payload.price;
@@ -616,6 +694,9 @@ export function computeFlags(
     if (crossesZero || ratio >= magnitudeRatio) flags.push("outlier");
   }
 
+  // `duplicate` now means what the word says: this commodity, tier, week AND UNIT is already
+  // in the queue or already published. A second price in a different unit does not reach here
+  // flagged, because the route's two week-lookups filter on `unit_id` (P1.7, 0041).
   if (baseline.hasEntryForWeek) flags.push("duplicate");
 
   return flags;

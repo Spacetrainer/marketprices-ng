@@ -242,11 +242,25 @@ export async function POST(request: Request) {
       .eq("key", "magnitude_ratio")
       .eq("is_active", true)
       .maybeSingle(),
+    // ALL THREE OF THESE FILTER ON unit_id, AND THAT IS THE POINT (P1.7, migration 0041).
+    //
+    // A commodity may now carry two prices in one week and tier, in different units, so
+    // "the series" is commodity + tier + UNIT. Without the filter:
+    //
+    //   - the outlier baseline would be whichever unit was published most recently, and
+    //     `computeFlags` would skip the check entirely rather than compare a bucket to a
+    //     plate — the documented gap, silently reappearing;
+    //   - both week-lookups would report a `duplicate` for every legitimate second unit. On
+    //     the tracker's first import that is 20 of 79 rows pre-flagged with a warning about
+    //     nothing, which is how a reviewer learns to ignore flags.
+    //
+    // A unit with no history is `new_series`, which is the honest answer.
     supabase
       .from("price_observations")
       .select("price, unit_id, iso_year, iso_week")
       .eq("commodity_id", resolved.commodityId)
       .eq("tier", payload.tier)
+      .eq("unit_id", resolved.unitId)
       .is("superseded_at", null)
       .order("iso_year", { ascending: false })
       .order("iso_week", { ascending: false })
@@ -257,6 +271,7 @@ export async function POST(request: Request) {
       .select("id")
       .eq("commodity_id", resolved.commodityId)
       .eq("tier", payload.tier)
+      .eq("unit_id", resolved.unitId)
       .eq("iso_year", isoYear)
       .eq("iso_week", isoWeek)
       .is("superseded_at", null)
@@ -266,6 +281,7 @@ export async function POST(request: Request) {
       .select("id")
       .eq("commodity_id", resolved.commodityId)
       .eq("tier", payload.tier)
+      .eq("unit_id", resolved.unitId)
       .eq("iso_year", isoYear)
       .eq("iso_week", isoWeek)
       .in("status", ["pending", "approved"])
@@ -346,6 +362,10 @@ export async function POST(request: Request) {
       collector_id: collector.value.id,
       variety: payload.variety ?? null,
       tier: payload.tier,
+      // A PROPOSAL, or null, and never a guess (P1.7, 0041). The Google Form does not send
+      // this; the tracker importer will, from its reviewed map file. `approve_price_submission()`
+      // resolves the final role and overwrites this with the decision.
+      unit_role: payload.unit_role ?? null,
       price: payload.price,
       currency: payload.currency,
       iso_year: isoYear,

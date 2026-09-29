@@ -19,6 +19,13 @@
 --   4. a second decision on an already-decided submission is refused.
 --   5. a direct INSERT whose price disagrees with its submission is refused by
 --      the trigger -- the law that holds even when the function is bypassed.
+--   6. P1.7 as amended (0041): two prices for one commodity, week and tier in
+--      DIFFERENT units are both published, a third unit is refused however it
+--      asks, a repeat of a published unit is refused as a duplicate, a week
+--      cannot hold a secondary with no primary, and a published role is frozen.
+--   7. 0042: a correction matches the row it corrects on commodity, tier and
+--      role -- and may still change the unit, which is the one field a
+--      correction most often exists to fix.
 --
 -- HOW TO RUN IT: `pnpm test:db`, which starts the LOCAL Supabase stack and
 -- runs this file through psql. Never run it by hand against a remote database.
@@ -108,11 +115,17 @@ $$;
 -- collection_sites is empty in seed.sql by design (it waits for real site
 -- names), so the site and the collector are created here.
 --
--- FOUR SUBMISSIONS, three commodities, because approve_price_submission()
--- refuses to approve into a week that already carries a live price for the
--- same commodity and tier (P1.7). Sharing one commodity across the approving
--- sections would make section 2 fail for a reason that has nothing to do with
--- what it tests.
+-- FOUR SUBMISSIONS HERE, three commodities, because approve_price_submission()
+-- refuses to approve a second price into a week without being told which of the
+-- two it is (P1.7 as amended by 0041). Sharing one commodity across the
+-- approving sections would make section 2 fail for a reason that has nothing to
+-- do with what it tests.
+--
+-- Sections 7 and 8 add FIVE MORE, on two further commodities, with their units
+-- named explicitly rather than taken from default_unit_id -- two prices in two
+-- different units for one key is the thing they test, and a default cannot
+-- express it. They are inserted there rather than here so this section's
+-- "expected 4" assertion keeps saying what it says.
 --
 -- 2026-09-14 is the Monday of ISO 2026-W38 and 2026-09-16 falls inside that
 -- week. Both facts are asserted below rather than trusted, because this file
@@ -231,9 +244,12 @@ begin
   -- The door is open to a signed-in session, and the side entrance is shut.
   -- Named roles rather than the current one, so this says the same thing
   -- whoever runs the file.
+  -- The FIVE-argument signature. 0041 dropped the four-argument form outright
+  -- rather than letting it be shadowed: a four-argument call would have
+  -- resolved to the old body, published no unit_role and died on the NOT NULL.
   if not has_function_privilege(
        'authenticated',
-       'approve_price_submission(uuid, date, numeric, text)',
+       'approve_price_submission(uuid, date, numeric, text, text)',
        'EXECUTE') then
     raise exception 'a signed-in session cannot call approve_price_submission; the review queue has no working action';
   end if;
@@ -672,29 +688,459 @@ $$;
 
 
 -- ----------------------------------------------------------------------------
--- 7. The closing tally, then everything goes away.
+-- 7. CLAIM 6 -- P1.7 as amended (migration 0041): a commodity may carry TWO
+--    prices for one week and tier, in different units, and no more.
 --
--- Two approvals, one rejection, one still pending; two observations. Asserted
--- as a whole because each section above checked its own corner, and the sum is
--- the thing a reader of a passing run actually wants to know.
+-- Five more fixtures, on a commodity none of the sections above touches, and
+-- with units named explicitly rather than taken from default_unit_id -- the
+-- whole claim is about two DIFFERENT units for one key, which a default cannot
+-- express.
+--
+-- WHAT EACH ONE IS FOR:
+--   ...021  Paint bucket -- approved with NO role. Nothing is live for the key,
+--           so it resolves to 'primary'. A lone price is the figure every
+--           surface shows, and calling it primary describes that rather than
+--           assuming it.
+--   ...022  Plate -- approved explicitly as 'secondary'. This is the amendment
+--           working: two live prices for one commodity, week and tier.
+--   ...023  Derica -- the THIRD unit, refused three ways: as secondary (that
+--           role is held), as primary (that role is held), and with no role at
+--           all (which must not be inferred from arrival order -- P0.2).
+--   ...024  Paint bucket again -- the true duplicate. Refused with a message
+--           about one figure, not about roles: correcting a published price is
+--           supersede plus a fresh submission (P1.3).
+--   ...025  a different commodity, approved as 'secondary' with nothing live --
+--           refused, because a week whose only price is secondary has a
+--           published figure that no surface shows, and 0025 freezes the role
+--           so it could never be promoted.
+--
+-- EVERY REFUSAL IS ASSERTED AGAINST ITS OWN MESSAGE, not just against "it
+-- raised". Five branches share this function and four of them refuse; a test
+-- that only checked for an exception would pass while the wrong branch spoke,
+-- which is the failure a reviewer would then have to debug from a sentence that
+-- does not describe their situation.
+-- ----------------------------------------------------------------------------
+
+insert into price_submissions
+  (id, commodity_id, collection_site_id, unit_id, tier, price, currency,
+   collector_id, iso_year, iso_week, collected_on, source)
+select
+  v.id,
+  c.id,
+  '00000000-0000-4000-8000-000000000003',
+  u.id,
+  'retail',
+  v.price,
+  'NGN',
+  '00000000-0000-4000-8000-000000000002',
+  2026,
+  38,
+  date '2026-09-16',
+  'form'
+from (values
+  ('00000000-0000-4000-8000-000000000021'::uuid, 'okro'   , 'Paint bucket', 2000::numeric),
+  ('00000000-0000-4000-8000-000000000022'::uuid, 'okro'   , 'Plate'       , 1000::numeric),
+  ('00000000-0000-4000-8000-000000000023'::uuid, 'okro'   , 'Derica'      , 1500::numeric),
+  ('00000000-0000-4000-8000-000000000024'::uuid, 'okro'   , 'Paint bucket', 2500::numeric),
+  ('00000000-0000-4000-8000-000000000025'::uuid, 'cassava', '1 kg'        , 1000::numeric)
+) as v (id, slug, unit_name, price)
+join commodities c on c.slug = v.slug
+join units u on u.name = v.unit_name;
+
+do $$
+declare v_count int;
+begin
+  select count(*) into v_count
+    from price_submissions
+   where id between '00000000-0000-4000-8000-000000000021'
+                and '00000000-0000-4000-8000-000000000025';
+  if v_count <> 5 then
+    raise exception
+      'fixtures: expected 5 two-price submissions, got %. A slug or a unit name in the list above is missing from seed.sql.',
+      v_count;
+  end if;
+end;
+$$;
+
+-- The first price of the week. No role argument at all.
+do $$
+declare
+  v_id  uuid;
+  v_obs price_observations%rowtype;
+  v_sub price_submissions%rowtype;
+begin
+  v_id := approve_price_submission(
+    '00000000-0000-4000-8000-000000000021'::uuid,
+    date '2026-09-14'
+  );
+
+  select * into v_obs from price_observations where id = v_id;
+  select * into v_sub from price_submissions where id = '00000000-0000-4000-8000-000000000021';
+
+  if v_obs.unit_role <> 'primary' then
+    raise exception
+      'a lone price published as %, not primary. Nothing was live for its commodity, week and tier, so it IS the figure every surface shows.',
+      v_obs.unit_role;
+  end if;
+
+  -- The role has to land on the SUBMISSION too, or the provenance guard has
+  -- nothing to hold the published row to.
+  if v_sub.unit_role <> 'primary' then
+    raise exception
+      'the submission was left carrying unit_role %; approval must record the role it published',
+      v_sub.unit_role;
+  end if;
+end;
+$$;
+
+-- The second price of the same week, in a different unit, explicitly secondary.
+do $$
+declare
+  v_id   uuid;
+  v_obs  price_observations%rowtype;
+  v_live int;
+begin
+  v_id := approve_price_submission(
+    '00000000-0000-4000-8000-000000000022'::uuid,
+    date '2026-09-14',
+    null,
+    null,
+    'secondary'
+  );
+
+  select * into v_obs from price_observations where id = v_id;
+
+  if v_obs.unit_role <> 'secondary' then
+    raise exception 'the second unit published as %, not secondary', v_obs.unit_role;
+  end if;
+
+  select count(*) into v_live
+    from price_observations o
+    join commodities c on c.id = o.commodity_id
+   where c.slug = 'okro'
+     and o.tier = 'retail'
+     and o.iso_year = 2026
+     and o.iso_week = 38
+     and o.superseded_at is null;
+
+  if v_live <> 2 then
+    raise exception
+      'okro retail 2026-W38 holds % live prices, not 2. This is the amendment: two prices, two units, one week (P1.7).',
+      v_live;
+  end if;
+end;
+$$;
+
+-- The third unit. Three ways of asking, three refusals, three messages.
+do $$
+declare
+  v_message text;
+  v_allowed boolean;
+begin
+  v_allowed := true;
+  begin
+    perform approve_price_submission(
+      '00000000-0000-4000-8000-000000000023'::uuid, date '2026-09-14', null, null, 'secondary');
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%already has a secondary retail price%' then
+      raise exception 'the third unit was refused, but not by the role branch: %', v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception 'a THIRD live price was published for one commodity, week and tier (P1.7)';
+  end if;
+
+  v_allowed := true;
+  begin
+    perform approve_price_submission(
+      '00000000-0000-4000-8000-000000000023'::uuid, date '2026-09-14', null, null, 'primary');
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%already has a primary retail price%' then
+      raise exception 'the third unit claiming primary was refused for the wrong reason: %', v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception 'a third price was published by claiming the primary role';
+  end if;
+
+  -- The one that matters most: silence must not be read as a choice.
+  v_allowed := true;
+  begin
+    perform approve_price_submission(
+      '00000000-0000-4000-8000-000000000023'::uuid, date '2026-09-14');
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%A role is never inferred from which price arrived first%' then
+      raise exception
+        'an omitted role on a week that already holds a price was refused for the wrong reason: %',
+        v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception
+      'an omitted role chose a slot for the caller; which figure leads is a human decision (P0.2)';
+  end if;
+end;
+$$;
+
+-- The same unit twice. Not a second price -- one figure, and a correction of it.
+do $$
+declare
+  v_message text;
+  v_allowed boolean;
+begin
+  v_allowed := true;
+  begin
+    perform approve_price_submission(
+      '00000000-0000-4000-8000-000000000024'::uuid, date '2026-09-14', null, null, 'secondary');
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%that is one figure%' then
+      raise exception
+        'a repeat of a published unit was refused, but not as a duplicate: %', v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception
+      'the same unit was published twice for one commodity, week and tier; that is a correction (P1.3), not a second price';
+  end if;
+end;
+$$;
+
+-- A week whose only price would be secondary: a published figure no surface
+-- shows, and 0025 freezes the role so it could never be promoted.
+do $$
+declare
+  v_message text;
+  v_allowed boolean;
+begin
+  v_allowed := true;
+  begin
+    perform approve_price_submission(
+      '00000000-0000-4000-8000-000000000025'::uuid, date '2026-09-14', null, null, 'secondary');
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%no live retail price for this commodity yet%' then
+      raise exception
+        'a secondary with no primary was refused for the wrong reason: %', v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception
+      'a week was given a secondary price and no primary; its only published figure would be one nothing displays';
+  end if;
+end;
+$$;
+
+-- The role of a PUBLISHED price is frozen, like every other column (0025).
+-- Re-ranking which figure leads is a supersede plus a fresh submission (P1.3).
+do $$
+declare
+  v_allowed boolean;
+begin
+  v_allowed := true;
+  begin
+    update price_observations
+       set unit_role = 'secondary'
+     where submission_id = '00000000-0000-4000-8000-000000000021';
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+  end;
+
+  if v_allowed then
+    raise exception
+      'a published unit_role was edited in place; 0025''s whole-row freeze did not reach the column 0041 added';
+  end if;
+end;
+$$;
+
+\echo '  CLAIM 6 passed: two prices per tier in different units, a third refused, a published role frozen'
+
+
+-- ----------------------------------------------------------------------------
+-- 8. CLAIM 7 -- migration 0042: a correction corrects a figure in the SAME
+--    series, and the one field it is allowed to change is the unit.
+--
+-- The guard fires on INSERT and only when corrects_id is set, so these are
+-- direct inserts rather than approvals -- which is also the path that matters,
+-- since price_observations_insert_staff is still a live policy and a correction
+-- is hand-inserted by staff (0010, 0038).
+--
+-- TRIGGER ORDER MAKES THE MESSAGE THE EVIDENCE. Postgres fires same-event
+-- triggers in name order, so price_observations_correction_series_key runs
+-- before price_observations_provenance. The first two inserts below are
+-- therefore refused BY 0042, and the third -- which changes only the unit --
+-- gets past 0042 and is stopped by the provenance guard instead. That third
+-- assertion is the one that proves 0042 is not over-refusing: unit_id is
+-- excluded from the comparison on purpose, because "we published the bowl price
+-- under the plate unit" is a legitimate correction and arguably the likeliest.
 -- ----------------------------------------------------------------------------
 
 do $$
 declare
-  v_obs      int;
-  v_approved int;
-  v_rejected int;
-  v_pending  int;
+  v_message  text;
+  v_allowed  boolean;
+  v_primary  uuid;
+  v_other    uuid;
+begin
+  select id into v_primary
+    from price_observations
+   where submission_id = '00000000-0000-4000-8000-000000000021';
+
+  select id into v_other
+    from price_observations
+   where submission_id = '00000000-0000-4000-8000-000000000011';
+
+  -- A correction that changes the role. The second price of a week is not a
+  -- correction of the first.
+  v_allowed := true;
+  begin
+    insert into price_observations
+      (commodity_id, unit_id, unit_role, tier, iso_year, iso_week, week_start_date,
+       price, currency, collected_at_site_id, collected_on, submission_id, source, corrects_id)
+    select o.commodity_id, o.unit_id, 'secondary', o.tier, o.iso_year, o.iso_week,
+           o.week_start_date, o.price, o.currency, o.collected_at_site_id, o.collected_on,
+           '00000000-0000-4000-8000-000000000023', o.source, v_primary
+      from price_observations o
+     where o.id = v_primary;
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%the second price of a week is not a correction of the first%' then
+      raise exception
+        'a role-mismatched correction was refused, but not by 0042''s guard: %', v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception 'a secondary row was published as a correction of a primary';
+  end if;
+
+  -- A correction that changes the commodity. A different commodity is a
+  -- different series, full stop.
+  v_allowed := true;
+  begin
+    insert into price_observations
+      (commodity_id, unit_id, unit_role, tier, iso_year, iso_week, week_start_date,
+       price, currency, collected_at_site_id, collected_on, submission_id, source, corrects_id)
+    select o.commodity_id, o.unit_id, o.unit_role, o.tier, o.iso_year, o.iso_week,
+           o.week_start_date, o.price, o.currency, o.collected_at_site_id, o.collected_on,
+           '00000000-0000-4000-8000-000000000023', o.source, v_other
+      from price_observations o
+     where o.id = v_primary;
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%same series as the row it corrects%' then
+      raise exception
+        'a cross-commodity correction was refused, but not by 0042''s guard: %', v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception 'one commodity''s price was published as a correction of another''s';
+  end if;
+
+  -- Matching commodity, tier and role, DIFFERENT unit. 0042 must have no
+  -- objection; the provenance guard stops it because its submission is pending,
+  -- and that message is how we know which guard spoke.
+  v_allowed := true;
+  begin
+    insert into price_observations
+      (commodity_id, unit_id, unit_role, tier, iso_year, iso_week, week_start_date,
+       price, currency, collected_at_site_id, collected_on, submission_id, source, corrects_id)
+    select o.commodity_id,
+           (select id from units where name = 'Derica'),
+           o.unit_role, o.tier, o.iso_year, o.iso_week,
+           o.week_start_date, o.price, o.currency, o.collected_at_site_id, o.collected_on,
+           '00000000-0000-4000-8000-000000000023', o.source, v_primary
+      from price_observations o
+     where o.id = v_primary;
+  exception when sqlstate 'P0001' then
+    v_allowed := false;
+    get stacked diagnostics v_message = message_text;
+    if v_message not like '%not approved%' then
+      raise exception
+        'a correction changing only the unit was refused by the wrong guard. 0042 must not compare unit_id -- publishing a price under the wrong unit is a legitimate correction. Message was: %',
+        v_message;
+    end if;
+  end;
+  if v_allowed then
+    raise exception 'a correction was published against a pending submission (P1.1)';
+  end if;
+end;
+$$;
+
+\echo '  CLAIM 7 passed: a correction stays in its series, and may still fix the unit'
+
+-- ----------------------------------------------------------------------------
+-- 9. The closing tally, then everything goes away.
+--
+-- Nine submissions: four approvals, one rejection, four still pending; four
+-- observations. Asserted as a whole because each section above checked its own
+-- corner, and the sum is the thing a reader of a passing run actually wants to
+-- know.
+--
+-- THE FOUR PENDING ROWS ARE THE POINT OF THE LAST TWO SECTIONS. ...014 was
+-- never decided; ...023, ...024 and ...025 were each refused, and a refused
+-- approval must leave its submission exactly where it was -- pending, backing
+-- nothing. A function that raised after writing the status would pass every
+-- assertion above and be caught here.
+--
+-- The role split is asserted too: of the four published rows, three lead their
+-- week and one is a second price. Counting them is how "two prices, in
+-- different units" stops being a claim about one section and becomes a fact
+-- about the whole run.
+-- ----------------------------------------------------------------------------
+
+do $$
+declare
+  v_obs       int;
+  v_approved  int;
+  v_rejected  int;
+  v_pending   int;
+  v_primary   int;
+  v_secondary int;
 begin
   select count(*) into v_obs from price_observations;
   select count(*) into v_approved from price_submissions where status = 'approved';
   select count(*) into v_rejected from price_submissions where status = 'rejected';
   select count(*) into v_pending  from price_submissions where status = 'pending';
 
-  if v_obs <> 2 or v_approved <> 2 or v_rejected <> 1 or v_pending <> 1 then
+  if v_obs <> 4 or v_approved <> 4 or v_rejected <> 1 or v_pending <> 4 then
     raise exception
-      'final tally is wrong: % observations, % approved, % rejected, % pending (expected 2/2/1/1)',
+      'final tally is wrong: % observations, % approved, % rejected, % pending (expected 4/4/1/4)',
       v_obs, v_approved, v_rejected, v_pending;
+  end if;
+
+  select count(*) into v_primary   from price_observations where unit_role = 'primary';
+  select count(*) into v_secondary from price_observations where unit_role = 'secondary';
+
+  if v_primary <> 3 or v_secondary <> 1 then
+    raise exception
+      'the published roles are wrong: % primary, % secondary (expected 3/1)',
+      v_primary, v_secondary;
+  end if;
+
+  -- No week anywhere in this run holds more than two live prices, and no live
+  -- price shares a unit with another in its week. The indexes make both
+  -- impossible; counting them says so in the language of the rule rather than
+  -- of the index.
+  if exists (
+    select 1
+      from price_observations
+     where superseded_at is null
+     group by commodity_id, tier, iso_year, iso_week
+    having count(*) > 2
+          or count(distinct unit_id) <> count(*)
+  ) then
+    raise exception
+      'a commodity, week and tier holds more than two live prices, or two of them share a unit (P1.7)';
   end if;
 end;
 $$;
@@ -702,4 +1148,4 @@ $$;
 rollback;
 
 \echo ''
-\echo 'price_decisions: PASS -- 5 claims, and the transaction was rolled back.'
+\echo 'price_decisions: PASS -- 7 claims, and the transaction was rolled back.'

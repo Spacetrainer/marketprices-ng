@@ -31,6 +31,35 @@ describe("approveSubmissionSchema", () => {
     expect(result.success && result.data.correctedPrice).toBeNull();
   });
 
+  it("reads an absent or empty unitRole as NO ANSWER, never as 'primary'", () => {
+    // P1.7 as amended (0041): the function resolves `primary` only when nothing is live for the
+    // week, and REFUSES an omitted role when something is. Defaulting here would turn "the
+    // reviewer did not answer" into "the reviewer said this is the headline" and make the form
+    // with the database it is the first answer for (P0.2).
+    for (const input of [{}, { unitRole: "" }, { unitRole: null }]) {
+      const result = approveSubmissionSchema.safeParse({ submissionId: ID, ...input });
+      expect(result.success).toBe(true);
+      expect(result.success && result.data.unitRole).toBeNull();
+    }
+  });
+
+  it("accepts the two roles and refuses anything else", () => {
+    for (const role of ["primary", "secondary"]) {
+      const result = approveSubmissionSchema.safeParse({ submissionId: ID, unitRole: role });
+      expect(result.success).toBe(true);
+      expect(result.success && result.data.unitRole).toBe(role);
+    }
+
+    // There is no third role, because the vocabulary IS the cap: two values, and a third live
+    // price for one commodity/week/tier has no role left to take.
+    expect(approveSubmissionSchema.safeParse({ submissionId: ID, unitRole: "tertiary" }).success).toBe(
+      false,
+    );
+    expect(approveSubmissionSchema.safeParse({ submissionId: ID, unitRole: "PRIMARY" }).success).toBe(
+      false,
+    );
+  });
+
   it("NEVER READS AN EMPTY OR BLANK PRICE FIELD AS 0", () => {
     // The single most costly coercion available here. `z.coerce.number()` turns "" and " "
     // into 0, and 0 is a LEGITIMATE price in both price columns (`check price >= 0`), so

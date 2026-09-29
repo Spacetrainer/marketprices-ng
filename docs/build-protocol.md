@@ -172,10 +172,31 @@ site appear on every price in every view — table, card rail, mobile card list,
 article inline data block, header graphic. "It didn't fit on mobile" is not a permitted reason
 to drop it; drop something else.
 
-**P1.7 — One price per commodity, per ISO week, per tier. [NEW — M3]**
-`UNIQUE (commodity_id, iso_year, iso_week, tier)` on `price_observations`. The series is
-univariate by construction. A second observation for the same key is a correction (P1.3), not
-an additional data point, and the system offers no way to average two of them.
+**P1.7 — At most two prices per commodity, per ISO week, per tier, in different units.
+[NEW — M3; AMENDED 2026-09-29, migration 0041]**
+One is `primary`, one `secondary`. `UNIQUE (commodity_id, iso_year, iso_week, tier, unit_role)`
+and `UNIQUE (commodity_id, iso_year, iso_week, tier, unit_id)` on `price_observations`, both
+partial on `superseded_at is null`. A third is refused. A series is commodity + tier + unit; two
+prices in different units are never averaged or compared.
+
+*Why this changed, since the original rule was right about the thing it was protecting.* The
+rule read "one price per commodity, per ISO week, per tier", on the grounds that "a second
+observation for the same key is a correction (P1.3), not an additional data point, and the
+system offers no way to average two of them". The market disagrees about the first clause and
+not the second: the tracker prices rodo by the paint bucket *and* by the plate in the same week,
+and long-grain rice by the 50 kg bag *and* by the 25 kg bag. Those are two prices, both true,
+neither a correction of the other. Averaging is still impossible and still never offered —
+`units.base_multiplier` is null across the board (0036, "not yet weighed"), so no conversion
+between a bucket and a plate exists to average them *with*. Two prices in one week sit side by
+side, each labelled with its unit, and the `primary` is the figure public surfaces lead with.
+
+This is an **amendment, not an exception**: P13 lists P1.7 among the rules with no exception
+procedure, so it cannot go in `docs/exceptions.md` and should not — the rule belongs to the
+project owner and the project owner changed it. Two consequences worth stating with the rule: a
+published `unit_role` is frozen like every other column (0025), so re-ranking which figure leads
+is a supersede plus a fresh submission (P1.3); and a week's *first* price is always the
+`primary`, because a lone price that no surface shows would be a published figure nobody can
+read. P1.8 is untouched — nothing here makes a collection site a dimension.
 
 **P1.8 — There is no market-versus-market comparison in this product. [NEW — M3]**
 `collected_at_site_id` is provenance. It may be displayed. It may **not** be a filter
@@ -906,7 +927,8 @@ above is its explanation.
 | **Placeholder regex gate in the verification pass** | **P0.3, P14.1** |
 | `lib/format.ts` null-branch unit tests | P0.2, P2.1 |
 | FK + `NOT NULL` constraints | P1.1, P1.2, P1.9, P5.4, P7.2 |
-| `UNIQUE (commodity_id, iso_year, iso_week, tier)` | P1.7 |
+| `UNIQUE (commodity_id, iso_year, iso_week, tier, unit_role)` partial on `superseded_at is null` | P1.7 |
+| `UNIQUE (commodity_id, iso_year, iso_week, tier, unit_id)` partial on `superseded_at is null` | P1.7 |
 | Append-only triggers on `price_observations`, `audit_log` | P1.3, P1.5 |
 | RLS policy suite + no-DELETE grants | P1.4, P5.9, P9.1, P9.2 |
 | Query test: `getBasketIndex()` returns null for an incomplete week | P2.10 |
@@ -970,9 +992,10 @@ Three rules override everything else in this file:
    verification pass rejects it. There is no override and no config flag.
 
 Also always:
-- Prices are weekly and univariate: one price per commodity, per ISO week, per tier (P1.7).
-  There is NO market-versus-market comparison in this product (P1.8). Collection sites are
-  provenance only.
+- Prices are weekly: at most TWO per commodity, per ISO week, per tier, in different units,
+  one `primary` and one `secondary` (P1.7, amended by 0041). They are never averaged or
+  compared — a series is commodity + tier + unit. There is NO market-versus-market comparison
+  in this product (P1.8). Collection sites are provenance only.
 - Prices are append-only and always trace to a submission and a named collector (P1).
 - Every published article traces to a content item, including manually written ones (P1.9).
 - The engine has zero write access to price data (P5.2). Nothing reaches a reader without a

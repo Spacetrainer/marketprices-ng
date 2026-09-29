@@ -3,7 +3,13 @@ import { describe, expect, it } from "vitest";
 import { RecordedWeeks, gapBefore } from "./recorded-weeks";
 import type { RecordedWeek } from "../../lib/queries/price-review";
 
-function week(isoYear: number, isoWeek: number, price: number, weeksBefore: number): RecordedWeek {
+function week(
+  isoYear: number,
+  isoWeek: number,
+  price: number,
+  weeksBefore: number,
+  overrides: Partial<RecordedWeek> = {},
+): RecordedWeek {
   return {
     isoYear,
     isoWeek,
@@ -11,7 +17,10 @@ function week(isoYear: number, isoWeek: number, price: number, weeksBefore: numb
     currency: "NGN",
     collectedOn: "2026-09-09",
     siteName: "Ile-Epo",
+    unitName: "Paint bucket",
+    unitRole: "primary",
     weeksBefore,
+    ...overrides,
   };
 }
 
@@ -42,6 +51,28 @@ describe("RecordedWeeks", () => {
     // Three dashes would read as "three weeks were checked and found missing", which is a
     // different and false claim (P0.2).
     expect(html).not.toContain("—");
+  });
+
+  it("names the unit and whether it led the week", () => {
+    // P1.7 as amended (0041): a week can hold two prices in different units, so "the last three
+    // recorded weeks" only means something once it says which measure it is three weeks OF. The
+    // role is beside it because a reviewer about to publish a second price needs to know whether
+    // what they are looking at is the week's headline figure.
+    const led = renderToStaticMarkup(
+      <RecordedWeeks weeks={[week(2026, 37, 7000, 1, { unitName: "Paint bucket" })]} isoYear={2026} />,
+    );
+    expect(led).toContain("per Paint bucket");
+    expect(led).toContain("led the week");
+
+    const followed = renderToStaticMarkup(
+      <RecordedWeeks
+        weeks={[week(2026, 37, 1000, 1, { unitName: "Plate", unitRole: "secondary" })]}
+        isoYear={2026}
+      />,
+    );
+    expect(followed).toContain("per Plate");
+    expect(followed).toContain("second price");
+    expect(followed).not.toContain("led the week");
   });
 
   it("renders each week with its absolute ISO week and its provenance", () => {

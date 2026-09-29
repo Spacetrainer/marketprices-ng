@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  availableUnitRole,
+  groupBySeries,
+  groupByWeek,
   partitionByWeek,
   seriesKey,
   takeRecentWeeks,
+  type ObservedPrice,
   type PendingSubmission,
   type RecordedWeek,
 } from "./price-review";
@@ -24,7 +28,27 @@ function week(isoYear: number, isoWeek: number, price: number): RecordedWeek {
     currency: "NGN",
     collectedOn: "2026-01-01",
     siteName: "Test site",
+    unitName: "Bag",
+    unitRole: "primary",
     weeksBefore: 0,
+  };
+}
+
+/** One row as `readSeriesHistory` returns it, before either grouping. */
+function observed(overrides: Partial<ObservedPrice> = {}): ObservedPrice {
+  return {
+    commodityId: "commodity-1",
+    tier: "retail",
+    unitId: "unit-bucket",
+    unitName: "Bucket",
+    unitRole: "primary",
+    isoYear: 2026,
+    isoWeek: 38,
+    price: 1,
+    currency: "NGN",
+    collectedOn: "2026-01-01",
+    siteName: "Test site",
+    ...overrides,
   };
 }
 
@@ -35,6 +59,7 @@ function submission(isoYear: number, isoWeek: number, commodityName = "Test"): P
     isoWeek,
     commodityName,
     unitName: "Bag",
+    unitId: "unit-bag",
     variety: null,
     tier: "retail",
     price: 1,
@@ -48,6 +73,7 @@ function submission(isoYear: number, isoWeek: number, commodityName = "Test"): P
     photoUrl: null,
     flags: [],
     recentWeeks: [],
+    liveThisWeek: [],
   };
 }
 
@@ -160,11 +186,121 @@ describe("partitionByWeek", () => {
 });
 
 describe("seriesKey", () => {
-  it("keys on commodity and tier, and on nothing else", () => {
-    // P1.7 is one price per commodity, per ISO week, per tier. P1.8 forbids the collection
-    // site from ever becoming a comparison axis — if a site ever appeared in this key, the
-    // panel would start drawing a market-versus-market series, which this product does not have.
-    expect(seriesKey("abc", "retail")).toBe("abc::retail");
-    expect(seriesKey("abc", "retail")).not.toBe(seriesKey("abc", "wholesale"));
+  it("keys on commodity, tier and unit, and on nothing else", () => {
+    // P1.7 as amended (0041) allows two prices per commodity per week per tier, in different
+    // units, so the unit is part of the series. P1.8 forbids the collection site from ever
+    // becoming a comparison axis — if a site appeared in this key the panel would start drawing
+    // a market-versus-market series, which this product does not have.
+    expect(seriesKey("abc", "retail", "unit-1")).toBe("abc::retail::unit-1");
+    expect(seriesKey("abc", "retail", "unit-1")).not.toBe(seriesKey("abc", "wholesale", "unit-1"));
+    expect(seriesKey("abc", "retail", "unit-1")).not.toBe(seriesKey("abc", "retail", "unit-2"));
+  });
+});
+
+describe("groupBySeries", () => {
+  it("keeps two units in the same week as SEPARATE series", () => {
+    // The whole reason the unit joined the key. Rodo at ₦7,000 the paint bucket and ₦1,000 the
+    // plate are both true for one week; grouped together they read as a collapse, and a reviewer
+    // would approve the next price against a baseline that never existed. No conversion between
+    // the two exists — base_multiplier is null on every unit (0036).
+    const grouped = groupBySeries([
+      observed({ unitId: "unit-bucket", unitName: "Paint bucket", price: 7, unitRole: "primary" }),
+      observed({ unitId: "unit-plate", unitName: "Plate", price: 1, unitRole: "secondary" }),
+    ]);
+
+    expect(grouped.size).toBe(2);
+    expect(grouped.get(seriesKey("commodity-1", "retail", "unit-bucket"))?.[0].price).toBe(7);
+    expect(grouped.get(seriesKey("commodity-1", "retail", "unit-plate"))?.[0].price).toBe(1);
+  });
+
+  it("carries the unit and its role onto every entry", () => {
+    const grouped = groupBySeries([observed({ unitName: "Mudu", unitRole: "secondary" })]);
+    const entry = grouped.get(seriesKey("commodity-1", "retail", "unit-bucket"))?.[0];
+
+    expect(entry?.unitName).toBe("Mudu");
+    expect(entry?.unitRole).toBe("secondary");
+  });
+
+  it("keeps the two tiers apart", () => {
+    const grouped = groupBySeries([
+      observed({ tier: "retail" }),
+      observed({ tier: "wholesale" }),
+    ]);
+
+    expect(grouped.size).toBe(2);
+  });
+});
+
+describe("groupByWeek", () => {
+  it("collects both of a week's prices under one key, primary first", () => {
+    // The reviewer is being asked to sit a second price beside the headline, so the headline is
+    // read first. Deliberately not sorted by price: which figure heads the week is an editorial decision,
+    // not a consequence of one figure being larger.
+    const grouped = groupByWeek([
+      observed({ unitId: "unit-plate", unitName: "Plate", price: 1, unitRole: "secondary" }),
+      observed({ unitId: "unit-bucket", unitName: "Paint bucket", price: 7, unitRole: "primary" }),
+    ]);
+
+    expect(grouped.size).toBe(1);
+    const live = grouped.get("commodity-1::retail::2026::38");
+    expect(live?.map((entry) => entry.unitRole)).toEqual(["primary", "secondary"]);
+    expect(live?.map((entry) => entry.unitName)).toEqual(["Paint bucket", "Plate"]);
+  });
+
+  it("does not mix weeks, tiers or commodities", () => {
+    const grouped = groupByWeek([
+      observed({ isoWeek: 38 }),
+      observed({ isoWeek: 37 }),
+      observed({ tier: "wholesale" }),
+      observed({ commodityId: "commodity-2" }),
+    ]);
+
+    expect(grouped.size).toBe(4);
+  });
+
+  it("returns an empty map for a series with no published history", () => {
+    // Which is what makes one-click Approve correct on an empty week: nothing is live, so
+    // nothing has to be chosen between (P1.7).
+    expect(groupByWeek([]).size).toBe(0);
+  });
+});
+
+describe("availableUnitRole", () => {
+  it("offers primary for a week that holds nothing", () => {
+    // Which is why plain Approve is one click on the ordinary path: there is nothing to choose
+    // between, and a lone price is the figure every surface shows.
+    expect(availableUnitRole([])).toBe("primary");
+  });
+
+  it("offers secondary once the week has a headline figure", () => {
+    expect(
+      availableUnitRole([
+        { unitName: "Paint bucket", unitRole: "primary", price: 7000, currency: "NGN" },
+      ]),
+    ).toBe("secondary");
+  });
+
+  it("offers nothing once both roles are held", () => {
+    // Null is what removes the approve controls entirely. There is no third role, so a third
+    // unit cannot be published and a disabled button would invite a hunt for a permission that
+    // does not exist (P1.7).
+    expect(
+      availableUnitRole([
+        { unitName: "Paint bucket", unitRole: "primary", price: 7000, currency: "NGN" },
+        { unitName: "Plate", unitRole: "secondary", price: 1000, currency: "NGN" },
+      ]),
+    ).toBeNull();
+  });
+
+  it("offers primary when the only live price is somehow a secondary", () => {
+    // Unreachable through approval — 0041 refuses a secondary into an empty week, because its
+    // only published figure would be one nothing displays. Asserted anyway: the function must
+    // answer from what is TAKEN rather than from how many rows there are, so that a week in a
+    // state this product cannot create is still described correctly rather than read as full.
+    expect(
+      availableUnitRole([
+        { unitName: "Plate", unitRole: "secondary", price: 1000, currency: "NGN" },
+      ]),
+    ).toBe("primary");
   });
 });

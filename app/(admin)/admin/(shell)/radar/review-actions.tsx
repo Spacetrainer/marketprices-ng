@@ -4,6 +4,7 @@ import { useActionState, useId, useState } from "react";
 import { Button } from "../../../../../components/primitives/button";
 import { cn } from "../../../../../lib/cn";
 import { formatNaira } from "../../../../../lib/format";
+import { availableUnitRole, type LivePriceThisWeek } from "../../../../../lib/queries/price-review";
 import { approveSubmissionAction, rejectSubmissionAction } from "./actions";
 import { emptyReviewState, type ReviewFormState } from "./review-state";
 
@@ -12,6 +13,15 @@ export interface ReviewActionsProps {
   /** Shown beside the corrected-price field so the reviewer can see what they are changing. */
   submittedPrice: number;
   commodityName: string;
+  /** The unit this price was collected in. Part of the figure's meaning, and of its series. */
+  unitName: string;
+  /**
+   * What is already live for this commodity, tier and ISO week, in either unit (P1.7, 0041).
+   *
+   * Drives which decision this panel offers, because the three cases are genuinely different
+   * acts: publishing a week's figure, adding a second measure beside it, or nothing.
+   */
+  liveThisWeek: readonly LivePriceThisWeek[];
 }
 
 /**
@@ -34,10 +44,32 @@ export interface ReviewActionsProps {
  * seventeenth dangerous. The irreversibility is real — an approval publishes, and correcting
  * it afterwards is a supersede plus a fresh submission (P1.3) — so it is stated in the
  * panel's own copy where it is read once, rather than in a dialog that is read never.
+ *
+ * THE SECOND-PRICE PATH IS ITS OWN ACT, NOT A CHECKBOX ON APPROVE (P1.7, migration 0041). A
+ * commodity can carry two prices for one week in different units, and `approve_price_submission()`
+ * REFUSES an approval that does not say which this is whenever the week already holds a live
+ * figure — a role is never inferred from which price arrived first (P0.2). So this panel reads
+ * what is published and offers the decision that actually exists:
+ *
+ *   nothing live   -> Approve, one click. The function resolves `primary`, which is a
+ *                     description of a lone price rather than a guess about a pair.
+ *   one live       -> the plain button is gone. What is published is shown, with its unit, and
+ *                     the reviewer confirms this is the week's OTHER measure. That names a
+ *                     figure they cannot re-rank afterwards: a published role is frozen (0025),
+ *                     so promoting the second price later is a supersede plus a fresh
+ *                     submission (P1.3).
+ *   two live       -> no approve control at all, and the reason said in place of it. The week is
+ *                     full; the function would refuse whatever is sent.
  */
-type OpenPanel = "none" | "edit" | "reject";
+type OpenPanel = "none" | "edit" | "reject" | "second";
 
-export function ReviewActions({ submissionId, submittedPrice, commodityName }: ReviewActionsProps) {
+export function ReviewActions({
+  submissionId,
+  submittedPrice,
+  commodityName,
+  unitName,
+  liveThisWeek,
+}: ReviewActionsProps) {
   const [approveState, approveAction, approving] = useActionState<ReviewFormState, FormData>(
     approveSubmissionAction,
     emptyReviewState,
@@ -63,30 +95,57 @@ export function ReviewActions({ submissionId, submittedPrice, commodityName }: R
     );
   }
 
+  // Which role this submission could take, worked out in the query layer beside the other pure
+  // decisions about this data. Null means the week is full and there is no approval to offer.
+  const available = availableUnitRole(liveThisWeek);
+  // A role is only sent when the reviewer is being asked; on the empty-week path the field is
+  // absent and the function resolves it. `""` posts as "no answer", which the schema reads as null.
+  const roleField = liveThisWeek.length === 0 ? "" : (available ?? "");
+
   return (
     <div className="flex flex-col gap-sp-3" data-decision="open">
       <div className="flex flex-wrap gap-sp-2">
         {/* Plain approve: its own form, so it posts no corrected price at all rather than an
             empty one. The action reads a missing field as "no correction" either way, but a
-            form that cannot carry a stray value is better than one that is trusted not to. */}
-        <form action={approveAction}>
-          <input type="hidden" name="submissionId" value={submissionId} />
-          <Button type="submit" disabled={busy} data-action="approve">
-            {approving ? "Approving…" : "Approve"}
-          </Button>
-        </form>
+            form that cannot carry a stray value is better than one that is trusted not to.
 
-        <Button
-          type="button"
-          variant="secondary"
-          disabled={busy}
-          aria-expanded={open === "edit"}
-          aria-controls={`${ids}-edit`}
-          onClick={() => setOpen(open === "edit" ? "none" : "edit")}
-          data-action="edit"
-        >
-          Edit &amp; approve
-        </Button>
+            Rendered ONLY for a week that holds nothing. One click is right for a lone price and
+            wrong for a week's second figure, where the reviewer is choosing something they
+            cannot change later. */}
+        {liveThisWeek.length === 0 ? (
+          <form action={approveAction}>
+            <input type="hidden" name="submissionId" value={submissionId} />
+            <Button type="submit" disabled={busy} data-action="approve">
+              {approving ? "Approving…" : "Approve"}
+            </Button>
+          </form>
+        ) : available ? (
+          <Button
+            type="button"
+            disabled={busy}
+            aria-expanded={open === "second"}
+            aria-controls={`${ids}-second`}
+            onClick={() => setOpen(open === "second" ? "none" : "second")}
+            data-action="approve-second"
+          >
+            Approve as this week&rsquo;s second price
+          </Button>
+        ) : null}
+
+        {/* Also absent when the week is full: editing a figure does not create room for it. */}
+        {available ? (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={busy}
+            aria-expanded={open === "edit"}
+            aria-controls={`${ids}-edit`}
+            onClick={() => setOpen(open === "edit" ? "none" : "edit")}
+            data-action="edit"
+          >
+            Edit &amp; approve
+          </Button>
+        ) : null}
 
         {/* `destructive` is the outlined --fall variant, which is the one place a reject
             control may carry that colour: it marks a destructive ACTION, not a falling price.
@@ -106,6 +165,68 @@ export function ReviewActions({ submissionId, submittedPrice, commodityName }: R
 
       <FormError message={approveState.error ?? rejectState.error} />
 
+      {/* What is already published for this week, stated wherever it exists — beside the
+          second-price control, and in place of the approve controls when the week is full.
+          Every figure carries its unit, because a paint bucket and a plate are not the same
+          number and `base_multiplier` is null on every unit (0036), so nothing converts them. */}
+      {liveThisWeek.length > 0 ? (
+        <div className="flex flex-col gap-sp-1" data-live-this-week={liveThisWeek.length}>
+          <p className="text-fs-chip uppercase tracking-[0.04em] text-ink-400">
+            Already published for this week
+          </p>
+          <ul className="flex flex-col gap-sp-1">
+            {liveThisWeek.map((entry) => (
+              <li key={`${entry.unitRole}-${entry.unitName}`} className="text-fs-meta text-ink-900">
+                <span className="price font-bold">{formatNaira(entry.price)}</span>{" "}
+                <span className="text-ink-500">
+                  per {entry.unitName} · {entry.unitRole === "primary" ? "this week’s headline" : "second price"}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {available === null ? (
+            <p className="text-fs-meta text-ink-500" data-decision="week-full">
+              This week already carries both of its prices, so this submission cannot be
+              published as it stands. A commodity holds at most two prices per week per tier, in
+              different units. To replace one of the figures above, retire it and re-collect —
+              approving over it is not possible, and a published price is never edited.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {open === "second" && available ? (
+        <form
+          id={`${ids}-second`}
+          action={approveAction}
+          className="flex flex-col gap-sp-2 rounded-r-card border border-line-200 bg-surface-50 p-sp-3"
+          noValidate
+        >
+          <input type="hidden" name="submissionId" value={submissionId} />
+          <input type="hidden" name="unitRole" value={available} />
+
+          <p className="text-fs-meta text-ink-500">
+            Publishing a {available === "secondary" ? "second" : "headline"} price for{" "}
+            {commodityName} in this week, measured per {unitName}. The two figures are never
+            averaged or compared — no conversion between their units exists — and{" "}
+            {available === "secondary"
+              ? "the figure above stays this week’s headline figure."
+              : "this one becomes this week’s headline figure."}{" "}
+            Which of the two is the headline cannot be changed afterwards: a published price is
+            never edited, so it would mean retiring this row and re-collecting.
+          </p>
+
+          <div className="flex gap-sp-2">
+            <Button type="submit" disabled={busy} data-action="approve-second-confirm">
+              {approving ? "Approving…" : `Publish as the ${available} price`}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => setOpen("none")}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      ) : null}
+
       {open === "edit" ? (
         <form
           id={`${ids}-edit`}
@@ -114,11 +235,18 @@ export function ReviewActions({ submissionId, submittedPrice, commodityName }: R
           noValidate
         >
           <input type="hidden" name="submissionId" value={submissionId} />
+          {/* Carries the role the same way the second-price form does, so editing a figure and
+              choosing the headline figure stay one decision rather than two forms that can
+              disagree. Empty on an empty week, which the schema reads as "no answer". */}
+          <input type="hidden" name="unitRole" value={roleField} />
 
           <p className="text-fs-meta text-ink-500">
             Publishing a different price from the one {commodityName}&rsquo;s collector
-            reported. The submitted figure is kept on the record beside yours — it is never
-            overwritten.
+            reported, per {unitName}. The submitted figure is kept on the record beside yours —
+            it is never overwritten.
+            {roleField === "secondary"
+              ? " It publishes as this week's second price; the figure above stays the headline figure."
+              : ""}
           </p>
 
           <Field

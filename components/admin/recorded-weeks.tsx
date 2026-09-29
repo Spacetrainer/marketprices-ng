@@ -63,6 +63,16 @@ export function RecordedWeeks({ weeks, isoYear }: RecordedWeeksProps) {
               </span>
             </span>
 
+            {/* THE UNIT AND ITS ROLE, on every entry (P1.7, migration 0041). A week can hold two
+                prices in different units, so "the last three recorded weeks" is only meaningful
+                once it says which measure it is three weeks OF. The role says whether that
+                measure was the one the site led with, which is what a reviewer needs before
+                approving a second price beside it. Spelled out rather than abbreviated: this
+                column is read once, quickly, by someone about to publish. */}
+            <span className="text-fs-chip text-ink-500">
+              per {week.unitName} · {week.unitRole === "primary" ? "led the week" : "second price"}
+            </span>
+
             {/* Provenance rides with every price, at every breakpoint (P1.6). */}
             <span className="text-fs-chip text-ink-500">
               {formatCollectedAt(week.collectedOn, week.siteName)}

@@ -1106,6 +1106,7 @@ export type Database = {
           superseded_at: string | null
           tier: string
           unit_id: string
+          unit_role: string
           week_start_date: string
         }
         Insert: {
@@ -1126,6 +1127,7 @@ export type Database = {
           superseded_at?: string | null
           tier: string
           unit_id: string
+          unit_role: string
           week_start_date: string
         }
         Update: {
@@ -1146,6 +1148,7 @@ export type Database = {
           superseded_at?: string | null
           tier?: string
           unit_id?: string
+          unit_role?: string
           week_start_date?: string
         }
         Relationships: [
@@ -1210,6 +1213,7 @@ export type Database = {
           submitted_at: string
           tier: string
           unit_id: string
+          unit_role: string | null
           variety: string | null
         }
         Insert: {
@@ -1235,6 +1239,7 @@ export type Database = {
           submitted_at?: string
           tier: string
           unit_id: string
+          unit_role?: string | null
           variety?: string | null
         }
         Update: {
@@ -1260,6 +1265,7 @@ export type Database = {
           submitted_at?: string
           tier?: string
           unit_id?: string
+          unit_role?: string | null
           variety?: string | null
         }
         Relationships: [
@@ -1772,6 +1778,7 @@ export type Database = {
           p_corrected_price?: number
           p_correction_reason?: string
           p_submission_id: string
+          p_unit_role?: string
           p_week_start_date: string
         }
         Returns: string
