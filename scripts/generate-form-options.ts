@@ -28,9 +28,15 @@
  * CI and fails the build if the committed file no longer matches, so "committed" can never
  * quietly become "stale".
  *
- * THE PUBLISHABLE KEY, NOT THE SECRET ONE. All three tables carry anon SELECT policies that
- * already filter on `is_active` (0006, 0007), so RLS acts as a second lock agreeing with the
- * explicit filters below. A form-options generator has no business holding a service-role key.
+ * THE PUBLISHABLE KEY, NOT THE SECRET ONE. A form-options generator has no business holding a
+ * service-role key. `commodities` and `collection_sites` carry anon SELECT policies that
+ * themselves filter on `is_active` (0006, 0007), so for those two RLS is a second lock agreeing
+ * with the explicit filters below. `units` is NOT one of them: its policy is
+ * `units_select_public` with a `true` predicate, written when the table had no is_active column
+ * at all, and 0043 added the column without touching the policy. So the is_active filter on
+ * units below is the ONLY gate, and it has to stay. Tightening the policy to match is a
+ * separate migration and a wider decision, because it changes what every anon read of the table
+ * sees, not just this script's.
  *
  * Usage:
  *   pnpm gen:form-options      write data/form-options.json
@@ -132,12 +138,22 @@ async function fetchContent(): Promise<FormOptionsContent> {
       .eq("is_active", true)
       .order("name", { ascending: true }),
 
-    // No filter: `units` has no is_active column, and unlike the other two a unit cannot be
-    // retired once it exists. seed.sql names this script as the reason only the units actually
-    // used by the seeded commodities were inserted — the 8 the source file uses, rather than
-    // all 25 in it, plus the Derica that 0039 added for okro. The whole table is what the form
-    // offers.
-    supabase.from("units").select("id, name, abbreviation").order("name", { ascending: true }),
+    // is_active, since 0043 gave `units` the column. Until then a unit could not be retired
+    // once it existed, and this script read the whole table — which is why seed.sql seeded only
+    // the units the seeded commodities actually used as a RETAIL unit, rather than every unit
+    // in the source file. 0044 ended that: it added the 36 the Lagos tracker prices in,
+    // wholesale ones included, so the table is now large enough that offering all of it would
+    // put a wrong answer in front of someone pricing ugwu leaf.
+    //
+    // Nothing is retired today — 0044 inserted all 36 active and every earlier unit stayed
+    // active — so this filter changes no output yet. It is here so that setting is_active =
+    // false on a unit is all it takes to withdraw it from the form, rather than a code change
+    // at the moment someone wants it gone.
+    supabase
+      .from("units")
+      .select("id, name, abbreviation")
+      .eq("is_active", true)
+      .order("name", { ascending: true }),
   ]);
 
   const failure = commodities.error ?? sites.error ?? units.error;
@@ -179,7 +195,7 @@ export function assertNonEmpty(content: FormOptionsContent): void {
   const empty = [
     content.commodities.length === 0 && "no commodity is both is_tracked and is_active",
     content.collection_sites.length === 0 && "no collection site is is_active",
-    content.units.length === 0 && "the units table is empty",
+    content.units.length === 0 && "no unit is is_active",
   ].filter((value): value is string => typeof value === "string");
 
   if (empty.length > 0) {

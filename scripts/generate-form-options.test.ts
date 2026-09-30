@@ -102,7 +102,7 @@ describe("assertNonEmpty", () => {
   });
 
   it("refuses an empty unit list", () => {
-    expect(() => assertNonEmpty(content({ units: [] }))).toThrow(/the units table is empty/);
+    expect(() => assertNonEmpty(content({ units: [] }))).toThrow(/no unit is is_active/);
   });
 
   it("reports every empty list at once rather than only the first", () => {
@@ -118,7 +118,7 @@ describe("assertNonEmpty", () => {
     expect(error).toBeInstanceOf(GenerationError);
     expect(error?.message).toMatch(/no commodity/);
     expect(error?.message).toMatch(/no collection site/);
-    expect(error?.message).toMatch(/units table is empty/);
+    expect(error?.message).toMatch(/no unit is is_active/);
   });
 
   it("says no file was written, because none was", () => {
