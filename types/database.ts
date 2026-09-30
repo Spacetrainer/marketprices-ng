@@ -1650,6 +1650,7 @@ export type Database = {
           base_multiplier: number | null
           created_at: string
           id: string
+          is_active: boolean
           name: string
           updated_at: string
         }
@@ -1658,6 +1659,7 @@ export type Database = {
           base_multiplier?: number | null
           created_at?: string
           id?: string
+          is_active?: boolean
           name: string
           updated_at?: string
         }
@@ -1666,6 +1668,7 @@ export type Database = {
           base_multiplier?: number | null
           created_at?: string
           id?: string
+          is_active?: boolean
           name?: string
           updated_at?: string
         }
