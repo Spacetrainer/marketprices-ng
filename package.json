@@ -18,6 +18,7 @@
     "check:routes": "tsx scripts/check-routes.ts",
     "capture:session": "tsx --env-file-if-exists=.env.local scripts/capture-admin-session.ts",
     "check:vocab": "bash scripts/check-vocab.sh",
+    "import:tracker": "tsx --env-file-if-exists=.env.local scripts/import-tracker.ts",
     "gen:form-options": "tsx --env-file-if-exists=.env.local scripts/generate-form-options.ts",
     "check:form-options": "tsx --env-file-if-exists=.env.local scripts/generate-form-options.ts --check",
     "db:types": "tsx --env-file-if-exists=.env.local scripts/db-types.ts",
