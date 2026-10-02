@@ -2,12 +2,16 @@
  * xlsx.ts — the only part of the tracker importer that knows what a spreadsheet file is.
  *
  * WHY THIS EXISTS RATHER THAN A DEPENDENCY. The importer's whole shape is reader → planner →
- * poster, and this module is the bottom half of the reader: bytes in, a grid of strings out.
- * It is the piece that gets DELETED when the tracker moves to Google Sheets — `reader.ts`,
- * `planner.ts` and the posting loop all keep working against a `SheetGrid`, whether that grid
- * came from a .xlsx on disk or from the Sheets API. Taking on a spreadsheet library to read
- * one workbook one way, for a path with a known end date, is a dependency the project would
- * carry long after the reason for it had gone.
+ * poster, and this module is one of the two bottom halves of the reader: bytes in, a grid of
+ * strings out. `sheets.ts` is the other, and `reader.ts`, `planner.ts` and the posting loop
+ * cannot tell which one they were handed — they work against the `Workbook` in `grid.ts`
+ * either way. Taking on a spreadsheet library to read one workbook one way would be a
+ * dependency the project carried long after the reason for it had gone.
+ *
+ * IT IS NOT DEAD CODE NOW THAT THE TRACKER LIVES IN GOOGLE SHEETS. This is the fallback path,
+ * and the only one that needs no credentials and no network: `--file <workbook>` reaches it.
+ * A Google outage, a revoked key or a sheet somebody moved to another Drive all end with
+ * someone exporting an .xlsx and importing that, so this keeps working and keeps its tests.
  *
  * WHAT IT DELIBERATELY DOES NOT DO. No formulas (the tracker has none — verified across all
  * thirteen sheets), no styles, no merged-cell expansion, no dates. A cell arrives here as the
@@ -23,12 +27,7 @@
  */
 
 import { inflateRawSync } from "node:zlib";
-
-/** One sheet as a dense grid of raw cell strings. Row 0 of the array is spreadsheet row 1. */
-export type SheetGrid = string[][];
-
-/** Every sheet in a workbook, keyed by the tab name exactly as the file spells it. */
-export type Workbook = Record<string, SheetGrid>;
+import { columnLetterToIndex, type SheetGrid, type Workbook } from "./grid";
 
 export class WorkbookError extends Error {}
 
@@ -138,27 +137,6 @@ function textRuns(fragment: string): string {
   let text = "";
   for (const match of matches) text += decodeXmlText(match[1] ?? "");
   return text;
-}
-
-/** "BK" → 62. Spreadsheet columns are base-26 with no zero digit. */
-export function columnLetterToIndex(letters: string): number {
-  let index = 0;
-  for (const character of letters.toUpperCase()) {
-    index = index * 26 + (character.charCodeAt(0) - 64);
-  }
-  return index - 1;
-}
-
-/** 62 → "BK". The inverse, used to label columns back to a human. */
-export function columnIndexToLetter(index: number): string {
-  let letters = "";
-  let remaining = index + 1;
-  while (remaining > 0) {
-    const digit = (remaining - 1) % 26;
-    letters = String.fromCharCode(65 + digit) + letters;
-    remaining = Math.floor((remaining - 1) / 26);
-  }
-  return letters;
 }
 
 function parseSharedStrings(xml: string | undefined): string[] {

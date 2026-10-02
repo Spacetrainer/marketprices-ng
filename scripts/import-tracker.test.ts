@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ImportError, describePlan, parseArguments } from "./import-tracker";
+import { ImportError, describePlan, describeSheetNames, parseArguments } from "./import-tracker";
 import type { Plan } from "../lib/tracker/planner";
 
 /**
@@ -47,6 +47,78 @@ describe("parseArguments", () => {
     // A typo'd flag silently ignored is how a run does something other than what was asked.
     expect(() => parseArguments(["--column", "K", "--comit"])).toThrow(/Unrecognised argument/);
   });
+
+  it("reads the Google Sheet by default, because that is where the tracker is now", () => {
+    expect(parseArguments(["--column", "K"]).source).toBe("sheets");
+  });
+
+  it("switches to the workbook when one is named, in either spelling", () => {
+    // Naming a file and then reading the sheet anyway would be doing something other than asked.
+    expect(parseArguments(["--column", "K", "--file", "other.xlsx"]).source).toBe("xlsx");
+    expect(parseArguments(["--column", "K", "--file=other.xlsx"]).source).toBe("xlsx");
+  });
+
+  it("accepts --source explicitly, in either spelling", () => {
+    expect(parseArguments(["--column", "K", "--source", "xlsx"]).source).toBe("xlsx");
+    expect(parseArguments(["--column", "K", "--source=sheets"]).source).toBe("sheets");
+  });
+
+  it("still defaults the workbook path, so --source xlsx alone works", () => {
+    const args = parseArguments(["--column", "K", "--source", "xlsx"]);
+    expect(args.file).toMatch(/data\/price-tracker\.xlsx$/);
+  });
+
+  it("refuses a source it does not have", () => {
+    expect(() => parseArguments(["--column", "K", "--source", "csv"])).toThrow(
+      /--source must be one of sheets, xlsx, not "csv"/,
+    );
+    expect(() => parseArguments(["--column", "K", "--source"])).toThrow(/--source must be one of/);
+  });
+
+  it("refuses --source sheets together with --file rather than ignoring one of them", () => {
+    // Resolving this silently would mean reading something other than what was named, and only
+    // the person typing knows which half was the mistake.
+    expect(() => parseArguments(["--column", "K", "--source", "sheets", "--file", "x.xlsx"])).toThrow(
+      /--source sheets reads the Google Sheet and never a file/,
+    );
+  });
+
+  it("still requires --commit when reading the sheet", () => {
+    // The source changed; the gate did not.
+    expect(parseArguments(["--column", "K"]).commit).toBe(false);
+    expect(parseArguments(["--column", "K", "--source", "sheets"]).commit).toBe(false);
+  });
+});
+
+describe("describeSheetNames", () => {
+  it("says nothing when the titles match, which is every normal run", () => {
+    expect(describeSheetNames({ missing: [], unexpected: [] })).toEqual([]);
+    expect(describeSheetNames(undefined)).toEqual([]);
+  });
+
+  it("names a tab the map expects and the spreadsheet did not offer", () => {
+    const lines = describeSheetNames({ missing: ["🍗 Fixture Tab"], unexpected: [] }).join("\n");
+    expect(lines).toContain("TAB TITLES do not match data/tracker-map.json");
+    expect(lines).toContain("missing     🍗 Fixture Tab");
+  });
+
+  it("names a data tab the map has never seen", () => {
+    const lines = describeSheetNames({ missing: [], unexpected: ["🍗 Fixture Tab "] }).join("\n");
+    expect(lines).toContain("unexpected  🍗 Fixture Tab ");
+  });
+
+  it("shows a one-character rename as both at once, which is what it looks like", () => {
+    // The whole reason the check exists: a trailing space is invisible in the sheet, so the only
+    // way to see it is the same title appearing on both lines.
+    const lines = describeSheetNames({
+      missing: ["🍗 Fixture Tab"],
+      unexpected: ["🍗 Fixture Tab "],
+    });
+
+    expect(lines.filter((line) => line.includes("missing"))).toHaveLength(1);
+    expect(lines.filter((line) => line.includes("unexpected"))).toHaveLength(1);
+    expect(lines.join("\n")).toContain("renamed by one character");
+  });
 });
 
 const emptyPlan = (overrides: Partial<Plan> = {}): Plan => ({
@@ -62,6 +134,16 @@ describe("describePlan", () => {
   it("says DRY RUN when nothing will be posted, and COMMIT when it will", () => {
     expect(describePlan(emptyPlan(), false)[0]).toBe("DRY RUN — column K");
     expect(describePlan(emptyPlan(), true)[0]).toBe("COMMIT — column K");
+  });
+
+  it("names where the data came from, directly under the heading", () => {
+    // Two sources now produce the same report, so the report has to say which one it read.
+    const lines = describePlan(emptyPlan(), false, { source: 'google sheet "Fixture Tracker"' });
+    expect(lines[1]).toBe('source       google sheet "Fixture Tracker"');
+  });
+
+  it("omits the source line when there is nothing to say, so old output is unchanged", () => {
+    expect(describePlan(emptyPlan(), false)[1]).toBe("");
   });
 
   it("splits the post count by tier, which is what the owner reads first", () => {

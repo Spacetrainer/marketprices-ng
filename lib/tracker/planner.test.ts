@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { indexTrackerMap, parseTrackerMap, type MapIndex } from "./map";
 import { parsePrice, planImport, recordedKey, type Plan, type PlannerCollector } from "./planner";
 import { readTracker } from "./reader";
-import type { SheetGrid } from "./xlsx";
+import type { SheetGrid } from "./grid";
 
 /**
  * A map small enough to read in one screen, carrying one of each thing that can go wrong.

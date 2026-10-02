@@ -1,70 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { deflateRawSync } from "node:zlib";
-import {
-  WorkbookError,
-  columnIndexToLetter,
-  columnLetterToIndex,
-  decodeXmlText,
-  readWorkbook,
-} from "./xlsx";
+import { zip } from "./fixture";
+import { WorkbookError, decodeXmlText, readWorkbook } from "./xlsx";
 
 /**
- * A zip built here rather than checked in as a binary fixture.
+ * The workbook below is built here rather than checked in as a binary fixture.
  *
  * A committed .xlsx would be a file nobody can read in a diff, and the parser's job is to
  * survive the shapes a real workbook takes — inline strings, shared strings, addressed cells
  * with gaps, an ampersand in a sheet name, both compression methods. Those are easier to state
  * as XML here than to explain about an opaque blob. Every test below therefore builds exactly
  * the workbook it is about, with no network and no filesystem.
+ *
+ * The zip container itself comes from `fixture.ts`, because `equivalence.test.ts` needs the same
+ * writer and a copy in two files stops agreeing with itself.
  */
-function zip(files: Record<string, string>, { deflate = false } = {}): Buffer {
-  const locals: Buffer[] = [];
-  const centrals: Buffer[] = [];
-  let offset = 0;
-
-  for (const [name, content] of Object.entries(files)) {
-    const nameBytes = Buffer.from(name, "utf8");
-    const raw = Buffer.from(content, "utf8");
-    const stored = deflate ? deflateRawSync(raw) : raw;
-    const method = deflate ? 8 : 0;
-
-    const local = Buffer.alloc(30);
-    local.writeUInt32LE(0x04034b50, 0);
-    local.writeUInt16LE(20, 4);
-    local.writeUInt16LE(method, 8);
-    local.writeUInt32LE(0, 14); // CRC — the parser does not verify it, and says so.
-    local.writeUInt32LE(stored.length, 18);
-    local.writeUInt32LE(raw.length, 22);
-    local.writeUInt16LE(nameBytes.length, 26);
-    locals.push(local, nameBytes, stored);
-
-    const central = Buffer.alloc(46);
-    central.writeUInt32LE(0x02014b50, 0);
-    central.writeUInt16LE(20, 4);
-    central.writeUInt16LE(20, 6);
-    central.writeUInt16LE(method, 10);
-    central.writeUInt32LE(0, 16);
-    central.writeUInt32LE(stored.length, 20);
-    central.writeUInt32LE(raw.length, 24);
-    central.writeUInt16LE(nameBytes.length, 28);
-    central.writeUInt32LE(offset, 42);
-    centrals.push(central, nameBytes);
-
-    offset += local.length + nameBytes.length + stored.length;
-  }
-
-  const localBlock = Buffer.concat(locals);
-  const centralBlock = Buffer.concat(centrals);
-
-  const end = Buffer.alloc(22);
-  end.writeUInt32LE(0x06054b50, 0);
-  end.writeUInt16LE(Object.keys(files).length, 8);
-  end.writeUInt16LE(Object.keys(files).length, 10);
-  end.writeUInt32LE(centralBlock.length, 12);
-  end.writeUInt32LE(localBlock.length, 16);
-
-  return Buffer.concat([localBlock, centralBlock, end]);
-}
 
 const WORKBOOK_XML = `<?xml version="1.0"?><workbook><sheets>
   <sheet name="Prices &amp; Units" sheetId="1" r:id="rId1"/>
@@ -97,27 +46,6 @@ function sampleWorkbook(options?: { deflate?: boolean }): Buffer {
     options,
   );
 }
-
-describe("columnLetterToIndex / columnIndexToLetter", () => {
-  it("round-trips the letters the tracker actually uses", () => {
-    for (const [letter, index] of [
-      ["A", 0],
-      ["G", 6],
-      ["H", 7],
-      ["K", 10],
-      ["Z", 25],
-      ["AA", 26],
-      ["CY", 102],
-    ] as const) {
-      expect(columnLetterToIndex(letter)).toBe(index);
-      expect(columnIndexToLetter(index)).toBe(letter);
-    }
-  });
-
-  it("is case-insensitive, because a human types --column k", () => {
-    expect(columnLetterToIndex("k")).toBe(columnLetterToIndex("K"));
-  });
-});
 
 describe("decodeXmlText", () => {
   it("decodes the five predefined entities", () => {

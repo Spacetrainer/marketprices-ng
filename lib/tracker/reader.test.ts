@@ -9,7 +9,7 @@ import {
   padRow,
   readTracker,
 } from "./reader";
-import type { SheetGrid, Workbook } from "./xlsx";
+import type { SheetGrid, Workbook } from "./grid";
 
 /**
  * A tracker sheet as cells, with the header NOT on row 2 on purpose.

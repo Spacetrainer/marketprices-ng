@@ -169,3 +169,68 @@ export function knowsPortion(index: MapIndex, portion: string): boolean {
 export function lookupPrimaryUnit(index: MapIndex, slug: string, tier: string): string | null {
   return index.primaryByKey.get(`${slug}\u0000${tier}`) ?? null;
 }
+
+// ---------------------------------------------------------------------------
+// The tab-title check
+// ---------------------------------------------------------------------------
+
+/**
+ * The tab titles the map expects to find, in the order it first mentions them.
+ *
+ * DERIVED, NEVER WRITTEN DOWN. The nine titles carry emoji and ampersands (🥩 Beef & Goat Meat),
+ * and P0.2 forbids a commodity or site name appearing as a string literal in `lib/` — so the
+ * only legitimate source for "which tabs should be there" is the reviewed map itself. A list
+ * typed into this file would also be a second place to update when a tab is renamed, and the
+ * two would disagree within a month.
+ */
+export function expectedSheetNames(map: TrackerMap): string[] {
+  const seen = new Set<string>();
+  const names: string[] = [];
+
+  for (const entry of map.commodities) {
+    if (seen.has(entry.sheet)) continue;
+    seen.add(entry.sheet);
+    names.push(entry.sheet);
+  }
+
+  return names;
+}
+
+export interface SheetNameCheck {
+  /** Tabs the map resolves rows against that the spreadsheet did not offer as data tabs. */
+  missing: string[];
+  /** Data tabs the spreadsheet offered that the map has never heard of. */
+  unexpected: string[];
+}
+
+/**
+ * WHY THIS CHECK EXISTS: a renamed tab is the one failure that is otherwise silent.
+ *
+ * The map resolves every row by (sheet, product, variety). Rename "🍗 Poultry" to "🍗 Poultry "
+ * on a phone — a trailing space is invisible — and the importer does not crash and does not
+ * refuse: it reports a normal-looking plan with a whole tab's prices quietly absent, or two
+ * hundred `unknown_product` refusals whose actual cause is one character in a tab title. Google
+ * Sheets makes this likelier than the .xlsx ever did, because renaming a tab is now a thing
+ * done with a thumb.
+ *
+ * `actualDataTabs` is deliberately the tabs the READER accepted, not every tab in the
+ * spreadsheet. The tracker legitimately carries tabs the map knows nothing about — a guide, a
+ * dashboard, a history log — and reporting those as unexpected every single run is how a check
+ * gets ignored. A tab only counts here once it has claimed to hold prices by carrying the
+ * "Publish as" header.
+ *
+ * It reports; it does not block. A tab mid-rewrite is not a reason to refuse the eight tabs that
+ * are fine, which is the same stance the planner takes on refusals.
+ */
+export function checkSheetNames(
+  expected: readonly string[],
+  actualDataTabs: readonly string[],
+): SheetNameCheck {
+  const actual = new Set(actualDataTabs);
+  const known = new Set(expected);
+
+  return {
+    missing: expected.filter((name) => !actual.has(name)),
+    unexpected: actualDataTabs.filter((name) => !known.has(name)),
+  };
+}

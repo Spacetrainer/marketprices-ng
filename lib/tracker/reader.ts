@@ -1,7 +1,8 @@
 /**
  * reader.ts — the tracker workbook as data, with nothing decided about it yet.
  *
- * Bytes became a grid in `xlsx.ts`. This module turns that grid into the tracker's own shape:
+ * A source — `xlsx.ts` from a file, `sheets.ts` from Google Sheets — produced a grid, and this
+ * module cannot tell which one did. It turns that grid into the tracker's own shape:
  * which tabs hold prices, where the data starts, what the chosen week column says, and which
  * (Product, Variety, Portion) each row is. It decides NOTHING about whether a row should be
  * posted — that is `planner.ts` — and it performs no I/O, so every rule below is testable
@@ -33,7 +34,7 @@
  */
 
 import { isCivilDate } from "../weeks";
-import { columnIndexToLetter, columnLetterToIndex, type SheetGrid, type Workbook } from "./xlsx";
+import { columnIndexToLetter, columnLetterToIndex, type SheetGrid, type Workbook } from "./grid";
 
 /** Column A's label on the header row, and the thing that identifies a data tab. */
 export const HEADER_CELL = "publish as";
