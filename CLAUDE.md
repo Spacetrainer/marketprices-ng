@@ -32,9 +32,12 @@ Three rules override everything else in this file:
    verification pass rejects it. There is no override and no config flag.
 
 Also always:
-- Prices are weekly and univariate: one price per commodity, per ISO week, per tier (P1.7).
-  There is NO market-versus-market comparison in this product (P1.8). Collection sites are
-  provenance only.
+- Prices are weekly: at most TWO per commodity, per ISO week, per tier, and they must be in
+  DIFFERENT units — one `primary` (the figure surfaces lead with), one `secondary` (P1.7, as
+  amended by migration 0041). A third is refused. A series is commodity + tier + unit; two
+  prices in different units are never averaged or compared, and a published `unit_role` is
+  frozen. There is NO market-versus-market comparison in this product (P1.8). Collection sites
+  are provenance only.
 - Prices are append-only and always trace to a submission and a named collector (P1).
 - Every published article traces to a content item, including manually written ones (P1.9).
 - The engine has zero write access to price data (P5.2). Nothing reaches a reader without a
@@ -93,7 +96,23 @@ Non-negotiable:
 ## Testing
 - Every component with logic gets a Vitest test.
 - Every page gets a Playwright smoke test.
-- Run `pnpm typecheck && pnpm lint && pnpm test` before you tell me a stage is done.
+- Run `pnpm typecheck && pnpm lint && pnpm test && pnpm check:seed && pnpm check:vocab &&
+  pnpm check:form-options && pnpm build` before you tell me a stage is done.
+- `pnpm build` is not optional and not a formality. `tsc`, ESLint and Vitest all resolve modules
+  without caring about the App Router's client/server boundary, so ONLY the build catches a
+  Client Component that has pulled `next/headers` — or anything importing it, such as
+  `lib/supabase/server.ts` — into the browser bundle. That failure passes every other check and
+  then breaks CI and the Vercel deployment together. A type-only import is erased and is always
+  safe; importing a VALUE out of a module that touches Supabase is what drags the server graph
+  across.
+- `pnpm check:form-options` is the other check that passes locally only because you skipped it.
+  It reads the LIVE database and fails if `data/form-options.json` no longer matches — and that
+  file is not a build artefact: `app/api/ingest/price/route.ts` reads it from disk at request
+  time to resolve every submitted name to an id, so a stale one means intake rejects options
+  collectors were offered. **Any migration that inserts, renames, retires or re-tracks a row in
+  `commodities` or `units` must run `pnpm gen:form-options` and commit the regenerated
+  `data/form-options.json` in the SAME commit.** 0044 and 0045 did not, and CI went red on a
+  branch where all six other checks passed.
 
 ## Rules for you
 - Do not install a package without telling me first and saying why.

@@ -1,0 +1,1528 @@
+{
+  "generated_at": "2026-09-30T11:56:48.949Z",
+  "commodities": [
+    {
+      "id": "d47a146b-e86b-4a35-aca1-fc87f023f1e2",
+      "name": "Soko (Nigerian Spinach)",
+      "aliases": []
+    },
+    {
+      "id": "9e6c83cd-cda3-4595-8927-33beda8f264d",
+      "name": "Efo Tete",
+      "aliases": [
+        "Tete (Amaranth Green)"
+      ]
+    },
+    {
+      "id": "e2e71ca7-f21f-419d-8c8e-aa5712042774",
+      "name": "Ewuro (Bitter Leaf)",
+      "aliases": []
+    },
+    {
+      "id": "ec2159d5-51ce-4be4-8fa1-2e581c0acf50",
+      "name": "Water Leaf",
+      "aliases": []
+    },
+    {
+      "id": "81552b6a-d526-4749-bbce-87ea42a1b87e",
+      "name": "Scent Leaf (Basil)",
+      "aliases": []
+    },
+    {
+      "id": "b0db8f5b-433c-46f1-9d3b-666eeabc624d",
+      "name": "Ugwu Leaf (Fluted Pumpkin)",
+      "aliases": []
+    },
+    {
+      "id": "7aad9b8f-f525-4c7d-bc5e-34f18616a73f",
+      "name": "Uziza Leaf (Piper Guineense)",
+      "aliases": []
+    },
+    {
+      "id": "d4a4e4a1-9409-4120-9215-4c9d79785a07",
+      "name": "Okazi Leaf (Wild Spinach)",
+      "aliases": []
+    },
+    {
+      "id": "b3095f4c-a605-42a9-9ba4-9efccd3431ec",
+      "name": "Ewedu",
+      "aliases": []
+    },
+    {
+      "id": "481a30a8-ec49-49fa-bd85-0908d31f9190",
+      "name": "Atama Leaves",
+      "aliases": []
+    },
+    {
+      "id": "dbc91c71-a2b5-4e7a-84d5-2d349b372dc1",
+      "name": "Editan Leaf",
+      "aliases": []
+    },
+    {
+      "id": "4d966f0c-f0a7-4e13-88ea-7e85a35c9648",
+      "name": "Kale",
+      "aliases": []
+    },
+    {
+      "id": "4f538de3-27d2-4b6a-9564-1046e4c2274c",
+      "name": "Coriander Leaf",
+      "aliases": []
+    },
+    {
+      "id": "e750fce5-0d48-49c2-9a32-118f308d1047",
+      "name": "Celery Leaf",
+      "aliases": []
+    },
+    {
+      "id": "5d336f49-3576-4eb0-9318-68e92ee6edbd",
+      "name": "Rodo (Scotch Bonnet)",
+      "aliases": []
+    },
+    {
+      "id": "8746a712-70ca-492c-b0f6-4034aeb2b8f0",
+      "name": "Tatashe (Red Pepper)",
+      "aliases": [
+        "Tatase (Bell Pepper)"
+      ]
+    },
+    {
+      "id": "10f9185d-3eea-4383-9969-f99aa0ba3ecc",
+      "name": "Shombo",
+      "aliases": [
+        "Shombo (Cayenne Pepper)"
+      ]
+    },
+    {
+      "id": "ba329131-3867-4e3f-a671-c1077ef92a93",
+      "name": "Tomato (Hausa)",
+      "aliases": [
+        "Tomato (Hausa/Yoruba)"
+      ]
+    },
+    {
+      "id": "1196ad63-51f1-4976-8c63-f9ce3ecb1161",
+      "name": "Green Pepper (Bell)",
+      "aliases": []
+    },
+    {
+      "id": "fbd82946-dc9f-45da-a05b-092534b31717",
+      "name": "Peppercorn",
+      "aliases": []
+    },
+    {
+      "id": "0a494057-d2b1-4ebd-a76d-43265907003a",
+      "name": "Alligator Pepper",
+      "aliases": []
+    },
+    {
+      "id": "56abd18f-9274-4041-bd3b-17b00abe5f7b",
+      "name": "Chilli Pepper Green (Habanero)",
+      "aliases": []
+    },
+    {
+      "id": "ee8f96d3-ec9f-46f3-b57f-e4cbd7ff7c0e",
+      "name": "Chilli Pepper Red (Habanero)",
+      "aliases": []
+    },
+    {
+      "id": "0f429c70-1d5e-4804-a65d-60609cbe692d",
+      "name": "Leek",
+      "aliases": []
+    },
+    {
+      "id": "107c765d-8dee-40e2-ab25-2a542d275d74",
+      "name": "Lemon Grass",
+      "aliases": []
+    },
+    {
+      "id": "100d89d6-7b79-4b0a-8f27-113e84368190",
+      "name": "Carrot",
+      "aliases": []
+    },
+    {
+      "id": "db0a4457-9c92-4641-89e5-534bbe73bea0",
+      "name": "Okro",
+      "aliases": []
+    },
+    {
+      "id": "a2fd45ab-1065-454b-8aa3-6f8183c48566",
+      "name": "Cabbage Green",
+      "aliases": []
+    },
+    {
+      "id": "e8debca1-d4b7-414d-beff-8cd9226106de",
+      "name": "Cabbage Red",
+      "aliases": []
+    },
+    {
+      "id": "f904736d-9926-4bbf-8a55-c0c07d799967",
+      "name": "Lettuce",
+      "aliases": []
+    },
+    {
+      "id": "d49c1421-79d0-417c-ba46-499d7c9f496e",
+      "name": "Cauliflower",
+      "aliases": []
+    },
+    {
+      "id": "fa717724-94bc-45a8-a9ab-6f3485be8311",
+      "name": "Garden Egg Green",
+      "aliases": []
+    },
+    {
+      "id": "73611fb0-2a8a-487a-9753-16e0a12cce07",
+      "name": "Garden Egg White",
+      "aliases": []
+    },
+    {
+      "id": "401316e4-f268-45f1-91fb-b2ac063a90ac",
+      "name": "Watercress",
+      "aliases": []
+    },
+    {
+      "id": "cb84aca7-b4cc-45f9-a39f-8c201551c0f5",
+      "name": "Spring Onion",
+      "aliases": []
+    },
+    {
+      "id": "c3e359f6-c557-4915-8e96-0e1604bc46d1",
+      "name": "Broccoli",
+      "aliases": []
+    },
+    {
+      "id": "03d1bf9c-3c94-4b10-8abc-f479ed795c72",
+      "name": "Beetroot",
+      "aliases": []
+    },
+    {
+      "id": "19f7b82d-e621-4b06-91e2-8181cf31aaf6",
+      "name": "Cocoyam",
+      "aliases": []
+    },
+    {
+      "id": "b99142d7-a0ec-4f23-acc2-80475f02077b",
+      "name": "White Sweet Potato",
+      "aliases": [
+        "Sweet Potatoes"
+      ]
+    },
+    {
+      "id": "733428ce-7a16-4101-85ae-e951e9a2bffa",
+      "name": "Irish Potatoes",
+      "aliases": []
+    },
+    {
+      "id": "ec83ab26-75cf-4db3-b691-84354eb90c7c",
+      "name": "Cassava",
+      "aliases": []
+    },
+    {
+      "id": "214ceec8-f362-44a0-855a-6e3f226dbed2",
+      "name": "Old Yam",
+      "aliases": []
+    },
+    {
+      "id": "44435224-c310-4ede-96b3-a3aeca8393d4",
+      "name": "New Yam",
+      "aliases": []
+    },
+    {
+      "id": "887f4bed-c2d5-4f2a-9b18-15b82e22b05a",
+      "name": "Water Yam",
+      "aliases": []
+    },
+    {
+      "id": "44de7408-3df0-4374-8f81-5fa70b334cdb",
+      "name": "Maize Yellow",
+      "aliases": []
+    },
+    {
+      "id": "ee15e741-4f30-4f99-a52d-571718ceb50a",
+      "name": "Maize White",
+      "aliases": []
+    },
+    {
+      "id": "d6bb0bd8-6396-4e36-b82f-2ba9f28ac20f",
+      "name": "Wheat Local",
+      "aliases": []
+    },
+    {
+      "id": "54ae3c17-b4cb-4758-a664-86c584365107",
+      "name": "Wheat Imported",
+      "aliases": []
+    },
+    {
+      "id": "5c9851fc-b66c-4fde-b203-0f6363e5ef78",
+      "name": "Rice Short Grain",
+      "aliases": []
+    },
+    {
+      "id": "1950c250-9956-4341-b872-25d4a665a423",
+      "name": "Rice Long Grain",
+      "aliases": []
+    },
+    {
+      "id": "ac261527-8423-435b-b33e-798301cb1cbc",
+      "name": "Millet",
+      "aliases": []
+    },
+    {
+      "id": "98a99fca-d9bb-4dba-994b-f013d0d4ddb5",
+      "name": "Guinea Corn White (Sorghum)",
+      "aliases": []
+    },
+    {
+      "id": "24801055-1a22-496b-8e7f-41e30c194606",
+      "name": "Guinea Corn Red (Sorghum)",
+      "aliases": []
+    },
+    {
+      "id": "e36b4c37-7e91-4b53-9f51-a32606fd7a7b",
+      "name": "Barley",
+      "aliases": []
+    },
+    {
+      "id": "f3c23327-86e4-42d3-9a5e-29684a190b62",
+      "name": "Oats",
+      "aliases": []
+    },
+    {
+      "id": "a9511421-abb2-400c-a87c-815fe8925dde",
+      "name": "Watermelon",
+      "aliases": []
+    },
+    {
+      "id": "7c4ad942-db45-4255-a08a-ce8edb05d609",
+      "name": "Pineapple Local",
+      "aliases": []
+    },
+    {
+      "id": "98be66de-667f-4923-925b-0fdeb189f105",
+      "name": "Pineapple Cotonou",
+      "aliases": []
+    },
+    {
+      "id": "24dc995e-679d-4043-b4b8-08537a7a8b7e",
+      "name": "Coconut",
+      "aliases": []
+    },
+    {
+      "id": "d1f0a9bf-6e96-4ce8-82c2-ee5e7bf5aa8a",
+      "name": "Golden Melon",
+      "aliases": []
+    },
+    {
+      "id": "32daa230-d2dd-45df-8df6-662ab03c0019",
+      "name": "Pawpaw",
+      "aliases": []
+    },
+    {
+      "id": "c297aa2a-3dc2-452b-a8b6-ffc747863a1b",
+      "name": "Sugarcane",
+      "aliases": []
+    },
+    {
+      "id": "cd00dacb-0ee3-46d7-8de4-628601769d87",
+      "name": "Kiwano Horned Melon",
+      "aliases": []
+    },
+    {
+      "id": "ef89d7e5-c987-4823-be6e-ab2317f18108",
+      "name": "Bread Fruit",
+      "aliases": []
+    },
+    {
+      "id": "81858306-6249-47f2-8638-a8a5d8d78fc3",
+      "name": "Custard Apple/Soursop",
+      "aliases": []
+    },
+    {
+      "id": "f1494774-4381-427f-b8d3-f19e28566c12",
+      "name": "Plum",
+      "aliases": []
+    },
+    {
+      "id": "eca37742-9123-4abe-8c8c-44a813279b73",
+      "name": "Plantain Ripe",
+      "aliases": []
+    },
+    {
+      "id": "eb2f5e71-18f5-434e-a0fc-803cb9763d82",
+      "name": "Plantain Unripe",
+      "aliases": []
+    },
+    {
+      "id": "cc6b7993-37be-4623-bc7a-ef1cd6be564f",
+      "name": "Cucumber",
+      "aliases": []
+    },
+    {
+      "id": "f0250063-7bed-40c8-9bbd-e9ead60b6432",
+      "name": "Avocado Unripe",
+      "aliases": []
+    },
+    {
+      "id": "773fc152-f564-4c99-82f6-8f412a4e2ea4",
+      "name": "Avocado Ripe",
+      "aliases": []
+    },
+    {
+      "id": "56c1d81d-f0c0-4ff6-87b3-60cbc29471d8",
+      "name": "Eggplant",
+      "aliases": []
+    },
+    {
+      "id": "2d4059c4-4484-45d1-b547-8af8b56d83ae",
+      "name": "Guava",
+      "aliases": []
+    },
+    {
+      "id": "4e6689b4-6b0e-4b81-8fd3-14323421cf87",
+      "name": "Tamarind",
+      "aliases": []
+    },
+    {
+      "id": "62492036-646d-4e5e-9576-95e2021ea6fa",
+      "name": "Star Fruit",
+      "aliases": []
+    },
+    {
+      "id": "0fa35027-1c28-41e9-8c85-e3178b1c439a",
+      "name": "Dragon Fruit",
+      "aliases": []
+    },
+    {
+      "id": "b828e1c9-5228-4a94-bc71-862d2bf25ba7",
+      "name": "Tigernut",
+      "aliases": []
+    },
+    {
+      "id": "47b9e113-b25f-42e3-aa38-5a48f8f1f1d8",
+      "name": "Oranges",
+      "aliases": []
+    },
+    {
+      "id": "fe916ee0-b543-4f74-ab96-7e27f70a8c98",
+      "name": "Grape",
+      "aliases": []
+    },
+    {
+      "id": "434b4bfa-bf0c-4347-b524-1b73e1530dbe",
+      "name": "Passion Fruit",
+      "aliases": []
+    },
+    {
+      "id": "3646dfc2-ce86-4db4-95ce-3011650be4d5",
+      "name": "Tangerine Local",
+      "aliases": []
+    },
+    {
+      "id": "28844023-d913-4352-99f7-a968ca023394",
+      "name": "Tangelo Imported",
+      "aliases": []
+    },
+    {
+      "id": "dac0b911-ec91-4f34-8a4b-2b16a79af0ed",
+      "name": "Lemon",
+      "aliases": []
+    },
+    {
+      "id": "290f6619-353e-42fb-8935-61a8bc75d651",
+      "name": "Limes",
+      "aliases": []
+    },
+    {
+      "id": "a0199324-0884-4338-bfe9-293914c95d30",
+      "name": "Strawberry",
+      "aliases": []
+    },
+    {
+      "id": "cb60e7b0-7014-4a14-93be-e82611f34e64",
+      "name": "Dates",
+      "aliases": []
+    },
+    {
+      "id": "1f826f6a-4201-413d-b690-1f35ed5c804d",
+      "name": "Agbalumo",
+      "aliases": []
+    },
+    {
+      "id": "31d3a418-64d2-4dcf-baf3-b04e7c105002",
+      "name": "Banana Local/Native",
+      "aliases": []
+    },
+    {
+      "id": "ceb544fd-c2d3-44c0-bbaf-3664bae9bba4",
+      "name": "Banana Imported",
+      "aliases": []
+    },
+    {
+      "id": "6a8fcfcb-c530-4edb-9ee8-9981b3d914c7",
+      "name": "Mango Sheri",
+      "aliases": []
+    },
+    {
+      "id": "b7fbd2ea-2d7c-45d9-82b3-30e692b2215b",
+      "name": "Mango Julie",
+      "aliases": []
+    },
+    {
+      "id": "c9973a4f-7b98-4f2b-95ea-6f388740b8fd",
+      "name": "Apple Green",
+      "aliases": []
+    },
+    {
+      "id": "611204a7-6d02-4c28-9a06-668ef73145f4",
+      "name": "Apple Red",
+      "aliases": []
+    },
+    {
+      "id": "ed4b2051-3c91-479b-a663-ec2518bbd082",
+      "name": "Pomegranate",
+      "aliases": []
+    },
+    {
+      "id": "39cd0978-c7e2-485e-97e7-af5572a6eb72",
+      "name": "Pear",
+      "aliases": []
+    },
+    {
+      "id": "765f41cd-495c-4eef-a3c5-cf8fd7ddcc72",
+      "name": "Onions Red",
+      "aliases": []
+    },
+    {
+      "id": "7ac4bc2d-7a79-405d-9639-3a3ed940c7bd",
+      "name": "Onions White",
+      "aliases": []
+    },
+    {
+      "id": "d306781a-412e-466f-b6b4-cab11e8357c4",
+      "name": "Melon Seed (Egusi)",
+      "aliases": []
+    },
+    {
+      "id": "2bf593c7-2d8c-4b2a-a809-2d9e24e32380",
+      "name": "Cinnamon",
+      "aliases": []
+    },
+    {
+      "id": "dcb2d817-f7f6-4d9c-8ded-5f6631f0cb80",
+      "name": "Locust Beans (Iru)",
+      "aliases": []
+    },
+    {
+      "id": "0313bc20-6dd6-443e-8646-82d1ae317ab6",
+      "name": "Zobo Leaves",
+      "aliases": []
+    },
+    {
+      "id": "71bdae66-0f99-432e-a7e0-2c3910cfebe2",
+      "name": "Thyme Leaf",
+      "aliases": []
+    },
+    {
+      "id": "64d2f56e-05cb-4167-ba59-162955cd665b",
+      "name": "Ogbono Seed",
+      "aliases": []
+    },
+    {
+      "id": "30dd4fda-a0a7-4812-acb5-35380c320317",
+      "name": "Banga Stick",
+      "aliases": []
+    },
+    {
+      "id": "266e4e00-e51a-4f66-b58e-52afe99830b7",
+      "name": "Garlic Local",
+      "aliases": []
+    },
+    {
+      "id": "e279614d-19af-4536-acd7-5d838562c862",
+      "name": "Garlic Imported",
+      "aliases": []
+    },
+    {
+      "id": "c9bc26d5-211a-4cee-9919-1d7c6ec3ee50",
+      "name": "Fresh Ginger",
+      "aliases": [
+        "Ginger"
+      ]
+    },
+    {
+      "id": "73dcb174-0c91-4166-93d1-663905a64605",
+      "name": "Bay Leaf",
+      "aliases": []
+    },
+    {
+      "id": "a3464b72-d5e2-40ac-89b0-780d517f3672",
+      "name": "Cloves",
+      "aliases": []
+    },
+    {
+      "id": "744badaa-5312-45d7-87f8-de5c1bcde160",
+      "name": "Nutmeg",
+      "aliases": []
+    },
+    {
+      "id": "84cc457c-9932-4b9b-99c1-b30855287c84",
+      "name": "Rosemary",
+      "aliases": []
+    },
+    {
+      "id": "54033e00-852c-4c30-a862-66722cb710dd",
+      "name": "Turmeric",
+      "aliases": []
+    },
+    {
+      "id": "26d3bb04-7ccb-477a-8e2b-f8349fe5534d",
+      "name": "Ehuru",
+      "aliases": []
+    },
+    {
+      "id": "49765ac3-49be-4729-bd83-e6d7bd11c089",
+      "name": "Ugba",
+      "aliases": []
+    },
+    {
+      "id": "f7b6090c-c125-436f-94f2-f15a034408de",
+      "name": "Ogiri",
+      "aliases": []
+    },
+    {
+      "id": "a00d1403-c444-46a1-8855-aad30fb064d6",
+      "name": "Uda Seed",
+      "aliases": []
+    },
+    {
+      "id": "92cbb82e-724c-41de-849d-0fa5837701de",
+      "name": "Moringa Leaf",
+      "aliases": []
+    },
+    {
+      "id": "6231d179-a701-4855-8fb2-5a866b6e62b4",
+      "name": "Soyabeans",
+      "aliases": []
+    },
+    {
+      "id": "90c46432-fd62-4b39-aff4-48709d4eb73f",
+      "name": "Beans (Oloyin)",
+      "aliases": [
+        "Beans Oloyin"
+      ]
+    },
+    {
+      "id": "ef9f0562-c28c-45b4-ba02-99e40d8875de",
+      "name": "Beans (Oloo)",
+      "aliases": [
+        "Beans Oloo"
+      ]
+    },
+    {
+      "id": "aced7722-0f88-406c-8064-56676594748e",
+      "name": "Groundnut Uncooked",
+      "aliases": []
+    },
+    {
+      "id": "ff1ebb6a-92dd-4860-a8f9-13bc476aa1b7",
+      "name": "Black Eyed Beans",
+      "aliases": []
+    },
+    {
+      "id": "ce6188ad-a66d-45b0-8131-1670a463254b",
+      "name": "Bambara Nuts (Okpa)",
+      "aliases": []
+    },
+    {
+      "id": "85fd44d8-beac-4125-9944-4e71cb611a03",
+      "name": "Lentils",
+      "aliases": []
+    },
+    {
+      "id": "5bf1fde0-7d5d-4786-96b5-34fcaa8a7b91",
+      "name": "Sesame Seed",
+      "aliases": []
+    },
+    {
+      "id": "e597273f-4727-40bb-ac9f-dd4207ff7e76",
+      "name": "Runner Beans",
+      "aliases": []
+    },
+    {
+      "id": "75e9da57-907d-4d8e-9c9e-71dc185c9c50",
+      "name": "Cashew Nut",
+      "aliases": []
+    },
+    {
+      "id": "67d16926-64e0-4b6a-8878-41fd4945bf8a",
+      "name": "African Walnut (Asala)",
+      "aliases": []
+    },
+    {
+      "id": "5188890f-3e0f-4ef8-b2be-c9f8614c5096",
+      "name": "Dried Soko",
+      "aliases": []
+    },
+    {
+      "id": "f8485d18-876a-45f9-bae6-a63c72ac5200",
+      "name": "Dried Uziza",
+      "aliases": []
+    },
+    {
+      "id": "b25ad55f-3e2c-45b2-852e-c8120d01de54",
+      "name": "Dried Ewedu",
+      "aliases": []
+    },
+    {
+      "id": "fc90b0eb-6050-401d-9afc-11a1b03ee412",
+      "name": "Garri Yellow",
+      "aliases": []
+    },
+    {
+      "id": "21408af9-cf90-4c25-ac25-8bb9367cef08",
+      "name": "White Garri (Ijebu)",
+      "aliases": [
+        "Garri White"
+      ]
+    },
+    {
+      "id": "58cf1b13-14c9-4f90-903b-ebc5a0eaa2e5",
+      "name": "Rice Flour",
+      "aliases": []
+    },
+    {
+      "id": "e9fb4acf-d734-4081-9750-0e8075d8a067",
+      "name": "Maize Flour",
+      "aliases": []
+    },
+    {
+      "id": "d36b5ca3-b4d9-4c9a-996a-a90dfb6b6fcb",
+      "name": "Wheat Flour",
+      "aliases": []
+    },
+    {
+      "id": "c7d709bf-a782-4aeb-b1a3-0acb04a460b6",
+      "name": "Millet Flour",
+      "aliases": []
+    },
+    {
+      "id": "4efbf509-a2d9-44dd-9e83-8eb054dd8b0b",
+      "name": "Sorghum Flour",
+      "aliases": [
+        "Guinea Corn Flour"
+      ]
+    },
+    {
+      "id": "6d7ec663-169b-487f-b84f-7cde21f34d49",
+      "name": "Barley Flour",
+      "aliases": []
+    },
+    {
+      "id": "4799911a-47bb-47d3-83f1-c23f84b553fd",
+      "name": "Oats Flour",
+      "aliases": []
+    },
+    {
+      "id": "ef9504d4-a28f-4e3c-bda7-3e5c2986261b",
+      "name": "Plantain Flour",
+      "aliases": []
+    },
+    {
+      "id": "77044644-3e51-4bbb-843e-47a4b042f38f",
+      "name": "Ground Egusi",
+      "aliases": []
+    },
+    {
+      "id": "290d55f7-ecdc-49ca-b4bc-61df06cc91a5",
+      "name": "Ground Ogbono",
+      "aliases": []
+    },
+    {
+      "id": "acd1a41a-d504-42bd-827a-e5ff7d597cac",
+      "name": "Cinnamon Powder",
+      "aliases": []
+    },
+    {
+      "id": "037317bc-a8c8-484d-b000-b8c2ad1d3190",
+      "name": "Turmeric Powder",
+      "aliases": []
+    },
+    {
+      "id": "36ad125b-aae1-40a6-b53d-ed99f367e5b4",
+      "name": "Cow Leg (Bokoto)",
+      "aliases": []
+    },
+    {
+      "id": "4e4cf0f6-cc19-404e-a232-615011b56a08",
+      "name": "Shaki (Tripe)",
+      "aliases": []
+    },
+    {
+      "id": "76cb2519-5dbd-4635-902f-2191f2f2d31e",
+      "name": "Cow Liver",
+      "aliases": []
+    },
+    {
+      "id": "e0b7442d-6f0d-4902-8857-b510e6a5a0f1",
+      "name": "Cow Kidney",
+      "aliases": []
+    },
+    {
+      "id": "6c8ecd2e-cac2-482d-8848-a44bdc8be1a2",
+      "name": "Goat Meat",
+      "aliases": []
+    },
+    {
+      "id": "2abfc2ab-7058-4a5c-aec1-92c729035b52",
+      "name": "Titus (Mackerel, frozen)",
+      "aliases": []
+    },
+    {
+      "id": "3b8204bc-ab42-484a-9871-49f405bb6120",
+      "name": "Kote (Horse Mackerel, frozen)",
+      "aliases": [
+        "Kote (Croaker, frozen)"
+      ]
+    },
+    {
+      "id": "297e58c8-9b61-44f0-b4cc-63ec5d0f586b",
+      "name": "Panla (Hake, frozen)",
+      "aliases": []
+    },
+    {
+      "id": "8de9130e-c160-4da1-9e66-4426640e5a0a",
+      "name": "Prawns (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "2841f9e6-24e1-442e-a610-d0e1f951826d",
+      "name": "Catfish (fresh)",
+      "aliases": []
+    },
+    {
+      "id": "d4841c35-51c2-4314-98fc-88c327ff3666",
+      "name": "Tilapia (fresh)",
+      "aliases": []
+    },
+    {
+      "id": "8076c563-76f8-4e2e-bdf9-4de271053d6f",
+      "name": "Stockfish Head",
+      "aliases": []
+    },
+    {
+      "id": "6ce6a6c1-805a-4374-a2cf-bd7387295af4",
+      "name": "Stockfish Body",
+      "aliases": []
+    },
+    {
+      "id": "9956809a-d691-40c5-b0cd-d0d17f494b91",
+      "name": "Crayfish",
+      "aliases": []
+    },
+    {
+      "id": "533812a6-3aa8-40b2-898e-83da6b19cbe3",
+      "name": "Periwinkle",
+      "aliases": []
+    },
+    {
+      "id": "d0b4fbab-b486-46c3-97c4-eae173b5ac71",
+      "name": "Whole Chicken (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "2710cde2-7db6-481c-ad16-8192e96c0b57",
+      "name": "Chicken Laps/Thighs (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "b3b19e8c-080b-48d2-b132-c7d763a6b85e",
+      "name": "Chicken Wings (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "87a4ce0a-0723-40ae-ab73-80adaad031b6",
+      "name": "Chicken Breast (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "d5c9986f-c51e-4da0-bfc6-1945ddbebfe4",
+      "name": "Turkey Laps/Thighs (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "3f9e8b5f-7039-45b9-ad3d-409af884df56",
+      "name": "Turkey Wings (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "e05551c1-4a08-4f2b-aad5-18831058cd37",
+      "name": "Dried Atama Leaves",
+      "aliases": []
+    },
+    {
+      "id": "fd7e3ae1-d85e-47b9-9c77-e94301744851",
+      "name": "Ewuro (Bitter Leaf) Washed",
+      "aliases": []
+    },
+    {
+      "id": "703d61f9-27a8-4758-af85-6cdb7577620c",
+      "name": "Okazi Leaf Sliced",
+      "aliases": []
+    },
+    {
+      "id": "ed56b101-622c-459a-8f9f-8d0536a272a3",
+      "name": "Sweet Basil",
+      "aliases": []
+    },
+    {
+      "id": "a86f5fcd-4d03-427b-9430-ab185f80a5b7",
+      "name": "Ugwu Leaf Shredded",
+      "aliases": []
+    },
+    {
+      "id": "2197f00b-fdaf-43d6-bf02-39f7eed9b594",
+      "name": "Black Pepper Powder",
+      "aliases": []
+    },
+    {
+      "id": "5317e2b8-66dd-49d2-be74-ad84743015b7",
+      "name": "Red Pepper (Bell)",
+      "aliases": []
+    },
+    {
+      "id": "830f0b41-095b-42cd-93a6-a8565d610224",
+      "name": "Rodo Mild",
+      "aliases": []
+    },
+    {
+      "id": "8110c9b7-5b64-4637-8825-dfda6c63d938",
+      "name": "Rodo Yellow",
+      "aliases": []
+    },
+    {
+      "id": "eeb531fe-b408-4c9f-90ab-98c2df3d36f4",
+      "name": "Tomato Cherry",
+      "aliases": []
+    },
+    {
+      "id": "d1be7c31-7a87-4eb3-87f7-dd2cb5eca676",
+      "name": "Tomato Plum",
+      "aliases": []
+    },
+    {
+      "id": "8f2f3483-8e4d-457d-a5b7-c84b24c74f67",
+      "name": "Tomato Roma",
+      "aliases": []
+    },
+    {
+      "id": "ac142a8b-383b-4887-b0ad-a183def70c4e",
+      "name": "Tomato (Yoruba)",
+      "aliases": []
+    },
+    {
+      "id": "20060224-9223-4487-9c47-1ab2656434c0",
+      "name": "Yellow Pepper (Bell)",
+      "aliases": []
+    },
+    {
+      "id": "3aa5bb6e-c6ed-4602-a4c1-ed559c1c6a46",
+      "name": "Garden Egg Purple",
+      "aliases": []
+    },
+    {
+      "id": "b32cbda4-ab2d-4899-b9f7-a391390319dc",
+      "name": "Cassava Yellow",
+      "aliases": []
+    },
+    {
+      "id": "7ff8904c-c731-4411-b714-0e7eae0e3b68",
+      "name": "New Cocoyam (Ede Oyibo)",
+      "aliases": []
+    },
+    {
+      "id": "2fd2a820-e71f-4c1c-b295-5ea2c10eaea2",
+      "name": "Efuru Yam",
+      "aliases": []
+    },
+    {
+      "id": "086168bf-ce68-43a9-847c-6cd3bf3ae3cc",
+      "name": "Irish Potato Diamant",
+      "aliases": []
+    },
+    {
+      "id": "78f2e1f5-6f16-49eb-9fba-e27e50404f49",
+      "name": "Irish Potato Nicola",
+      "aliases": []
+    },
+    {
+      "id": "dce7f03b-69db-432c-9b6d-9fcc79f9d640",
+      "name": "Puna Yam",
+      "aliases": []
+    },
+    {
+      "id": "fb513534-582a-46ff-b1c6-08840890f220",
+      "name": "Sweet Potato Orange-flesh",
+      "aliases": []
+    },
+    {
+      "id": "f0f24f69-d95e-4dca-a2c9-88bfbfab97f9",
+      "name": "Sweet Potato Purple",
+      "aliases": []
+    },
+    {
+      "id": "08c91394-8ee2-4ca1-a532-577a7ca9e0f7",
+      "name": "Yellow Yam",
+      "aliases": []
+    },
+    {
+      "id": "7abb84ba-882d-4cf4-bc8c-d49a34f95ea8",
+      "name": "Maize Popcorn",
+      "aliases": []
+    },
+    {
+      "id": "bc0422e6-a6b6-48eb-89a2-9bb6e690f0cd",
+      "name": "Rice Basmati",
+      "aliases": []
+    },
+    {
+      "id": "d4d8925a-14b6-48da-8539-bbc45e99ce6e",
+      "name": "Sweet Corn",
+      "aliases": []
+    },
+    {
+      "id": "77795872-4553-4c7b-ba36-c7556eb4e7ac",
+      "name": "Banana Local Unripe",
+      "aliases": []
+    },
+    {
+      "id": "e2a3a8df-80ae-4f9b-b960-bf6f670ad2bb",
+      "name": "Cashew Fruit",
+      "aliases": []
+    },
+    {
+      "id": "9d07cc14-e065-47f0-88bb-3cb792eb8153",
+      "name": "Cucumber Short Local",
+      "aliases": []
+    },
+    {
+      "id": "030239dc-3e86-445b-93e8-4d28d816afb6",
+      "name": "Grape Green",
+      "aliases": []
+    },
+    {
+      "id": "57325eea-94f7-4071-b6e1-1292bdd5fc75",
+      "name": "Orange Navel",
+      "aliases": []
+    },
+    {
+      "id": "fedf7819-8a5c-4d32-aafc-03ebff5ae1c7",
+      "name": "Orange Valencia",
+      "aliases": []
+    },
+    {
+      "id": "e46c680a-3714-430e-a5b7-9b9ee93b9df2",
+      "name": "Tigernut Dried",
+      "aliases": []
+    },
+    {
+      "id": "3e23b657-5688-4316-8146-944ccd8a3920",
+      "name": "Ukwa (Dehulled Breadfruit Seeds)",
+      "aliases": []
+    },
+    {
+      "id": "f2cce265-f095-4435-88a8-4b982aa7783e",
+      "name": "Watermelon Yellow Flesh",
+      "aliases": []
+    },
+    {
+      "id": "c79a177c-6ca8-47c0-a179-71779023b189",
+      "name": "Ginger Dried",
+      "aliases": []
+    },
+    {
+      "id": "1abcbf98-757d-4261-9301-06f89461cdb4",
+      "name": "Locust Beans (Iru Pete)",
+      "aliases": []
+    },
+    {
+      "id": "bbb96ccf-59a0-4d63-a0aa-cf3c0c820e60",
+      "name": "Melon Seed (Egusi) Unshelled",
+      "aliases": []
+    },
+    {
+      "id": "7c7a68fe-4be4-4424-95c7-4ab1b41fc18e",
+      "name": "Moringa Leaf Powder",
+      "aliases": []
+    },
+    {
+      "id": "7f7f3531-806a-4c8c-8c1f-0b0eaf31a744",
+      "name": "Onions Yellow",
+      "aliases": []
+    },
+    {
+      "id": "87f659c5-7b04-4023-966b-b4ad90097541",
+      "name": "Beans (Drum)",
+      "aliases": []
+    },
+    {
+      "id": "08aab52e-f7ed-4ec1-a120-ff9c939dee74",
+      "name": "Garri Okirika",
+      "aliases": []
+    },
+    {
+      "id": "1d2369eb-50c7-4b6d-9b26-d7cc047f534e",
+      "name": "Beef Brisket",
+      "aliases": []
+    },
+    {
+      "id": "fd7d8a57-70ba-4554-94ce-f5975abe547f",
+      "name": "Beef Chuck",
+      "aliases": []
+    },
+    {
+      "id": "c62f316b-38fb-4abc-9f94-1b1acf7b861d",
+      "name": "Beef Flank",
+      "aliases": []
+    },
+    {
+      "id": "0d5e4221-7b00-4d2a-b475-1974835a17ab",
+      "name": "Beef Rib Meat",
+      "aliases": []
+    },
+    {
+      "id": "dddd8d8d-cc3d-41f4-bec2-ef9abf50a807",
+      "name": "Beef Round (Soft Meat)",
+      "aliases": []
+    },
+    {
+      "id": "22e1f36e-9fd3-43d8-8d90-49d8d4d5883f",
+      "name": "Beef Shank/Leg",
+      "aliases": []
+    },
+    {
+      "id": "f0cc38a4-fc5f-43d6-8321-932808f2dd9a",
+      "name": "Cow Head Meat",
+      "aliases": []
+    },
+    {
+      "id": "2598bbd3-4316-4e99-b790-ac3509552d05",
+      "name": "Cow Intestine (Towel)",
+      "aliases": []
+    },
+    {
+      "id": "78ea09bc-1961-498d-8a84-53f7bf85d435",
+      "name": "Goat Head",
+      "aliases": []
+    },
+    {
+      "id": "e5f0a328-a489-4bd1-a6ed-1766e776fb52",
+      "name": "Goat Kidney",
+      "aliases": []
+    },
+    {
+      "id": "cea1adad-9af0-4705-8693-01ac8fc4015e",
+      "name": "Goat Liver",
+      "aliases": []
+    },
+    {
+      "id": "1b180ca2-2476-42bc-91a5-57f84dc620ca",
+      "name": "Goat Tripe",
+      "aliases": []
+    },
+    {
+      "id": "0b9dedcd-bd4b-4deb-9c00-adb7a556ac45",
+      "name": "Live Goat",
+      "aliases": []
+    },
+    {
+      "id": "7687ac99-e0ec-4786-b93b-97cdb65f3267",
+      "name": "Whole Goat (Dressed)",
+      "aliases": []
+    },
+    {
+      "id": "534d67ff-fc76-464d-b226-ecbe856f72a3",
+      "name": "Chicken Gizzard (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "1490aa3a-a6b1-414a-afc7-c961c99ce2a9",
+      "name": "Baby Stockfish (Okporoko)",
+      "aliases": []
+    },
+    {
+      "id": "ef263ff8-8de8-43ca-8ccd-37a25b982918",
+      "name": "Catfish (live)",
+      "aliases": []
+    },
+    {
+      "id": "40efe7a4-85f3-4c33-9d96-163808a0340b",
+      "name": "Catfish (smoked)",
+      "aliases": []
+    },
+    {
+      "id": "9e52bda4-f613-420c-87df-bc28118ad556",
+      "name": "Crab",
+      "aliases": []
+    },
+    {
+      "id": "2acc9e04-66a9-4367-b0bf-cdf4c4b91a66",
+      "name": "Crayfish Ground",
+      "aliases": []
+    },
+    {
+      "id": "4fde2f5f-4e51-44c4-a107-c41f9a0c7541",
+      "name": "Croaker (fresh)",
+      "aliases": []
+    },
+    {
+      "id": "60ebc6ee-8d86-4a4f-811d-64a775d0a24c",
+      "name": "Croaker (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "1af9c8eb-4a58-4eec-a971-44325e2d50c0",
+      "name": "Lobster (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "8c74b69a-f70c-4138-9911-aa528c99938a",
+      "name": "Mullet (fresh)",
+      "aliases": []
+    },
+    {
+      "id": "4249b586-0918-49bb-abd8-d30c11681f1e",
+      "name": "Ojuyobo (Argentina, frozen)",
+      "aliases": []
+    },
+    {
+      "id": "9360d7de-70f6-4f58-9967-c1a144276806",
+      "name": "Panla Osan (Alaska Pollock, frozen)",
+      "aliases": []
+    },
+    {
+      "id": "740521f7-f80a-4a61-ba69-b3a899821ed6",
+      "name": "Periwinkle Shelled",
+      "aliases": []
+    },
+    {
+      "id": "63e37136-71d6-444b-9d88-88be44cfc892",
+      "name": "Prawns (fresh)",
+      "aliases": []
+    },
+    {
+      "id": "4cf214ba-e7b1-459c-a864-6705ae045715",
+      "name": "Red Pacu (Owere, frozen)",
+      "aliases": []
+    },
+    {
+      "id": "6ce8e261-e198-44a8-9253-9a059c84572b",
+      "name": "Shawa (Herring, frozen)",
+      "aliases": []
+    },
+    {
+      "id": "8c641a6e-98b4-49b4-b90f-609343253d62",
+      "name": "Shrimp (fresh)",
+      "aliases": []
+    },
+    {
+      "id": "5f5a1c4c-63e8-467d-b6a2-2b7828c04407",
+      "name": "Shrimp (smoked)",
+      "aliases": []
+    },
+    {
+      "id": "dc93c3bf-3927-4d09-9b73-fcc82b8ba460",
+      "name": "Tilapia (frozen)",
+      "aliases": []
+    },
+    {
+      "id": "2502ae95-bdf4-4b50-826a-58bc65dbfa24",
+      "name": "Titus Kampala (Chub Mackerel, frozen)",
+      "aliases": []
+    }
+  ],
+  "collection_sites": [
+    {
+      "id": "5b229aa1-b6c0-458b-95ec-38669f48dc86",
+      "name": "Ile-Epo Market"
+    },
+    {
+      "id": "8b1a38fb-5d50-4f3f-b9f0-3187f49267be",
+      "name": "Oko-Oba Abattoir"
+    }
+  ],
+  "units": [
+    {
+      "id": "f4bfa24b-eb64-4038-b2e8-dc3de0fc1d0a",
+      "name": "1 kg",
+      "abbreviation": "kg"
+    },
+    {
+      "id": "8011c252-c9b9-45fa-afda-5dc8d547ed2f",
+      "name": "1 kg pack",
+      "abbreviation": "1kg pack"
+    },
+    {
+      "id": "307823d9-6760-401a-9411-765d65dbe5d0",
+      "name": "1 litre bottle",
+      "abbreviation": "1 litre"
+    },
+    {
+      "id": "0408d8d4-acad-4e12-b89e-53cfd2ec8346",
+      "name": "10 kg carton",
+      "abbreviation": "carton 10kg"
+    },
+    {
+      "id": "feda20be-3308-4b04-aea6-b8d7472d37be",
+      "name": "5 big bundles",
+      "abbreviation": "5 bg bundles"
+    },
+    {
+      "id": "03d7d7d0-3639-4682-a810-cf886a0929e9",
+      "name": "Bag (100 kg)",
+      "abbreviation": "bag 100kg"
+    },
+    {
+      "id": "5bf53505-efd8-48ce-a0f9-8918cea01720",
+      "name": "Bag (25 kg)",
+      "abbreviation": "bag 25kg"
+    },
+    {
+      "id": "69665a2f-3f1d-403d-92df-ba682e32d1ff",
+      "name": "Bag (5 kg)",
+      "abbreviation": "bag 5kg"
+    },
+    {
+      "id": "f31118ba-da6a-4ca1-8b81-350ccb93d740",
+      "name": "Bag (50 kg)",
+      "abbreviation": "bag 50kg"
+    },
+    {
+      "id": "09243163-5305-4b3a-9876-de713eebb60f",
+      "name": "Big basket",
+      "abbreviation": "basket"
+    },
+    {
+      "id": "d05082ec-e1d3-4c5b-950c-f79f92aab456",
+      "name": "Big bundle",
+      "abbreviation": "bg bundle"
+    },
+    {
+      "id": "bf4ccb9c-a4f6-4dfc-b885-fff61543e6c0",
+      "name": "Big pack",
+      "abbreviation": "bg pack"
+    },
+    {
+      "id": "1a8e3dfa-9846-4067-84c2-c35e0eca2aed",
+      "name": "Bunch (large)",
+      "abbreviation": "bunch lg"
+    },
+    {
+      "id": "92ff357e-1aec-4ca8-a03f-b0771c898377",
+      "name": "Bunch (small)",
+      "abbreviation": "bunch sm"
+    },
+    {
+      "id": "ac2361cf-eafe-4a63-89cb-737e2d090935",
+      "name": "Bundle",
+      "abbreviation": "bundle"
+    },
+    {
+      "id": "c8494c53-e972-4ee3-888b-0fa3372e8deb",
+      "name": "Bundle of 10 sticks",
+      "abbreviation": "bundle 10"
+    },
+    {
+      "id": "f43555e8-b149-4bcb-91ff-a1fb7787f7fd",
+      "name": "Carton (20 kg)",
+      "abbreviation": "carton 20kg"
+    },
+    {
+      "id": "924a55c3-1cc2-4305-96fd-ef22fd8ad6a6",
+      "name": "Carton of 10",
+      "abbreviation": "carton 10"
+    },
+    {
+      "id": "47c08622-e077-403f-a9b4-8f8393155ec0",
+      "name": "Crate of 30",
+      "abbreviation": "crate 30"
+    },
+    {
+      "id": "9bce3e9c-e0d4-49bc-80ed-7fd44e473a30",
+      "name": "Cup",
+      "abbreviation": "cup"
+    },
+    {
+      "id": "b307e269-13f9-4451-9af2-a40ad85c66c7",
+      "name": "Derica",
+      "abbreviation": "derica"
+    },
+    {
+      "id": "e38c1f08-429f-4042-a08e-c66e14c1ef6d",
+      "name": "Dozen",
+      "abbreviation": "dozen"
+    },
+    {
+      "id": "067d5e0d-746f-4d3a-89b3-88cda4973fe9",
+      "name": "Half cow",
+      "abbreviation": "half cow"
+    },
+    {
+      "id": "a60209cd-8b6a-4c27-ab7e-014af0ad8cd2",
+      "name": "Half dozen",
+      "abbreviation": "half dozen"
+    },
+    {
+      "id": "69e253f9-6329-426a-8b7f-ffb943ce0207",
+      "name": "Half goat",
+      "abbreviation": "half goat"
+    },
+    {
+      "id": "70d0c090-2c45-4d9e-adb2-5bf78b3191dd",
+      "name": "Half piece",
+      "abbreviation": "half piece"
+    },
+    {
+      "id": "85cd7443-0c4f-449b-b958-eee1ee5915fc",
+      "name": "Head (large)",
+      "abbreviation": "head lg"
+    },
+    {
+      "id": "3b0e89ba-1e08-41fb-8788-4660cb9c6588",
+      "name": "Head (small)",
+      "abbreviation": "head sm"
+    },
+    {
+      "id": "fa891133-b662-4ae6-9f13-634e4bc94ba6",
+      "name": "Heap",
+      "abbreviation": "heap"
+    },
+    {
+      "id": "66eeacc5-363f-4214-b40c-294fca230970",
+      "name": "Mudu",
+      "abbreviation": "mudu"
+    },
+    {
+      "id": "28b8d7c2-df63-49cd-addc-04b3981b0892",
+      "name": "Pack",
+      "abbreviation": "pack"
+    },
+    {
+      "id": "f23ca39e-bf80-438a-9c9e-1bd0fed968ce",
+      "name": "Pack of 20",
+      "abbreviation": "pack 20"
+    },
+    {
+      "id": "292c2773-76da-42f1-8e9c-218805c62578",
+      "name": "Paint bucket",
+      "abbreviation": "bucket"
+    },
+    {
+      "id": "1a1abac2-8da1-447d-94b5-786ac1560d7e",
+      "name": "Per bird",
+      "abbreviation": "bird"
+    },
+    {
+      "id": "1c176388-bfda-4fb5-bcb9-3a0785a27199",
+      "name": "Per cob",
+      "abbreviation": "cob"
+    },
+    {
+      "id": "a5d6e1eb-c64a-49be-829f-cac190a12944",
+      "name": "Per cut",
+      "abbreviation": "cut"
+    },
+    {
+      "id": "1f110aa1-3d72-4464-ba93-c03cd26f5155",
+      "name": "Per finger",
+      "abbreviation": "finger"
+    },
+    {
+      "id": "f7cbd6ec-6767-4e86-b9e6-fba76d9d5b3e",
+      "name": "Per piece",
+      "abbreviation": "piece"
+    },
+    {
+      "id": "fce13beb-b197-4453-aa4b-e9cf05f65676",
+      "name": "Per stick",
+      "abbreviation": "stick"
+    },
+    {
+      "id": "b8f9bca3-0eb2-4ff0-a27e-4723a5c5a7ca",
+      "name": "Plate",
+      "abbreviation": "plate"
+    },
+    {
+      "id": "4dfe93ee-4133-4ec0-a9ce-c593a7f1bd2f",
+      "name": "Quarter cow",
+      "abbreviation": "quarter cow"
+    },
+    {
+      "id": "a8b0c7ce-6d44-4fcc-b492-d2bda7083d3f",
+      "name": "Rubber (bowl)",
+      "abbreviation": "rubber"
+    },
+    {
+      "id": "8bbda324-1748-4738-b066-935a48792395",
+      "name": "Sachet",
+      "abbreviation": "sachet"
+    },
+    {
+      "id": "c30ddb85-a9fe-447e-ad35-ff2c3382301a",
+      "name": "Single (large)",
+      "abbreviation": "single lg"
+    },
+    {
+      "id": "323a28fd-fba0-44b6-a9ef-a67af1315351",
+      "name": "Single (medium)",
+      "abbreviation": "single md"
+    },
+    {
+      "id": "cfdb0223-161f-45fe-916d-9275f8ddd3c7",
+      "name": "Single (small)",
+      "abbreviation": "single sm"
+    },
+    {
+      "id": "5443ee47-b5db-48b7-a949-b859260d847f",
+      "name": "Single tuber (large)",
+      "abbreviation": "tuber lg"
+    },
+    {
+      "id": "c6107f3e-ebc1-4803-afa9-58165fdac766",
+      "name": "Single tuber (medium)",
+      "abbreviation": "tuber md"
+    },
+    {
+      "id": "fe02c5e5-f287-4ba0-a718-40d20d18b29c",
+      "name": "Single tuber (small)",
+      "abbreviation": "tuber sm"
+    },
+    {
+      "id": "ba081b43-33f8-49c8-9347-3cd0a787e138",
+      "name": "Small basket",
+      "abbreviation": "sm basket"
+    },
+    {
+      "id": "a5cb0102-5115-42ab-ad47-402dd3866709",
+      "name": "Small bundle",
+      "abbreviation": "sm bundle"
+    },
+    {
+      "id": "9fb2727b-7574-4531-ab3c-4bd298134bc5",
+      "name": "Small pack",
+      "abbreviation": "sm pack"
+    },
+    {
+      "id": "0555cf79-ce45-49da-98b1-a35916e5081c",
+      "name": "Whole goat",
+      "abbreviation": "whole goat"
+    },
+    {
+      "id": "617ad79b-276d-4090-b3bd-ef222124cbff",
+      "name": "Wrap",
+      "abbreviation": "wrap"
+    }
+  ],
+  "tiers": [
+    "retail",
+    "wholesale"
+  ]
+}

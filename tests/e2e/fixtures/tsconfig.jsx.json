@@ -1,0 +1,5 @@
+{
+  "//": "The app's tsconfig sets jsx:preserve for Next's SWC. render-queue-zone.tsx is run by tsx (esbuild), which needs a real JSX factory. Used only by that renderer.",
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": { "jsx": "react-jsx" }
+}
