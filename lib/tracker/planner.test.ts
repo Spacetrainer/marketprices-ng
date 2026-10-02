@@ -153,20 +153,32 @@ const codes = (notes: readonly { code: string }[]): string[] => notes.map((note)
 
 describe("parsePrice", () => {
   it("accepts what a spreadsheet cell actually contains", () => {
-    expect(parsePrice("3000")).toBe(3000);
-    expect(parsePrice("₦95,000")).toBe(95000);
-    expect(parsePrice(" 1 500 ")).toBe(1500);
-    expect(parsePrice("4500.5")).toBe(4500.5);
+    expect(parsePrice("3000")).toEqual({ ok: true, value: 3000 });
+    expect(parsePrice("₦95,000")).toEqual({ ok: true, value: 95000 });
+    expect(parsePrice(" 1 500 ")).toEqual({ ok: true, value: 1500 });
   });
 
   it("rejects anything that is not a price, including a negative one", () => {
-    expect(parsePrice("n/a")).toBeNull();
-    expect(parsePrice("")).toBeNull();
-    expect(parsePrice("-100")).toBeNull();
+    expect(parsePrice("n/a")).toEqual({ ok: false, reason: "not_a_number" });
+    expect(parsePrice("")).toEqual({ ok: false, reason: "not_a_number" });
+    expect(parsePrice("-100")).toEqual({ ok: false, reason: "negative" });
   });
 
   it("keeps zero, which is a price someone can charge", () => {
-    expect(parsePrice("0")).toBe(0);
+    expect(parsePrice("0")).toEqual({ ok: true, value: 0 });
+  });
+
+  it("refuses kobo, and says so distinctly from an unreadable cell", () => {
+    // A price is a whole number of naira. "4500.5" used to be accepted here, which meant the
+    // dry run promised a price the endpoint would now refuse.
+    expect(parsePrice("4500.5")).toEqual({ ok: false, reason: "fractional" });
+    expect(parsePrice("95000.00000000001")).toEqual({ ok: false, reason: "fractional" });
+  });
+
+  it("accepts a whole number written with a trailing .00", () => {
+    // Refusing this would be refusing a correctly entered price for the way it was spelled.
+    expect(parsePrice("95,000.00")).toEqual({ ok: true, value: 95000 });
+    expect(parsePrice("250.000")).toEqual({ ok: true, value: 250 });
   });
 });
 
@@ -363,6 +375,38 @@ describe("planner — what it refuses", () => {
   it("refuses a cell that is not a price", () => {
     const result = plan({ Yams: sheet([row("Retail", "Yam", "Puna Yam", "Per tuber (large)", "ask")]) });
     expect(codes(result.refusals)).toEqual(["unreadable_price"]);
+  });
+
+  it("refuses a price written with kobo, under its own code", () => {
+    // A distinct code because the report counts refusals by code: the cell is perfectly readable,
+    // so filing it under unreadable_price would send someone looking for the wrong problem.
+    const result = plan({ Yams: sheet([row("Retail", "Yam", "Puna Yam", "Per tuber (large)", "3000.5")]) });
+
+    expect(codes(result.refusals)).toEqual(["fractional_price"]);
+    expect(result.refusals[0].detail).toContain("whole number of naira");
+    expect(result.posts).toEqual([]);
+  });
+
+  it("lets the rest of the column through when one cell carries kobo", () => {
+    // A single bad cell must not take the week down with it, which is the same stance the planner
+    // takes on every other refusal.
+    const result = plan({
+      Yams: sheet([
+        row("Retail", "Yam", "Puna Yam", "Per tuber (large)", "3000.5"),
+        row("Retail", "Yam", "Old Yam", "Per tuber (large)", "2000"),
+      ]),
+    });
+
+    expect(codes(result.refusals)).toEqual(["fractional_price"]);
+    expect(result.posts).toHaveLength(1);
+    expect(result.posts[0].slug).toBe("old-yam");
+  });
+
+  it("accepts a whole price a spreadsheet rendered with a trailing .00", () => {
+    const result = plan({ Yams: sheet([row("Retail", "Yam", "Puna Yam", "Per tuber (large)", "3000.00")]) });
+
+    expect(result.refusals).toEqual([]);
+    expect(result.posts[0].price).toBe(3000);
   });
 
   it("refuses an unregistered collector and never creates one (P1.2)", () => {

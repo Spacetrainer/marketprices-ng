@@ -52,6 +52,68 @@ export type UnitRole = (typeof UNIT_ROLES)[number];
  * `isCivilDate` proves the date EXISTS. Zod's own date coercion would accept "2026-02-30"
  * and normalise it to 2 March — silently filing the price into a real week seven days away.
  */
+/** Why a price was refused. Each one is a different sentence to a different reader. */
+export const PRICE_REFUSALS = ["not_a_number", "negative", "fractional"] as const;
+export type PriceRefusal = (typeof PRICE_REFUSALS)[number];
+
+export type PriceResult = { ok: true; value: number } | { ok: false; reason: PriceRefusal };
+
+/**
+ * A price cell as a whole number of naira, or a named refusal.
+ *
+ * THE ONE PLACE THIS RULE LIVES. Four doors accept a price — the tracker importer's preview, this
+ * endpoint, the reviewer's correction box, and `approve_price_submission()` in SQL. The first
+ * three now call this function, so they cannot drift: the importer's dry run promises exactly
+ * what the endpoint will accept, which matters because the dry run is what a human approves. The
+ * fourth is SQL and is held by a CHECK constraint, because a reviewer's correction never passes
+ * through Zod at all.
+ *
+ * A PRICE IS A WHOLE NUMBER OF NAIRA (owner decision). Kobo are not collected, not displayed and
+ * not meaningful at market prices, so a fractional value is a data-entry artefact rather than a
+ * finer measurement — most often a spreadsheet's floating-point residue, which is how
+ * "95000.00000000001" reaches here looking exactly like 95000 to a reviewer.
+ *
+ * WHAT IS STILL ACCEPTED, DELIBERATELY:
+ *   - "₦95,000", " 1 500 " — a human typed a price, and the currency sign, the thousands
+ *     separators and the spaces are decoration, not malformation;
+ *   - "95,000.00" — a trailing .00 IS a whole number of naira. Refusing it would be refusing a
+ *     correctly entered price for the way it was spelled;
+ *   - 0 — a price of 0 is legitimate (given away, promotional) and is what `price >= 0` permits
+ *     in both price columns.
+ *
+ * THE CHECK IS ON THE PARSED VALUE, NOT ON THE DIGITS TYPED, and `Number` bounds it: a value with
+ * enough zeros ("95000.000000000000001") parses to exactly 95000 and is accepted as 95000, and an
+ * integer past Number.MAX_SAFE_INTEGER is rounded before any rule here sees it. The first is
+ * benign — it accepts the right naira figure. The second is part of the magnitude question this
+ * function deliberately does NOT answer: 1e21 is a whole number and passes, and it is the outlier
+ * flag's job to put it in front of a human.
+ */
+export function parseNairaPrice(raw: string | number): PriceResult {
+  const cleaned = typeof raw === "number" ? String(raw) : raw.replace(/[₦\s,]/g, "");
+  if (cleaned === "") return { ok: false, reason: "not_a_number" };
+
+  const value = Number(cleaned);
+  if (!Number.isFinite(value)) return { ok: false, reason: "not_a_number" };
+  if (value < 0) return { ok: false, reason: "negative" };
+  if (!Number.isInteger(value)) return { ok: false, reason: "fractional" };
+
+  return { ok: true, value };
+}
+
+/**
+ * A refusal as the endpoint words it.
+ *
+ * The first two sentences are unchanged from before the whole-naira rule, because a 400 body is
+ * read by whoever is holding the phone and relearning a message costs more than it is worth.
+ */
+export function describePriceRefusal(reason: PriceRefusal, raw: string | number): string {
+  if (reason === "not_a_number") return `price "${String(raw)}" is not a number`;
+  if (reason === "negative") return `price ${Number(String(raw).replace(/[₦\s,]/g, ""))} is negative`;
+  return (
+    `price ${String(raw)} is not a whole number of naira. Prices are recorded in naira with no kobo.`
+  );
+}
+
 export const ingestPayloadSchema = z.object({
   collector_name: z.string().trim().min(1, "collector_name is empty"),
   collector_phone: z.string().trim().min(1, "collector_phone is empty"),
@@ -62,22 +124,14 @@ export const ingestPayloadSchema = z.object({
   unit: z.string().trim().min(1, "unit is empty"),
 
   // A price arrives from a spreadsheet cell, so it may be a number or the string the cell
-  // rendered. Thousands separators and a naira sign are stripped before the number check —
-  // a collector typing "₦95,000" has entered a valid price, not a malformed one.
+  // rendered. Every rule about what a price IS lives in parseNairaPrice above, which the tracker
+  // importer and the review screen also call — this transform only maps its answer onto Zod.
   price: z.union([z.number(), z.string()]).transform((value, ctx) => {
-    const raw = typeof value === "number" ? String(value) : value.replace(/[₦\s,]/g, "");
-    const parsed = Number(raw);
-    if (raw === "" || !Number.isFinite(parsed)) {
-      ctx.addIssue({ code: "custom", message: `price "${String(value)}" is not a number` });
-      return z.NEVER;
-    }
-    // 0 is a legitimate submitted price (given away, promotional) and is kept; a negative
-    // one is a data-entry error. Same call as the price_submissions CHECK constraint.
-    if (parsed < 0) {
-      ctx.addIssue({ code: "custom", message: `price ${parsed} is negative` });
-      return z.NEVER;
-    }
-    return parsed;
+    const result = parseNairaPrice(value);
+    if (result.ok) return result.value;
+
+    ctx.addIssue({ code: "custom", message: describePriceRefusal(result.reason, value) });
+    return z.NEVER;
   }),
 
   currency: z

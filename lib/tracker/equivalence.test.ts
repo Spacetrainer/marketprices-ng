@@ -117,13 +117,17 @@ const GRIDS: Workbook = {
     ["retail", "CAT", "SUB", "Fixture Root", "Fixture Variety", "Per fixture tuber", "one tuber", "2500"],
     ["wholesale", "CAT", "SUB", "Fixture Root", "Fixture Variety", "Per fixture bag", "a bag", "₦95,000"],
     [],
-    ["retail", "CAT", "SUB", "Fixture Leaf", "Fixture Whole", "Per fixture bundle", "a bundle", "1200.5"],
+    ["retail", "CAT", "SUB", "Fixture Leaf", "Fixture Whole", "Per fixture bundle", "a bundle", "1200"],
     // Column A blank: kept in the sheet only, skipped by both paths.
     ["", "CAT", "SUB", "Fixture Leaf", "Fixture Whole", "Per fixture bundle", "a bundle", "900"],
     // No price in the week column, so the row ends early.
     ["retail", "CAT", "SUB", "Fixture Root", "Fixture Variety", "Per fixture tuber"],
     // A row the map has never heard of: a refusal, and refusals are part of the plan too.
     ["retail", "CAT", "SUB", "Fixture Unknown", "Fixture Variety", "Per fixture tuber", "", "700"],
+    // Kobo. Refused by both sources, and the one case where the Sheets payload sends a JSON
+    // number with a fractional part rather than a string — so this is also the proof that
+    // cellToString's rendering of a decimal does not quietly change what the planner decides.
+    ["retail", "CAT", "SUB", "Fixture Root", "Fixture Variety", "Per fixture bag", "a bag", "1200.5"],
   ],
   "🐟 Fixture Fish": [
     ["🛒 FIXTURE TRACKER"],
@@ -198,6 +202,15 @@ describe("the Sheets source and the .xlsx source, on a hand-written tracker", ()
       expect(post.market).toBe(fromFile.posts[position].market);
       expect(post.collectorPhone).toBe(fromFile.posts[position].collectorPhone);
     }
+  });
+
+  it("refuses kobo identically from both sources", () => {
+    const refusals = (workbook: Workbook) =>
+      planFrom(workbook).refusals.filter((note) => note.code === "fractional_price");
+
+    expect(refusals(fromSheets)).toHaveLength(1);
+    expect(refusals(fromSheets)).toEqual(refusals(fromXlsx));
+    expect(refusals(fromSheets)[0].detail).toContain("1200.5");
   });
 
   it("agrees on a price a human typed with a currency sign and a comma", () => {

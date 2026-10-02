@@ -127,13 +127,47 @@ describe("approveSubmissionSchema", () => {
   });
 
   it("refuses a negative price and a non-numeric one", () => {
-    for (const bad of ["-1", "abc", "6,300"]) {
+    for (const bad of ["-1", "abc"]) {
       const result = approveSubmissionSchema.safeParse({
         submissionId: ID,
         correctedPrice: bad,
         correctionReason: "reason",
       });
       expect(result.success, bad).toBe(false);
+    }
+  });
+
+  it("refuses kobo, because a price is a whole number of naira", () => {
+    for (const bad of ["250.5", "95000.00000000001"]) {
+      const result = approveSubmissionSchema.safeParse({
+        submissionId: ID,
+        correctedPrice: bad,
+        correctionReason: "reason",
+      });
+      expect(result.success, bad).toBe(false);
+      expect(result.success === false && result.error.issues[0].message).toBe(
+        "Enter a whole number of naira. Prices are recorded without kobo.",
+      );
+    }
+  });
+
+  it("accepts the separators a reviewer types, and parses them rather than writing NaN", () => {
+    // A DELIBERATE CHANGE: "6,300" used to be refused here as "not a price" while the ingest
+    // endpoint accepted it. Both now call parseNairaPrice, so the rule is one rule. The assertion
+    // on the VALUE is the one that matters — the previous code validated the string and then
+    // re-parsed it with a bare Number(), which would have written NaN for exactly this input.
+    for (const [typed, expected] of [
+      ["6,300", 6300],
+      ["₦6,300", 6300],
+      ["6300.00", 6300],
+    ] as const) {
+      const result = approveSubmissionSchema.safeParse({
+        submissionId: ID,
+        correctedPrice: typed,
+        correctionReason: "reason",
+      });
+      expect(result.success, typed).toBe(true);
+      expect(result.success && result.data.correctedPrice, typed).toBe(expected);
     }
   });
 

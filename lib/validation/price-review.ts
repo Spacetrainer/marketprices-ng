@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UNIT_ROLES } from "./ingest";
+import { parseNairaPrice, UNIT_ROLES } from "./ingest";
 
 /**
  * The validation boundary for the two price decisions (CLAUDE.md: every external input is
@@ -31,9 +31,19 @@ const submissionId = z.uuid({ message: "That submission id is not a valid id." }
  * The corrected price, read from a text input.
  *
  * Absent, empty or whitespace means NO CORRECTION — the reviewer pressed Approve without
- * editing, and `null` is what the function wants. Anything else must be a finite, non-negative
- * number. 0 stays legitimate (a price of 0 is what `price >= 0` deliberately permits in both
+ * editing, and `null` is what the function wants. Anything else must be a whole number of naira,
+ * not negative. 0 stays legitimate (a price of 0 is what `price >= 0` deliberately permits in both
  * price columns), which is exactly why the empty string may not be allowed to become it.
+ *
+ * IT CALLS THE SAME PREDICATE THE ENDPOINT DOES (`parseNairaPrice`), because a correction reaches
+ * the same two columns as a submission and the rule cannot be two rules. One consequence is
+ * deliberate and worth naming: a reviewer typing "95,000" is now accepted, where the plain
+ * `Number()` this used to do refused it as "not a price". The separators were always decoration,
+ * and the endpoint has always accepted them.
+ *
+ * It parses ONCE and carries the result. The previous version validated with `Number(value)` in a
+ * superRefine and then re-parsed with `Number(value)` in a final transform; routing a
+ * comma-bearing string through that pair would have validated the string and then written NaN.
  */
 const correctedPrice = z
   // `.optional()` is what makes a MISSING key legal, which a union containing `z.undefined()`
@@ -44,18 +54,28 @@ const correctedPrice = z
   .optional()
   .transform((value) => (typeof value === "string" ? value.trim() : ""))
   .transform((value) => (value === "" ? null : value))
-  .superRefine((value, ctx) => {
-    if (value === null) return;
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) {
-      ctx.addIssue({ code: "custom", message: "That is not a price. Enter a number, or leave it blank to approve as submitted." });
-      return;
-    }
-    if (parsed < 0) {
+  .transform((value, ctx): number | null => {
+    if (value === null) return null;
+
+    const result = parseNairaPrice(value);
+    if (result.ok) return result.value;
+
+    if (result.reason === "negative") {
       ctx.addIssue({ code: "custom", message: "A price cannot be negative." });
+    } else if (result.reason === "fractional") {
+      ctx.addIssue({
+        code: "custom",
+        message: "Enter a whole number of naira. Prices are recorded without kobo.",
+      });
+    } else {
+      ctx.addIssue({
+        code: "custom",
+        message: "That is not a price. Enter a number, or leave it blank to approve as submitted.",
+      });
     }
-  })
-  .transform((value) => (value === null ? null : Number(value)));
+
+    return z.NEVER;
+  });
 
 /**
  * A reason, from a textarea. Trimmed, because a reason of three spaces is a null wearing a

@@ -26,7 +26,7 @@
  */
 
 import { isoWeekOfCivilDate } from "../weeks";
-import { TIERS, type Tier, type UnitRole } from "../validation/ingest";
+import { parseNairaPrice, TIERS, type PriceResult, type Tier, type UnitRole } from "../validation/ingest";
 import {
   knowsPortion,
   lookupCommodity,
@@ -49,6 +49,7 @@ export const REFUSAL_CODES = [
   "unknown_portion",
   "unit_pending",
   "unreadable_price",
+  "fractional_price",
   "unknown_collector",
   "inactive_collector",
   "duplicate_slot",
@@ -123,18 +124,19 @@ export function recordedKey(
 }
 
 /**
- * A price cell as a number, or null.
+ * A price cell as a whole number of naira, or a named refusal.
  *
- * The same normalisation the ingest route applies, done here so a bad cell is a named refusal
- * against a row number rather than a 400 from the far end of an HTTP call. "₦95,000" is a
- * valid price a human typed; "n/a" is not a price at all.
+ * DELEGATES TO THE INGEST BOUNDARY'S OWN PREDICATE, which is the point: the dry run is what a
+ * human reads and approves, so it has to promise exactly what /api/ingest/price will accept. Two
+ * implementations of "what a price is" would be two promises, and the one printed to the owner
+ * would be the one not enforced.
+ *
+ * It returns the REASON rather than just null, because "n/a" and "250.5" are different problems
+ * for whoever has to fix the sheet: one cell holds no price, the other holds a price written with
+ * kobo. The planner raises a different refusal for each.
  */
-export function parsePrice(raw: string): number | null {
-  const cleaned = raw.replace(/[₦\s,]/g, "");
-  if (cleaned === "") return null;
-  const value = Number(cleaned);
-  if (!Number.isFinite(value) || value < 0) return null;
-  return value;
+export function parsePrice(raw: string): PriceResult {
+  return parseNairaPrice(raw);
 }
 
 /** One candidate that survived the skips and resolved against the map. */
@@ -261,11 +263,21 @@ export function planImport(input: PlannerInput): Plan {
         continue;
       }
 
-      const price = parsePrice(rawPrice);
-      if (price === null) {
-        refuse(row, "unreadable_price", `"${rawPrice}" is not a price`);
+      const parsed = parsePrice(rawPrice);
+      if (!parsed.ok) {
+        if (parsed.reason === "fractional") {
+          refuse(
+            row,
+            "fractional_price",
+            `"${rawPrice}" is not a whole number of naira. Prices are recorded in naira with no ` +
+              "kobo — round the cell to the nearest naira.",
+          );
+        } else {
+          refuse(row, "unreadable_price", `"${rawPrice}" is not a price`);
+        }
         continue;
       }
+      const price = parsed.value;
 
       const collector = collectorByName.get(collectorCell.trim().toLowerCase());
       if (!collector) {
